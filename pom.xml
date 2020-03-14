@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+		xmlns="http://maven.apache.org/POM/4.0.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.avereon.pom</groupId>
+		<artifactId>mod</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>com.avereon</groupId>
+	<artifactId>aveon</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>Aveon</name>
+	<description>CFD tools, solvers and visualization</description>
+	<inceptionYear>2020</inceptionYear>
+
+	<repositories>
+		<repository>
+			<id>avn</id>
+			<url>https://repo.avereon.com/avn</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>avn</id>
+			<url>https://repo.avereon.com/avn</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<properties>
+		<images-folder>target/main/images</images-folder>
+	</properties>
+
+	<dependencies>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<!-- Version comes from parent -->
+				<configuration>
+					<!-- The argLine and systemPropertyVariables should match the failsafe configuration below -->
+					<argLine>
+						--add-opens=com.avereon.aveon/com.avereon.aveon=ALL-UNNAMED
+					</argLine>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>platform-agnostic-assemblies</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.avereon</groupId>
+						<artifactId>cameo</artifactId>
+						<version>2.5-SNAPSHOT</version>
+						<executions>
+							<execution>
+								<id>render</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>render</goal>
+								</goals>
+								<configuration>
+									<images>
+										<image>
+											<class>com.avereon.rossa.icon.FlowIcon</class>
+											<target>${images-folder}/product.png</target>
+										</image>
+									</images>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+</project>

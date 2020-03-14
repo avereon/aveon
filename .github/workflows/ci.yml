@@ -1,0 +1,104 @@
+name: Avereon Aveon Continuous
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - stable
+  schedule:
+    - cron: '30 12 * * *'
+
+env:
+  AVN_PRODUCT: "aveon"
+  # The default release, should be overridden in config.sh
+  AVN_RELEASE: "latest"
+  # The default platform, should be overridden in the platform binaries jobs below
+  AVN_PLATFORM: "linux"
+
+  AVN_GPG_PASSWORD: ${{ secrets.AVN_GPG_PASSWORD }}
+  AVN_KEYSTORE_PASSWORD: ${{ secrets.AVN_KEYSTORE_PASSWORD }}
+  AVN_REPO_USERNAME: ${{ secrets.AVN_REPO_USERNAME }}
+  AVN_REPO_PASSWORD: ${{ secrets.AVN_REPO_PASSWORD }}
+
+  DISPLAY: ":99"
+  GITHUB_REF: ${{ github.ref }}
+  JAVA_VERSION: "13"
+  MAVEN_PARMS: "-B -U -V --settings .github/settings.xml --file pom.xml"
+  XVFB_PARMS: "-screen 0 1920x1080x24 -nolisten unix"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v2
+
+      - name: Fetch CI/CD resources
+        uses: actions/checkout@v2
+        with:
+          repository: avereon/canoe
+          path: .github
+
+      - name: Configuration
+        shell: bash
+        run: |
+          source .github/config.sh
+
+      # Required to render the product icon
+      - name: Set up Virtual Display
+        run: |
+          Xvfb ${{env.DISPLAY}} ${{env.XVFB_PARMS}} &
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{env.JAVA_VERSION}}
+
+      - name: Maven Repository Cache
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Compile
+        run: |
+          mvn ${{env.MAVEN_PARMS}} compile
+
+      - name: Unit Tests
+        run: |
+          mvn ${{env.MAVEN_PARMS}} test
+
+      - name: Deploy Arifacts
+        run: |
+          mvn ${{env.MAVEN_PARMS}} deploy -Dmaven.test.skip=true
+
+      - name: Deploy JavaDoc
+        run: |
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_DEPLOY_PATH}};"
+          if [ $? -ne 0 ]; then exit 1; fi
+          scp -B target/${AVN_PRODUCT}-*-javadoc.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar 2>&1
+          if [ $? -ne 0 ]; then exit 1; fi
+          ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
+          if [ $? -ne 0 ]; then exit 1; fi
+
+      - name: Build Assemblies
+        run: |
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-agnostic-assemblies
+
+      - name: Deploy Product Pack
+        run: |
+          scp -B target/*product.jar ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+
+      - name: Deploy Product Icon
+        run: |
+          scp -B target/main/images/*product.png ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1
+
+      - name: Deploy Product Card
+        run: |
+          scp -B target/main/java/META-INF/*.card ${{env.AVN_REPO_USERNAME}}@avereon.com:${PRODUCT_DEPLOY_PATH} 2>&1

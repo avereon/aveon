@@ -1,6 +1,5 @@
 package com.avereon.aveon;
 
-import com.avereon.rossa.icon.FlowIcon;
 import com.avereon.util.Log;
 import com.avereon.xenon.Mod;
 import com.avereon.xenon.ToolRegistration;

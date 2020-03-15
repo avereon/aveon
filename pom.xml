@@ -79,7 +79,7 @@
 								<configuration>
 									<images>
 										<image>
-											<class>com.avereon.rossa.icon.FlowIcon</class>
+											<class>com.avereon.aveon.FlowIcon</class>
 											<target>${images-folder}/product.png</target>
 										</image>
 									</images>

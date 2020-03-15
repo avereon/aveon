@@ -7,7 +7,7 @@ module com.avereon.aveon {
 	requires javafx.controls;
 	requires javafx.graphics;
 
-	opens com.avereon.aveon.bundles;
+	//opens com.avereon.aveon.bundles;
 
 	exports com.avereon.aveon to com.avereon.xenon, com.avereon.venza;
 

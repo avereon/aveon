@@ -54,7 +54,7 @@ public class AirfoilCodec extends Codec {
 	@Override
 	public void save( Asset asset, OutputStream output ) throws IOException {}
 
-	private Airfoil loadLednicer( Asset asset, List<String> lines ) {
+	Airfoil loadLednicer( Asset asset, List<String> lines ) {
 		// First line is name
 		String name = lines.get( 0 ).trim();
 
@@ -85,7 +85,7 @@ public class AirfoilCodec extends Codec {
 		return airfoil;
 	}
 
-	private Airfoil loadSelig( Asset asset, List<String> lines ) {
+	Airfoil loadSelig( Asset asset, List<String> lines ) {
 		// First line is name
 		// tail to nose upper coords x,y
 		// there should be one point at 0,0 (but not exactly at 0,0)
@@ -95,7 +95,7 @@ public class AirfoilCodec extends Codec {
 		return airfoil;
 	}
 
-	private Point2D parsePoint( String line ) {
+	Point2D parsePoint( String line ) {
 		String[] values = line.split( " " );
 		return new Point2D( Double.parseDouble( values[ 0 ] ), Double.parseDouble( values[ 1 ] ) );
 	}

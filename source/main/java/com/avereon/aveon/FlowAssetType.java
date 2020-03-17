@@ -8,7 +8,8 @@ public class FlowAssetType extends AssetType {
 	private static final String MEDIA_TYPE = "application/vnd.avereon.aveon.flow";
 
 	public FlowAssetType( Product product ) {
-		super( product, "flow" );
+		super( product, "aveon" );
+		setDefaultCodec( new FlowCodec( product ) );
 	}
 
 }

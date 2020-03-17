@@ -17,6 +17,7 @@ public class Aveon extends Mod {
 	@Override
 	public void startup() {
 		registerIcon( "aveon", FlowIcon.class );
+		registerIcon( "flow", FlowIcon.class );
 
 		registerAction( this.rb(), "reset" );
 		registerAction( this.rb(), "runpause" );
@@ -33,6 +34,7 @@ public class Aveon extends Mod {
 		unregisterAction( "runpause" );
 		unregisterAction( "reset" );
 
+		unregisterIcon( "flow", FlowIcon.class );
 		unregisterIcon( "aveon", FlowIcon.class );
 	}
 

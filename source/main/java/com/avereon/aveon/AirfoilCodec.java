@@ -38,6 +38,13 @@ public class AirfoilCodec extends Codec {
 
 	@Override
 	public void load( Asset asset, InputStream input ) throws IOException {
+		asset.setModel( load( input ) );
+	}
+
+	@Override
+	public void save( Asset asset, OutputStream output ) throws IOException {}
+
+	Airfoil load( InputStream input ) throws IOException {
 		// Load the data into lines
 		BufferedReader reader = new BufferedReader( new InputStreamReader( input, StandardCharsets.UTF_8 ) );
 		List<String> result = new ArrayList<>();
@@ -50,12 +57,9 @@ public class AirfoilCodec extends Codec {
 		// If line 3 is blank then it is Lednicer format otherwise it is Selig format
 		boolean lednicer = TextUtil.isEmpty( result.get( 2 ) );
 		Airfoil foil = lednicer ? loadLednicer( result ) : loadSelig( result );
-
-		asset.setModel( foil );
+		foil.analyze();
+		return foil;
 	}
-
-	@Override
-	public void save( Asset asset, OutputStream output ) throws IOException {}
 
 	Airfoil loadLednicer( List<String> lines ) {
 		int index = 0;
@@ -117,6 +121,9 @@ public class AirfoilCodec extends Codec {
 		while( index < lines.size() && !TextUtil.isEmpty( line = lines.get( index ) ) ) {
 			Point2D point = loadPoint( line );
 			if( stopOnTurn && point.getX() > x ) {
+				// Remove the prior point and set it to zero
+				//upper.remove( upper.size() - 1 );
+				//upper.add( new Point2D( 0, 0 ) );
 				index--;
 				break;
 			}

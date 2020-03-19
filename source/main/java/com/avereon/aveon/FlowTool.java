@@ -7,16 +7,15 @@ import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.workpane.ToolException;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.shape.ClosePath;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -59,7 +58,7 @@ public class FlowTool extends ProgramTool {
 
 	public void setUrl( String url ) {
 		this.url = url;
-		getProgram().getTaskManager().submit( Task.of("Load airfoil", this::loadAirfoilData ) );
+		getProgram().getTaskManager().submit( Task.of( "Load airfoil", this::loadAirfoilData ) );
 	}
 
 	@Override
@@ -73,22 +72,30 @@ public class FlowTool extends ProgramTool {
 		if( airfoilShape != null ) getChildren().remove( airfoilShape );
 
 		boolean first = true;
-		Path path = new Path(  );
+		Path path = new Path();
 		for( Point2D point : airfoil.getPoints() ) {
+			System.err.println( "point=" + point );
 			if( first ) {
-				path.getElements().add( new MoveTo(point.getX(),point.getY() ) );
+				path.getElements().add( new MoveTo( point.getX(), point.getY() ) );
 				first = false;
 			} else {
-				path.getElements().add( new LineTo(point.getX(),point.getY() ) );
+				path.getElements().add( new LineTo( point.getX(), point.getY() ) );
 			}
 		}
 		path.getElements().add( new ClosePath() );
 
-		this.airfoilShape = path;
+		path.setFill( Color.BLACK );
+		path.setStrokeWidth( 0 );
+		path.setStroke( Color.RED );
+		//path.setStrokeType( StrokeType.INSIDE );
 
+		path.translateXProperty().bind( widthProperty().multiply( 0.5 ) );
+		path.translateYProperty().bind( heightProperty().multiply( 0.5 ) );
 		path.scaleXProperty().bind( widthProperty().multiply( 0.5 ) );
-		path.layoutXProperty().bind( widthProperty().multiply( 0.25 ) );
-		path.layoutYProperty().bind( heightProperty().multiply( 0.5 ));
+		path.scaleYProperty().bind( widthProperty().multiply( -0.5 ) );
+		//path.strokeWidthProperty().bind( widthProperty().multiply( 0.5 ) );
+
+		getChildren().addAll( this.airfoilShape = path );
 	}
 
 	private void requestAirfoilData() {
@@ -106,7 +113,8 @@ public class FlowTool extends ProgramTool {
 	// THREAD Task
 	private void loadAirfoilData() {
 		try {
-			new AirfoilCodec().load( new URL( getUrl() ).openStream() );
+			Airfoil airfoil = new AirfoilCodec().load( new URL( getUrl() ).openStream() );
+			Platform.runLater( () -> setAirfoil( airfoil ) );
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, "Unable to load airfoil data", exception );
 		}

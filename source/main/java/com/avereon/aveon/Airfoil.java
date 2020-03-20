@@ -17,6 +17,10 @@ public class Airfoil extends Node {
 
 	private static final String LOWER = "lower";
 
+	private double minY;
+
+	private double maxY;
+
 	private double thickness;
 
 	private double thicknessMoment;
@@ -74,6 +78,14 @@ public class Airfoil extends Node {
 		return points;
 	}
 
+	public double getMinY() {
+		return minY;
+	}
+
+	public double getMaxY() {
+		return maxY;
+	}
+
 	public double getThickness() {
 		return thickness;
 	}
@@ -81,10 +93,25 @@ public class Airfoil extends Node {
 	public void analyze() {
 		//		double minX = Double.MAX_VALUE;
 		//		double maxX = Double.MIN_VALUE;
-		//		double minY = Double.MAX_VALUE;
-		//		double maxY = Double.MIN_VALUE;
+		double minY = Double.MAX_VALUE;
+		double maxY = Double.MIN_VALUE;
 
+		// Min Y
+		for( Point2D point : getLower() ) {
+			if( point.getY() < minY ) minY = point.getY();
+		}
+		this.minY = minY;
+
+		// Max Y
+		for( Point2D point : getUpper() ) {
+			if( point.getY() > maxY ) maxY = point.getY();
+		}
+		this.maxY = maxY;
+
+		// Upper inflections
 		upperInflections = findInflectionsY( getUpper() );
+
+		// Lower inflections
 		lowerInflections = findInflectionsY( getLower() );
 
 		// Find thickness
@@ -98,13 +125,13 @@ public class Airfoil extends Node {
 
 		int index = 1;
 		int count = points.size();
-		Point2D prior = points.get(0);
+		Point2D prior = points.get( 0 );
 		double priordY = 0;
 		while( index < count ) {
 			Point2D point = points.get( index );
 			double dY = point.getY() - prior.getY();
 
-			if( switched( priordY, dY )) inflections.add( point );
+			if( switched( priordY, dY ) ) inflections.add( point );
 
 			prior = point;
 			priordY = dY;

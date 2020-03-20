@@ -12,7 +12,6 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextInputDialog;
@@ -35,7 +34,15 @@ public class FlowTool extends ProgramTool {
 
 	private Airfoil airfoil;
 
-	private Group group;
+	private Group layers;
+
+	private Group gridLayer;
+
+	private Group foilShapeLayer;
+
+	private Group foilOutlineLayer;
+
+	private Group foilInflectionPointsLayer;
 
 	private Path airfoilShape;
 
@@ -54,10 +61,17 @@ public class FlowTool extends ProgramTool {
 		layout.setPadding( new Insets( UiFactory.PAD ) );
 		layout.setTop( buttonBox );
 
-		group = new Group();
-		scaleAndTranslate( group );
+		gridLayer = new Group();
+		foilShapeLayer = new Group();
+		foilOutlineLayer = new Group();
+		foilInflectionPointsLayer = new Group();
 
-		getChildren().addAll( layout, group );
+		layers = new Group( gridLayer, foilShapeLayer, foilOutlineLayer, foilInflectionPointsLayer );
+		scaleAndTranslate( layers );
+
+		getChildren().addAll( layout, layers );
+
+		foilOutlineLayer.setVisible( false );
 
 		foilButton.setOnAction( e -> requestAirfoilData() );
 	}
@@ -86,7 +100,7 @@ public class FlowTool extends ProgramTool {
 	private void setAirfoil( Airfoil airfoil ) {
 		this.airfoil = airfoil;
 
-		if( airfoilShape != null ) group.getChildren().clear();
+		foilShapeLayer.getChildren().clear();
 		if( airfoil == null ) return;
 
 		generateRuler();
@@ -102,45 +116,63 @@ public class FlowTool extends ProgramTool {
 			}
 		}
 		path.getElements().add( new ClosePath() );
-
-		// Fill
-		path.setFill( Color.web( "#00000080" ) );
-
-		// Stroke
 		path.setStrokeWidth( 0 );
-		path.setStroke( Color.YELLOW );
-		path.setStrokeType( StrokeType.INSIDE );
-		setStrokeWidth( path );
-		group.getChildren().addAll( this.airfoilShape = path );
+		path.setFill( Color.web( "#00000080" ) );
+		foilShapeLayer.getChildren().add( path );
+
+		// Foil Outline
+		Path outline = new Path( path.getElements() );
+		outline.setStroke( Color.YELLOW );
+		outline.setStrokeType( StrokeType.INSIDE );
+		setStrokeWidth( outline );
+		foilOutlineLayer.getChildren().add( outline );
 
 		// Inflections
 		for( Point2D i : airfoil.findInflectionsY( airfoil.getUpper() ) ) {
 			Circle dot = new Circle( i.getX(), i.getY(), 0.002, Color.YELLOW );
-			group.getChildren().add( dot );
+			foilInflectionPointsLayer.getChildren().add( dot );
 		}
 		for( Point2D i : airfoil.findInflectionsY( airfoil.getLower() ) ) {
 			Circle dot = new Circle( i.getX(), i.getY(), 0.002, Color.YELLOW );
-			group.getChildren().add( dot );
+			foilInflectionPointsLayer.getChildren().add( dot );
 		}
 	}
 
+	private double nextUp( double anchor, double step ) {
+		// NEXT Implement nextUp()
+		return anchor;
+	}
+
+	private double nextDown( double anchor, double step ) {
+		// NEXT Implement nextDown()
+		return anchor;
+	}
+
 	private void generateRuler() {
-		double top = 0.1;
-		double bot = -0.05;
-		for( double y = top; y >= bot; y+= -0.05 ) {
-			Line l = new Line( 0, y, 1, y );
+		gridLayer.getChildren().clear();
+
+		double horizontalInterval = 0.1;
+		double verticalInterval = 0.02;
+
+		double left = 0;
+		double right = 1;
+		double top = nextUp( airfoil.getMaxY(), verticalInterval );
+		double bot = nextDown( airfoil.getMinY(), verticalInterval );
+
+		// Horizontal lines
+		for( double y = bot; y <= top; y += verticalInterval ) {
+			Line l = new Line( left, y, right, y );
 			l.setStroke( Color.RED );
-			group.getChildren().add( l );
+			setStrokeWidth( l );
+			gridLayer.getChildren().add( l );
 		}
 
-		for( int index = 0; index < 11; index++ ) {
-			Line l = new Line( 0.1 * index, top, 0.1 * index, bot );
+		// Vertical lines
+		for( double x = left; x <= right; x += horizontalInterval ) {
+			Line l = new Line( x, top, x, bot );
 			l.setStroke( Color.RED );
-			group.getChildren().add( l );
-		}
-
-		for( Node node : group.getChildrenUnmodifiable() ) {
-			setStrokeWidth( (Shape)node );
+			setStrokeWidth( l );
+			gridLayer.getChildren().add( l );
 		}
 	}
 

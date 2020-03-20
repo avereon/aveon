@@ -15,7 +15,10 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.*;
+import javafx.scene.shape.ClosePath;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 
 import java.io.IOException;
 import java.net.URL;
@@ -84,16 +87,19 @@ public class FlowTool extends ProgramTool {
 		}
 		path.getElements().add( new ClosePath() );
 
-		path.setFill( Color.BLACK );
-		path.setStrokeWidth( 0 );
-		path.setStroke( Color.RED );
-		//path.setStrokeType( StrokeType.INSIDE );
-
 		path.translateXProperty().bind( widthProperty().multiply( 0.5 ) );
 		path.translateYProperty().bind( heightProperty().multiply( 0.5 ) );
 		path.scaleXProperty().bind( widthProperty().multiply( 0.5 ) );
 		path.scaleYProperty().bind( widthProperty().multiply( -0.5 ) );
-		//path.strokeWidthProperty().bind( widthProperty().multiply( 0.5 ) );
+
+		// Fill
+		path.setFill( Color.BLACK );
+
+		// Stroke
+		path.setStrokeWidth( 0 );
+		//		path.setStroke( Color.RED );
+		//		path.setStrokeType( StrokeType.INSIDE );
+		//		path.strokeWidthProperty().bind( Bindings.divide( 1, widthProperty() ) );
 
 		getChildren().addAll( this.airfoilShape = path );
 	}

@@ -83,22 +83,17 @@ public class FlowTool extends ProgramTool {
 		parent.translateYProperty().bind( heightProperty().multiply( 0.5 ) );
 	}
 
-	private void setStrokeWidth( Shape shape ) {
-		shape.strokeWidthProperty().bind( Bindings.divide( 2, widthProperty() ) );
-	}
-
 	private void setAirfoil( Airfoil airfoil ) {
 		this.airfoil = airfoil;
 
 		if( airfoilShape != null ) group.getChildren().clear();
 		if( airfoil == null ) return;
 
-		generateGrid();
+		generateRuler();
 
 		boolean first = true;
 		Path path = new Path();
 		for( Point2D point : airfoil.getPoints() ) {
-			System.err.println( "point=" + point );
 			if( first ) {
 				path.getElements().add( new MoveTo( point.getX(), point.getY() ) );
 				first = false;
@@ -116,24 +111,44 @@ public class FlowTool extends ProgramTool {
 		path.setStroke( Color.YELLOW );
 		path.setStrokeType( StrokeType.INSIDE );
 		setStrokeWidth( path );
-
 		group.getChildren().addAll( this.airfoilShape = path );
-	}
 
-	private void generateGrid() {
-		Line a = new Line( 0, 0.1, 1, 0.1 );
-		Line b = new Line( 0, -0.1, 1, -0.1 );
-		Line c = new Line( 0, 0, 1, 0 );
-		a.setStroke( Color.RED );
-		b.setStroke( Color.RED );
-		c.setStroke( Color.YELLOW );
-		group.getChildren().addAll( a, b, c );
-
-		for( Node node : group.getChildrenUnmodifiable() ) {
-			setStrokeWidth((Shape)node);
+		// Inflections
+		for( Point2D i : airfoil.findInflectionsY( airfoil.getUpper() ) ) {
+			Circle dot = new Circle( i.getX(), i.getY(), 0.002, Color.YELLOW );
+			group.getChildren().add( dot );
+		}
+		for( Point2D i : airfoil.findInflectionsY( airfoil.getLower() ) ) {
+			Circle dot = new Circle( i.getX(), i.getY(), 0.002, Color.YELLOW );
+			group.getChildren().add( dot );
 		}
 	}
 
+	private void generateRuler() {
+		double top = 0.1;
+		double bot = -0.05;
+		for( double y = top; y >= bot; y+= -0.05 ) {
+			Line l = new Line( 0, y, 1, y );
+			l.setStroke( Color.RED );
+			group.getChildren().add( l );
+		}
+
+		for( int index = 0; index < 11; index++ ) {
+			Line l = new Line( 0.1 * index, top, 0.1 * index, bot );
+			l.setStroke( Color.RED );
+			group.getChildren().add( l );
+		}
+
+		for( Node node : group.getChildrenUnmodifiable() ) {
+			setStrokeWidth( (Shape)node );
+		}
+	}
+
+	private void setStrokeWidth( Shape shape ) {
+		shape.strokeWidthProperty().bind( Bindings.divide( 2, widthProperty() ) );
+	}
+
+	// THREAD FX Platform
 	private void requestAirfoilData() {
 		TextInputDialog dialog = new TextInputDialog( getUrl() );
 		dialog.initOwner( getProgram().getWorkspaceManager().getActiveStage() );

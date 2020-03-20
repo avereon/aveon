@@ -8,17 +8,18 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.ClosePath;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
+import javafx.scene.shape.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -33,6 +34,8 @@ public class FlowTool extends ProgramTool {
 	private Button foilButton;
 
 	private Airfoil airfoil;
+
+	private Group group;
 
 	private Path airfoilShape;
 
@@ -50,7 +53,11 @@ public class FlowTool extends ProgramTool {
 		BorderPane layout = new BorderPane();
 		layout.setPadding( new Insets( UiFactory.PAD ) );
 		layout.setTop( buttonBox );
-		getChildren().addAll( layout );
+
+		group = new Group();
+		scaleAndTranslate( group );
+
+		getChildren().addAll( layout, group );
 
 		foilButton.setOnAction( e -> requestAirfoilData() );
 	}
@@ -69,10 +76,24 @@ public class FlowTool extends ProgramTool {
 		// The asset has been refreshed...
 	}
 
+	private void scaleAndTranslate( Parent parent ) {
+		parent.scaleXProperty().bind( widthProperty().multiply( 0.5 ) );
+		parent.scaleYProperty().bind( widthProperty().multiply( -0.5 ) );
+		parent.translateXProperty().bind( widthProperty().multiply( 0.5 ) );
+		parent.translateYProperty().bind( heightProperty().multiply( 0.5 ) );
+	}
+
+	private void setStrokeWidth( Shape shape ) {
+		shape.strokeWidthProperty().bind( Bindings.divide( 2, widthProperty() ) );
+	}
+
 	private void setAirfoil( Airfoil airfoil ) {
 		this.airfoil = airfoil;
 
-		if( airfoilShape != null ) getChildren().remove( airfoilShape );
+		if( airfoilShape != null ) group.getChildren().clear();
+		if( airfoil == null ) return;
+
+		generateGrid();
 
 		boolean first = true;
 		Path path = new Path();
@@ -87,21 +108,30 @@ public class FlowTool extends ProgramTool {
 		}
 		path.getElements().add( new ClosePath() );
 
-		path.translateXProperty().bind( widthProperty().multiply( 0.5 ) );
-		path.translateYProperty().bind( heightProperty().multiply( 0.5 ) );
-		path.scaleXProperty().bind( widthProperty().multiply( 0.5 ) );
-		path.scaleYProperty().bind( widthProperty().multiply( -0.5 ) );
-
 		// Fill
-		path.setFill( Color.BLACK );
+		path.setFill( Color.web( "#00000080" ) );
 
 		// Stroke
 		path.setStrokeWidth( 0 );
-		//		path.setStroke( Color.RED );
-		//		path.setStrokeType( StrokeType.INSIDE );
-		//		path.strokeWidthProperty().bind( Bindings.divide( 1, widthProperty() ) );
+		path.setStroke( Color.YELLOW );
+		path.setStrokeType( StrokeType.INSIDE );
+		setStrokeWidth( path );
 
-		getChildren().addAll( this.airfoilShape = path );
+		group.getChildren().addAll( this.airfoilShape = path );
+	}
+
+	private void generateGrid() {
+		Line a = new Line( 0, 0.1, 1, 0.1 );
+		Line b = new Line( 0, -0.1, 1, -0.1 );
+		Line c = new Line( 0, 0, 1, 0 );
+		a.setStroke( Color.RED );
+		b.setStroke( Color.RED );
+		c.setStroke( Color.YELLOW );
+		group.getChildren().addAll( a, b, c );
+
+		for( Node node : group.getChildrenUnmodifiable() ) {
+			setStrokeWidth((Shape)node);
+		}
 	}
 
 	private void requestAirfoilData() {

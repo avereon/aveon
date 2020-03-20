@@ -1,5 +1,6 @@
 package com.avereon.aveon;
 
+import com.avereon.math.Arithmetic;
 import com.avereon.util.Log;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
@@ -18,15 +19,19 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 
 public class FlowTool extends ProgramTool {
 
 	private static final System.Logger log = Log.get();
+
+	private static final double DEFAULT_SCALE = 0.5;
 
 	private String url = "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=clarky-il";
 
@@ -40,11 +45,15 @@ public class FlowTool extends ProgramTool {
 
 	private Group foilShapeLayer;
 
+	private Group referenceLayer;
+
 	private Group foilOutlineLayer;
 
 	private Group foilInflectionPointsLayer;
 
 	private Path airfoilShape;
+
+	private double scale = DEFAULT_SCALE;
 
 	public FlowTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -63,15 +72,16 @@ public class FlowTool extends ProgramTool {
 
 		gridLayer = new Group();
 		foilShapeLayer = new Group();
+		referenceLayer = new Group();
 		foilOutlineLayer = new Group();
 		foilInflectionPointsLayer = new Group();
 
-		layers = new Group( gridLayer, foilShapeLayer, foilOutlineLayer, foilInflectionPointsLayer );
+		layers = new Group( gridLayer, foilShapeLayer, referenceLayer, foilOutlineLayer, foilInflectionPointsLayer );
 		scaleAndTranslate( layers );
 
 		getChildren().addAll( layout, layers );
 
-		foilOutlineLayer.setVisible( false );
+		//foilOutlineLayer.setVisible( false );
 
 		foilButton.setOnAction( e -> requestAirfoilData() );
 	}
@@ -91,23 +101,16 @@ public class FlowTool extends ProgramTool {
 	}
 
 	private void scaleAndTranslate( Parent parent ) {
-		parent.scaleXProperty().bind( widthProperty().multiply( 0.5 ) );
-		parent.scaleYProperty().bind( widthProperty().multiply( -0.5 ) );
+		parent.scaleXProperty().bind( widthProperty().multiply( scale ) );
+		parent.scaleYProperty().bind( widthProperty().multiply( -scale ) );
 		parent.translateXProperty().bind( widthProperty().multiply( 0.5 ) );
 		parent.translateYProperty().bind( heightProperty().multiply( 0.5 ) );
 	}
 
-	private void setAirfoil( Airfoil airfoil ) {
-		this.airfoil = airfoil;
-
-		foilShapeLayer.getChildren().clear();
-		if( airfoil == null ) return;
-
-		generateRuler();
-
+	private Path generatePath( List<Point2D> points, boolean close ) {
 		boolean first = true;
 		Path path = new Path();
-		for( Point2D point : airfoil.getPoints() ) {
+		for( Point2D point : points ) {
 			if( first ) {
 				path.getElements().add( new MoveTo( point.getX(), point.getY() ) );
 				first = false;
@@ -115,69 +118,94 @@ public class FlowTool extends ProgramTool {
 				path.getElements().add( new LineTo( point.getX(), point.getY() ) );
 			}
 		}
-		path.getElements().add( new ClosePath() );
-		path.setStrokeWidth( 0 );
-		path.setFill( Color.web( "#00000080" ) );
-		foilShapeLayer.getChildren().add( path );
+		if( close ) path.getElements().add( new ClosePath() );
+		path.setStroke( null );
+		path.setFill( null );
+		return path;
+	}
 
-		// Foil Outline
-		Path outline = new Path( path.getElements() );
+	private void setAirfoil( Airfoil airfoil ) {
+		this.airfoil = airfoil;
+		if( airfoil == null ) return;
+
+		generateRuler();
+
+		// Foil shape
+		Path shape = generatePath( airfoil.getPoints(), true );
+		shape.setFill( Color.web( "#00000080" ) );
+		foilShapeLayer.getChildren().clear();
+		foilShapeLayer.getChildren().add( shape );
+
+		// Foil outline
+		Path outline = new Path( shape.getElements() );
 		outline.setStroke( Color.YELLOW );
 		outline.setStrokeType( StrokeType.INSIDE );
 		setStrokeWidth( outline );
+		foilOutlineLayer.getChildren().clear();
 		foilOutlineLayer.getChildren().add( outline );
 
+		// Thickness
+		Point2D thicknessUpper = airfoil.getThicknessUpper();
+		Point2D thicknessLower = airfoil.getThicknessLower();
+		Line thickness = new Line( thicknessUpper.getX(), thicknessUpper.getY(), thicknessLower.getX(), thicknessLower.getY() );
+		thickness.setStroke( Color.MAGENTA );
+		setStrokeWidth( thickness );
+		referenceLayer.getChildren().clear();
+		referenceLayer.getChildren().add( thickness );
+
+		// Camber
+		Path camber = generatePath( airfoil.getCamber(), false );
+		camber.setStroke( Color.MAGENTA );
+		setStrokeWidth( camber );
+		referenceLayer.getChildren().add( camber );
+
+		// Max camber
+		referenceLayer.getChildren().add( generateDot( airfoil.getMaxCamber(), Color.MAGENTA ) );
+
 		// Inflections
-		for( Point2D i : airfoil.findInflectionsY( airfoil.getUpper() ) ) {
-			Circle dot = new Circle( i.getX(), i.getY(), 0.002, Color.YELLOW );
-			foilInflectionPointsLayer.getChildren().add( dot );
+		foilInflectionPointsLayer.getChildren().clear();
+		for( Point2D i : airfoil.getUpperInflections() ) {
+			foilInflectionPointsLayer.getChildren().add( generateDot( i, Color.YELLOW ) );
 		}
-		for( Point2D i : airfoil.findInflectionsY( airfoil.getLower() ) ) {
-			Circle dot = new Circle( i.getX(), i.getY(), 0.002, Color.YELLOW );
-			foilInflectionPointsLayer.getChildren().add( dot );
+		for( Point2D i : airfoil.getLowerInflections() ) {
+			foilInflectionPointsLayer.getChildren().add( generateDot( i, Color.YELLOW ) );
 		}
 	}
 
-	private double nextUp( double anchor, double step ) {
-		// NEXT Implement nextUp()
-		return anchor;
-	}
-
-	private double nextDown( double anchor, double step ) {
-		// NEXT Implement nextDown()
-		return anchor;
+	private Circle generateDot( Point2D point, Paint fill ) {
+		return new Circle( point.getX(), point.getY(), 0.002, fill );
 	}
 
 	private void generateRuler() {
 		gridLayer.getChildren().clear();
 
 		double horizontalInterval = 0.1;
-		double verticalInterval = 0.02;
+		double verticalInterval = 0.05;
 
 		double left = 0;
 		double right = 1;
-		double top = nextUp( airfoil.getMaxY(), verticalInterval );
-		double bot = nextDown( airfoil.getMinY(), verticalInterval );
+		double top = Arithmetic.nearestAbove( airfoil.getMaxY(), verticalInterval );
+		double bot = Arithmetic.nearestBelow( airfoil.getMinY(), verticalInterval );
 
 		// Horizontal lines
 		for( double y = bot; y <= top; y += verticalInterval ) {
-			Line l = new Line( left, y, right, y );
-			l.setStroke( Color.RED );
-			setStrokeWidth( l );
-			gridLayer.getChildren().add( l );
+			Line line = new Line( left, y, right, y );
+			line.setStroke( Color.RED );
+			setStrokeWidth( line );
+			gridLayer.getChildren().add( line );
 		}
 
 		// Vertical lines
 		for( double x = left; x <= right; x += horizontalInterval ) {
-			Line l = new Line( x, top, x, bot );
-			l.setStroke( Color.RED );
-			setStrokeWidth( l );
-			gridLayer.getChildren().add( l );
+			Line line = new Line( x, top, x, bot );
+			line.setStroke( Color.RED );
+			setStrokeWidth( line );
+			gridLayer.getChildren().add( line );
 		}
 	}
 
 	private void setStrokeWidth( Shape shape ) {
-		shape.strokeWidthProperty().bind( Bindings.divide( 2, widthProperty() ) );
+		shape.strokeWidthProperty().bind( Bindings.divide( 1 / scale, widthProperty() ) );
 	}
 
 	// THREAD FX Platform

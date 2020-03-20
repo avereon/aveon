@@ -21,13 +21,17 @@ public class Airfoil extends Node {
 
 	private double maxY;
 
-	private double thickness;
+	private Point2D thicknessUpper = Point2D.ZERO;
 
-	private double thicknessMoment;
+	private Point2D thicknessLower = Point2D.ZERO;
 
-	private List<Point2D> upperInflections;
+	private List<Point2D> camber = List.of();
 
-	private List<Point2D> lowerInflections;
+	private Point2D maxCamber = Point2D.ZERO;
+
+	private List<Point2D> upperInflections = List.of();
+
+	private List<Point2D> lowerInflections = List.of();
 
 	public Airfoil() {
 		definePrimaryKey( ID );
@@ -87,37 +91,82 @@ public class Airfoil extends Node {
 	}
 
 	public double getThickness() {
-		return thickness;
+		return thicknessLower.distance( thicknessUpper );
+	}
+
+	public double getThicknessMoment() {
+		return thicknessLower.getX();
+	}
+
+	public Point2D getThicknessUpper() {
+		return thicknessUpper;
+	}
+
+	public Point2D getThicknessLower() {
+		return thicknessLower;
+	}
+
+	public List<Point2D> getCamber() {
+		return camber;
+	}
+
+	public Point2D getMaxCamber() {
+		return maxCamber;
+	}
+
+	public List<Point2D> getUpperInflections() {
+		return upperInflections;
+	}
+
+	public List<Point2D> getLowerInflections() {
+		return lowerInflections;
 	}
 
 	public void analyze() {
-		//		double minX = Double.MAX_VALUE;
-		//		double maxX = Double.MIN_VALUE;
-		double minY = Double.MAX_VALUE;
-		double maxY = Double.MIN_VALUE;
+		// Verify stations
+		if( getUpper().size() != getLower().size() ) throw new RuntimeException( "Airfoil station count mismatch" );
+
+		int count = getLower().size();
+		List<Point2D> camber = new ArrayList<>();
+		for( int index = 0; index < count; index++ ) {
+			Point2D upper = getUpper().get( index );
+			Point2D lower = getLower().get( index );
+			if( upper.getX() != lower.getX() ) throw new RuntimeException( "Airfoil station moment mismatch" );
+
+			// Camber
+			Point2D camberPoint = upper.midpoint( lower );
+			camber.add( camberPoint );
+			if( camberPoint.getY() > maxCamber.getY() ) maxCamber = camberPoint;
+
+			// Thickness
+			double thickness = upper.distance( lower );
+			if( thickness > getThickness() ) {
+				thicknessUpper = upper;
+				thicknessLower = lower;
+			}
+		}
+		this.camber = Collections.unmodifiableList( camber );
+		if( maxCamber.getX() == 0 ) maxCamber = new Point2D( getThicknessMoment(), 0 );
 
 		// Min Y
+		double minY = Double.MAX_VALUE;
 		for( Point2D point : getLower() ) {
 			if( point.getY() < minY ) minY = point.getY();
 		}
 		this.minY = minY;
 
 		// Max Y
+		double maxY = Double.MIN_VALUE;
 		for( Point2D point : getUpper() ) {
 			if( point.getY() > maxY ) maxY = point.getY();
 		}
 		this.maxY = maxY;
 
 		// Upper inflections
-		upperInflections = findInflectionsY( getUpper() );
+		upperInflections = Collections.unmodifiableList( findInflectionsY( getUpper() ) );
 
 		// Lower inflections
-		lowerInflections = findInflectionsY( getLower() );
-
-		// Find thickness
-		// Find thickness x-position
-
-		// Find camber
+		lowerInflections = Collections.unmodifiableList( findInflectionsY( getLower() ) );
 	}
 
 	List<Point2D> findInflectionsY( List<Point2D> points ) {
@@ -131,7 +180,7 @@ public class Airfoil extends Node {
 			Point2D point = points.get( index );
 			double dY = point.getY() - prior.getY();
 
-			if( switched( priordY, dY ) ) inflections.add( point );
+			if( switched( priordY, dY ) ) inflections.add( prior );
 
 			prior = point;
 			priordY = dY;

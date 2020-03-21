@@ -131,7 +131,7 @@ public class Airfoil extends Node {
 		for( int index = 0; index < count; index++ ) {
 			Point2D upper = getUpper().get( index );
 			Point2D lower = getLower().get( index );
-			if( upper.getX() != lower.getX() ) throw new RuntimeException( "Airfoil station moment mismatch" );
+			//if( upper.getX() != lower.getX() ) throw new RuntimeException( "Airfoil station moment mismatch" );
 
 			// Camber
 			Point2D camberPoint = upper.midpoint( lower );

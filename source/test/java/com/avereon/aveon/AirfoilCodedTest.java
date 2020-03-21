@@ -31,20 +31,18 @@ public class AirfoilCodedTest {
 	void testLoadLednicer() throws Exception {
 		List<String> lines = new ArrayList<>();
 
-		lines.add( "CLARK Y AIRFOIL" );
-		lines.add( "       61.       61." );
-		lines.add( "" );
+		lines.add( "TEST AIRFOIL" );
+		lines.add( "       3.       3." );
 		lines.add( "  0.000000  0.000000" );
 		lines.add( "  0.360000  0.091627" );
 		lines.add( "  1.000000  0.000599" );
-		lines.add( "" );
 		lines.add( "  0.000000  0.000000" );
 		lines.add( "  0.160000 -0.030255" );
 		lines.add( "  1.000000 -0.000599" );
 
-		Airfoil foil = codec.loadLednicer( lines );
+		Airfoil foil = codec.loadLednicer( lines, 3, 3 );
 
-		assertThat( foil.getName(), is( "CLARK Y AIRFOIL" ) );
+		assertThat( foil.getName(), is( "TEST AIRFOIL" ) );
 		int index = 0;
 		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 0, 0 ) ) );
 		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 0.36, 0.091627 ) ) );
@@ -61,7 +59,7 @@ public class AirfoilCodedTest {
 	void testLoadSelig() throws Exception {
 		List<String> lines = new ArrayList<>();
 
-		lines.add( "CLARK Y AIRFOIL" );
+		lines.add( "TEST AIRFOIL" );
 		lines.add( "  1.000000  0.000599" );
 		lines.add( "  0.360000  0.091627" );
 		lines.add( "  0.000000  0.000000" );
@@ -70,7 +68,7 @@ public class AirfoilCodedTest {
 
 		Airfoil foil = codec.loadSelig( lines );
 
-		assertThat( foil.getName(), is( "CLARK Y AIRFOIL" ) );
+		assertThat( foil.getName(), is( "TEST AIRFOIL" ) );
 		int index = 0;
 		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 0, 0 ) ) );
 		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 0.36, 0.091627 ) ) );

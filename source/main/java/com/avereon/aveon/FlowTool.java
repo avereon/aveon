@@ -6,7 +6,7 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.task.Task;
+import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -15,7 +15,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -25,7 +24,6 @@ import javafx.scene.shape.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 
 public class FlowTool extends ProgramTool {
 
@@ -83,16 +81,20 @@ public class FlowTool extends ProgramTool {
 
 		//foilOutlineLayer.setVisible( false );
 
-		foilButton.setOnAction( e -> requestAirfoilData() );
+		//foilButton.setOnAction( e -> requestAirfoilData() );
 	}
 
 	public String getUrl() {
-		return url;
+		return getSettings().get( "airfoil-url", "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=clarky-il" );
 	}
 
 	public void setUrl( String url ) {
-		this.url = url;
-		getProgram().getTaskManager().submit( Task.of( "Load airfoil", this::loadAirfoilData ) );
+		getSettings().set( "airfoil-url", url );
+	}
+
+	@Override
+	public void assetReady( OpenAssetRequest request ) throws ToolException {
+		loadAirfoilData( ((Flow2D)getAsset().getModel()).getAirfoilUrl() );
 	}
 
 	@Override
@@ -208,23 +210,24 @@ public class FlowTool extends ProgramTool {
 		shape.strokeWidthProperty().bind( Bindings.divide( 1 / scale, widthProperty() ).divide( getScene().getWindow().getRenderScaleX() ) );
 	}
 
-	// THREAD FX Platform
-	private void requestAirfoilData() {
-		TextInputDialog dialog = new TextInputDialog( getUrl() );
-		dialog.initOwner( getProgram().getWorkspaceManager().getActiveStage() );
-		dialog.setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
-		dialog.setTitle( "Airfoil" );
-		dialog.setHeaderText( "Choose an airfoil..." );
-		dialog.setContentText( "URL:" );
-		Optional<String> optional = dialog.showAndWait();
-		if( optional.isEmpty() ) return;
-		setUrl( optional.get() );
-	}
+//	// THREAD FX Platform
+//	private void requestAirfoilData() {
+//		TextInputDialog dialog = new TextInputDialog( getUrl() );
+//		dialog.initOwner( getProgram().getWorkspaceManager().getActiveStage() );
+//		dialog.setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
+//		dialog.setTitle( "Airfoil" );
+//		dialog.setHeaderText( "Choose an airfoil..." );
+//		dialog.setContentText( "URL:" );
+//		Optional<String> optional = dialog.showAndWait();
+//		if( optional.isEmpty() ) return;
+//		setUrl( optional.get() );
+//	}
 
 	// THREAD Task
-	private void loadAirfoilData() {
+	private void loadAirfoilData( URL url ) {
+		if( url == null ) return;
 		try {
-			Airfoil airfoil = new AirfoilCodec().load( new URL( getUrl() ).openStream() );
+			Airfoil airfoil = new AirfoilCodec().load( url.openStream() );
 			Platform.runLater( () -> setAirfoil( airfoil ) );
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, "Unable to load airfoil data", exception );

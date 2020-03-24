@@ -4,27 +4,49 @@ import javafx.geometry.Point2D;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class AirfoilCodedTest {
-
-	private static final String HT05_IL_LED = "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=ht05-il";
-
-	private static final String HT05_IL_SEL = "http://airfoiltools.com/airfoil/seligdatfile?airfoil=ht05-il";
-
-	private static final String CLARKY_IL_LED = "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=clarky-il";
-
-	private static final String CLARKY_IL_SEL = "http://airfoiltools.com/airfoil/seligdatfile?airfoil=clarky-il";
+public class AirfoilCodecTest {
 
 	private AirfoilCodec codec;
 
 	@BeforeEach
 	void setup() {
 		codec = new AirfoilCodec();
+	}
+
+	@Test
+	void testLoadWithNiceAirfoil() throws Exception {
+		Airfoil airfoil = loadAirfoil( "clarky.led.txt" );
+		assertNotNull( airfoil );
+		assertThat( airfoil.getName(), is( "CLARK Y AIRFOIL" ) );
+
+		assertThat( airfoil.getMaxY(), is( 0.091627 ) );
+		assertThat( airfoil.getMinY(), is( -0.030255 ) );
+	}
+
+	@Test
+	void testLoadWithMultiInflectionAirfoil() throws Exception {
+		Airfoil airfoil = loadAirfoil( "ht05.led.txt" );
+		assertNotNull( airfoil );
+		assertThat( airfoil.getName(), is( "HT05" ) );
+		assertThat( airfoil.getMaxY(), is( 0.024068 ) );
+		assertThat( airfoil.getMinY(), is( -0.024047 ) );
+	}
+
+	@Test
+	void testLoadWithAsymmetricStationAirfoil() throws Exception {
+		Airfoil airfoil = loadAirfoil( "e376.led.txt" );
+		assertNotNull( airfoil );
+		assertThat( airfoil.getName(), is( "EPPLER 376 AIRFOIL" ) );
+		assertThat( airfoil.getMaxY(), is( 0.091800 ) );
+		assertThat( airfoil.getMinY(), is( -0.002940 ) );
 	}
 
 	@Test
@@ -85,6 +107,12 @@ public class AirfoilCodedTest {
 	void testParsePoint() {
 		assertThat( codec.loadPoint( "0 0" ), is( Point2D.ZERO ) );
 		assertThat( codec.loadPoint( "  0.25  0.01" ), is( new Point2D( 0.25, 0.01 ) ) );
+	}
+
+	private Airfoil loadAirfoil( String name ) throws Exception {
+		try( InputStream input = getClass().getResource( name ).openStream() ) {
+			return codec.load( input );
+		}
 	}
 
 }

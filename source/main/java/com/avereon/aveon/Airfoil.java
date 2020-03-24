@@ -123,31 +123,6 @@ public class Airfoil extends Node {
 	}
 
 	public void analyze() {
-		// Verify stations
-		if( getUpper().size() != getLower().size() ) throw new RuntimeException( "Airfoil station count mismatch" );
-
-		int count = getLower().size();
-		List<Point2D> camber = new ArrayList<>();
-		for( int index = 0; index < count; index++ ) {
-			Point2D upper = getUpper().get( index );
-			Point2D lower = getLower().get( index );
-			//if( upper.getX() != lower.getX() ) throw new RuntimeException( "Airfoil station moment mismatch" );
-
-			// Camber
-			Point2D camberPoint = upper.midpoint( lower );
-			camber.add( camberPoint );
-			if( camberPoint.getY() > maxCamber.getY() ) maxCamber = camberPoint;
-
-			// Thickness
-			double thickness = upper.distance( lower );
-			if( thickness > getThickness() ) {
-				thicknessUpper = upper;
-				thicknessLower = lower;
-			}
-		}
-		this.camber = Collections.unmodifiableList( camber );
-		if( maxCamber.getX() == 0 ) maxCamber = new Point2D( getThicknessMoment(), 0 );
-
 		// Min Y
 		double minY = Double.MAX_VALUE;
 		for( Point2D point : getLower() ) {
@@ -167,6 +142,29 @@ public class Airfoil extends Node {
 
 		// Lower inflections
 		lowerInflections = Collections.unmodifiableList( findInflectionsY( getLower() ) );
+
+		//		int count = getLower().size();
+		//		List<Point2D> camber = new ArrayList<>();
+		//		for( int index = 0; index < count; index++ ) {
+		//			Point2D upper = getUpper().get( index );
+		//			Point2D lower = getLower().get( index );
+		//
+		//			// FIXME Camber should be calculated after the b-spline is derived
+		//			// Camber
+		//			Point2D camberPoint = upper.midpoint( lower );
+		//			camber.add( camberPoint );
+		//			if( camberPoint.getY() > maxCamber.getY() ) maxCamber = camberPoint;
+		//
+		//			// FIXME Thickness should be calculated after the b-spline is derived
+		//			// Thickness
+		//			double thickness = upper.distance( lower );
+		//			if( thickness > getThickness() ) {
+		//				thicknessUpper = upper;
+		//				thicknessLower = lower;
+		//			}
+		//		}
+		//		this.camber = Collections.unmodifiableList( camber );
+		//		if( maxCamber.getX() == 0 ) maxCamber = new Point2D( getThicknessMoment(), 0 );
 	}
 
 	List<Point2D> findInflectionsY( List<Point2D> points ) {

@@ -208,21 +208,10 @@ public class FlowTool extends ProgramTool {
 
 	private void setStrokeWidth( Shape shape ) {
 		if( shape == null ) return;
+		shape.setStrokeLineCap( StrokeLineCap.ROUND );
+		shape.setStrokeLineJoin( StrokeLineJoin.ROUND );
 		shape.strokeWidthProperty().bind( Bindings.divide( 1 / scale, widthProperty() ).divide( getScene().getWindow().getRenderScaleX() ) );
 	}
-
-//	// THREAD FX Platform
-//	private void requestAirfoilData() {
-//		TextInputDialog dialog = new TextInputDialog( getUrl() );
-//		dialog.initOwner( getProgram().getWorkspaceManager().getActiveStage() );
-//		dialog.setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
-//		dialog.setTitle( "Airfoil" );
-//		dialog.setHeaderText( "Choose an airfoil..." );
-//		dialog.setContentText( "URL:" );
-//		Optional<String> optional = dialog.showAndWait();
-//		if( optional.isEmpty() ) return;
-//		setUrl( optional.get() );
-//	}
 
 	// THREAD Task
 	private void loadAirfoilData( URL url ) {

@@ -45,7 +45,7 @@ public class FlowAssetType extends AssetType {
 			synchronized( lock ) {
 				URL url = null;
 				try {
-					url = new URL( requestAirfoilData( "" ));
+					url = new URL( requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" ) );
 				} catch( MalformedURLException exception ) {
 					log.log( Log.ERROR, exception );
 				}

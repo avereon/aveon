@@ -7,6 +7,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Some examples:
+ * <ul>
+ *   <li>http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=clarky-il</li>
+ *   <li>http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=ht05-il</li>
+ *   <li>http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il</li>
+ *   <li>http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e176-il</li>
+ * </ul>
+ */
 public class Airfoil extends Node {
 
 	private static final String ID = "id";

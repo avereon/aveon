@@ -207,6 +207,7 @@ public class FlowTool extends ProgramTool {
 	}
 
 	private void setStrokeWidth( Shape shape ) {
+		if( shape == null ) return;
 		shape.strokeWidthProperty().bind( Bindings.divide( 1 / scale, widthProperty() ).divide( getScene().getWindow().getRenderScaleX() ) );
 	}
 

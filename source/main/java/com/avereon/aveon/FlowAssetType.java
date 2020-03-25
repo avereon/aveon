@@ -6,7 +6,6 @@ import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
-import javafx.application.Platform;
 import javafx.scene.control.TextInputDialog;
 
 import java.net.MalformedURLException;
@@ -38,29 +37,13 @@ public class FlowAssetType extends AssetType {
 	public boolean assetUser( Program program, Asset asset ) throws AssetException {
 		// FIXME So...interesting problem, this is called when restoring a "new" asset also
 
-		// FIXME Can the thread locking be generalized
-		Object lock = new Object();
-
-		Platform.runLater( () -> {
-			synchronized( lock ) {
-				URL url = null;
-				try {
-					url = new URL( requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" ) );
-				} catch( MalformedURLException exception ) {
-					log.log( Log.ERROR, exception );
-				}
-				((Flow2D)asset.getModel()).setAirfoilUrl( url );
-				lock.notifyAll();
-			}
-		} );
-
-		synchronized( lock ) {
-			try {
-				lock.wait( 60000 );
-				if( dialog != null ) Platform.runLater( () -> dialog.close() );
-			} catch( InterruptedException exception ) {
-				exception.printStackTrace();
-			}
+		URL url;
+		try {
+			url = new URL( requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" ) );
+			((Flow2D)asset.getModel()).setAirfoilUrl( url );
+		} catch( MalformedURLException exception ) {
+			log.log( Log.ERROR, exception );
+			return false;
 		}
 
 		return true;

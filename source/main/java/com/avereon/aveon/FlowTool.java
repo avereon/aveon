@@ -1,22 +1,20 @@
 package com.avereon.aveon;
 
+import com.avereon.data.NodeEvent;
 import com.avereon.math.Arithmetic;
 import com.avereon.util.Log;
+import com.avereon.util.TypeReference;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
-import com.avereon.xenon.UiFactory;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.util.ActionUtil;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
@@ -31,13 +29,9 @@ public class FlowTool extends ProgramTool {
 
 	private static final double DEFAULT_SCALE = 0.5;
 
-	private String url = "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=clarky-il";
-
-	private Button foilButton;
+	private static final String AIRFOIL_URL = "airfoil-url";
 
 	private Airfoil airfoil;
-
-	private Group layers;
 
 	private Group gridLayer;
 
@@ -49,8 +43,6 @@ public class FlowTool extends ProgramTool {
 
 	private Group foilInflectionPointsLayer;
 
-	private Path airfoilShape;
-
 	private double scale = DEFAULT_SCALE;
 
 	public FlowTool( ProgramProduct product, Asset asset ) {
@@ -59,46 +51,50 @@ public class FlowTool extends ProgramTool {
 		setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
 		setTitle( "Flow" );
 
-		foilButton = new Button( "Airfoil" );
-
-		HBox buttonBox = new HBox( foilButton );
-		buttonBox.setSpacing( UiFactory.PAD );
-
-		BorderPane layout = new BorderPane();
-		layout.setPadding( new Insets( UiFactory.PAD ) );
-		layout.setTop( buttonBox );
-
 		gridLayer = new Group();
 		foilShapeLayer = new Group();
 		referenceLayer = new Group();
 		foilOutlineLayer = new Group();
 		foilInflectionPointsLayer = new Group();
 
-		layers = new Group( gridLayer, foilShapeLayer, referenceLayer, foilOutlineLayer, foilInflectionPointsLayer );
+		Group layers = new Group( gridLayer, foilShapeLayer, referenceLayer, foilOutlineLayer, foilInflectionPointsLayer );
 		scaleAndTranslate( layers );
 
-		getChildren().addAll( layout, layers );
+		getChildren().addAll( layers );
 
 		//foilOutlineLayer.setVisible( false );
 
 		//foilButton.setOnAction( e -> requestAirfoilData() );
 	}
 
-	public String getUrl() {
-		return getSettings().get( "airfoil-url", "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=clarky-il" );
-	}
-
-	public void setUrl( String url ) {
-		getSettings().set( "airfoil-url", url );
+	@Override
+	protected void display() throws ToolException {
+		pushToolActions( "reset", ActionUtil.SEPARATOR, "runpause" );
 	}
 
 	@Override
-	public void assetReady( OpenAssetRequest request ) throws ToolException {
-		loadAirfoilData( ((Flow2D)getAsset().getModel()).getAirfoilUrl() );
+	protected void conceal() throws ToolException {
+		pullToolActions();
 	}
 
 	@Override
-	protected void assetRefreshed() throws ToolException {
+	public void assetReady( OpenAssetRequest request ) {
+		URL airfoilUrl = ((Flow2D)getAsset().getModel()).getAirfoilUrl();
+		if( airfoilUrl == null ) airfoilUrl = getSettings().get( AIRFOIL_URL, new TypeReference<>() {} );
+		loadAirfoilPoints( airfoilUrl );
+
+		getAsset().register( NodeEvent.VALUE_CHANGED, (e) -> {
+			switch( e.getKey() ) {
+				case AIRFOIL_URL: {
+					log.log( Log.WARN, "Event to watch AIRFOIL_URL is working" );
+					break;
+				}
+			}
+		} );
+	}
+
+	@Override
+	protected void assetRefreshed() {
 		// The asset has been refreshed...
 	}
 
@@ -214,9 +210,10 @@ public class FlowTool extends ProgramTool {
 	}
 
 	// THREAD Task
-	private void loadAirfoilData( URL url ) {
+	private void loadAirfoilPoints( URL url ) {
 		if( url == null ) return;
 		try {
+			getSettings().set( AIRFOIL_URL, url );
 			Airfoil airfoil = new AirfoilCodec().load( url.openStream() );
 			Platform.runLater( () -> setAirfoil( airfoil ) );
 		} catch( IOException exception ) {

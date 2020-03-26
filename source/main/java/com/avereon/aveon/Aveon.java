@@ -19,9 +19,6 @@ public class Aveon extends Mod {
 		registerIcon( "aveon", FlowIcon.class );
 		registerIcon( "flow", FlowIcon.class );
 
-		registerAction( this.rb(), "reset" );
-		registerAction( this.rb(), "runpause" );
-
 		registerAssetType( flowAssetType );
 		registerTool( flowAssetType, new ToolRegistration( this, FlowTool.class ) );
 	}
@@ -30,9 +27,6 @@ public class Aveon extends Mod {
 	public void shutdown() {
 		unregisterTool( flowAssetType, FlowTool.class );
 		unregisterAssetType( flowAssetType );
-
-		unregisterAction( "runpause" );
-		unregisterAction( "reset" );
 
 		unregisterIcon( "flow", FlowIcon.class );
 		unregisterIcon( "aveon", FlowIcon.class );

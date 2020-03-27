@@ -1,6 +1,5 @@
 package com.avereon.aveon;
 
-import com.avereon.data.NodeEvent;
 import com.avereon.math.Arithmetic;
 import com.avereon.util.Log;
 import com.avereon.util.TypeReference;
@@ -83,14 +82,7 @@ public class FlowTool extends ProgramTool {
 		if( airfoilUrl == null ) airfoilUrl = getSettings().get( AIRFOIL_URL, new TypeReference<>() {} );
 		loadAirfoilPoints( airfoilUrl );
 
-		getAsset().register( NodeEvent.VALUE_CHANGED, (e) -> {
-			switch( e.getKey() ) {
-				case AIRFOIL_URL: {
-					log.log( Log.WARN, "Event to watch AIRFOIL_URL is working" );
-					break;
-				}
-			}
-		} );
+		((Flow2D)getAsset().getModel()).register( AIRFOIL_URL, (e) -> log.log( Log.WARN, "Event to watch AIRFOIL_URL is working" ) );
 	}
 
 	@Override

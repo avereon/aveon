@@ -28,11 +28,10 @@ public class FlowAssetType extends AssetType {
 	@Override
 	public boolean assetUser( Program program, Asset asset ) {
 		String url = requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" );
-		((Flow2D)asset.getModel()).setAirfoilUrl( url );
+		asset.getSettings().set( FlowTool.AIRFOIL_URL, url );
 		return true;
 	}
 
-	// THREAD FX Platform
 	private String requestAirfoilData( String url ) {
 		TextInputDialog dialog = new TextInputDialog( url );
 		dialog.initOwner( getProgram().getWorkspaceManager().getActiveStage() );

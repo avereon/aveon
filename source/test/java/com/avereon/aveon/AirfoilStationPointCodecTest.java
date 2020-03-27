@@ -12,13 +12,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class AirfoilCodecTest {
+public class AirfoilStationPointCodecTest {
 
-	private AirfoilCodec codec;
+	private AirfoilStationPointCodec codec;
 
 	@BeforeEach
 	void setup() {
-		codec = new AirfoilCodec();
+		codec = new AirfoilStationPointCodec();
 	}
 
 	@Test
@@ -66,14 +66,14 @@ public class AirfoilCodecTest {
 
 		assertThat( foil.getName(), is( "TEST AIRFOIL" ) );
 		int index = 0;
-		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 0, 0 ) ) );
-		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 0.36, 0.091627 ) ) );
-		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 1, 0.000599 ) ) );
+		assertThat( foil.getUpperStationPoints().get( index++ ), is( new Point2D( 0, 0 ) ) );
+		assertThat( foil.getUpperStationPoints().get( index++ ), is( new Point2D( 0.36, 0.091627 ) ) );
+		assertThat( foil.getUpperStationPoints().get( index++ ), is( new Point2D( 1, 0.000599 ) ) );
 		assertThat( index, is( 3 ) );
 		index = 0;
-		assertThat( foil.getLower().get( index++ ), is( new Point2D( 0, 0 ) ) );
-		assertThat( foil.getLower().get( index++ ), is( new Point2D( 0.160000, -0.030255 ) ) );
-		assertThat( foil.getLower().get( index++ ), is( new Point2D( 1, -0.000599 ) ) );
+		assertThat( foil.getLowerStationPoints().get( index++ ), is( new Point2D( 0, 0 ) ) );
+		assertThat( foil.getLowerStationPoints().get( index++ ), is( new Point2D( 0.160000, -0.030255 ) ) );
+		assertThat( foil.getLowerStationPoints().get( index++ ), is( new Point2D( 1, -0.000599 ) ) );
 		assertThat( index, is( 3 ) );
 	}
 
@@ -92,26 +92,26 @@ public class AirfoilCodecTest {
 
 		assertThat( foil.getName(), is( "TEST AIRFOIL" ) );
 		int index = 0;
-		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 0, 0 ) ) );
-		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 0.36, 0.091627 ) ) );
-		assertThat( foil.getUpper().get( index++ ), is( new Point2D( 1, 0.000599 ) ) );
+		assertThat( foil.getUpperStationPoints().get( index++ ), is( new Point2D( 0, 0 ) ) );
+		assertThat( foil.getUpperStationPoints().get( index++ ), is( new Point2D( 0.36, 0.091627 ) ) );
+		assertThat( foil.getUpperStationPoints().get( index++ ), is( new Point2D( 1, 0.000599 ) ) );
 		assertThat( index, is( 3 ) );
 		index = 0;
-		assertThat( foil.getLower().get( index++ ), is( new Point2D( 0, 0 ) ) );
-		assertThat( foil.getLower().get( index++ ), is( new Point2D( 0.160000, -0.030255 ) ) );
-		assertThat( foil.getLower().get( index++ ), is( new Point2D( 1, -0.000599 ) ) );
+		assertThat( foil.getLowerStationPoints().get( index++ ), is( new Point2D( 0, 0 ) ) );
+		assertThat( foil.getLowerStationPoints().get( index++ ), is( new Point2D( 0.160000, -0.030255 ) ) );
+		assertThat( foil.getLowerStationPoints().get( index++ ), is( new Point2D( 1, -0.000599 ) ) );
 		assertThat( index, is( 3 ) );
 	}
 
 	@Test
 	void testParsePoint() {
-		assertThat( codec.loadPoint( "0 0" ), is( Point2D.ZERO ) );
-		assertThat( codec.loadPoint( "  0.25  0.01" ), is( new Point2D( 0.25, 0.01 ) ) );
+		assertThat( codec.loadStationPoint( "0 0" ), is( Point2D.ZERO ) );
+		assertThat( codec.loadStationPoint( "  0.25  0.01" ), is( new Point2D( 0.25, 0.01 ) ) );
 	}
 
 	private Airfoil loadAirfoil( String name ) throws Exception {
 		try( InputStream input = getClass().getResource( name ).openStream() ) {
-			return codec.load( input );
+			return codec.loadStationPoints( input );
 		}
 	}
 

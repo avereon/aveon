@@ -19,6 +19,14 @@ public class Aveon extends Mod {
 		registerIcon( "aveon", FlowIcon.class );
 		registerIcon( "flow", FlowIcon.class );
 
+		registerAction( this.rb(), "toggle-grid" );
+		registerAction( this.rb(), "toggle-airfoil" );
+//		registerAction( this.rb(), "toggle-reference-points" );
+//		registerAction( this.rb(), "toggle-reference-lines" );
+//		registerAction( this.rb(), "toggle-pressure-field" );
+//		registerAction( this.rb(), "toggle-velocity-field" );
+//		registerAction( this.rb(), "toggle-stream-field" );
+
 		registerAssetType( flowAssetType );
 		registerTool( flowAssetType, new ToolRegistration( this, FlowTool.class ) );
 	}
@@ -27,6 +35,14 @@ public class Aveon extends Mod {
 	public void shutdown() {
 		unregisterTool( flowAssetType, FlowTool.class );
 		unregisterAssetType( flowAssetType );
+
+//		unregisterAction( "toggle-stream-field" );
+//		unregisterAction( "toggle-velocity-field" );
+//		unregisterAction( "toggle-pressure-field" );
+//		unregisterAction( "toggle-reference-lines" );
+//		unregisterAction( "toggle-reference-points" );
+		unregisterAction( "toggle-airfoil" );
+		unregisterAction( "toggle-grid" );
 
 		unregisterIcon( "flow", FlowIcon.class );
 		unregisterIcon( "aveon", FlowIcon.class );

@@ -1,13 +1,18 @@
 package com.avereon.aveon;
 
 import com.avereon.math.Arithmetic;
+import com.avereon.skill.RunPauseResettable;
 import com.avereon.util.Log;
+import com.avereon.xenon.Action;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.action.common.ResetAction;
+import com.avereon.xenon.action.common.RunPauseAction;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.util.ActionUtil;
-import com.avereon.xenon.workpane.ToolException;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Point2D;
@@ -21,13 +26,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-public class FlowTool extends ProgramTool {
+public class FlowTool extends ProgramTool implements RunPauseResettable {
+
+	static final String AIRFOIL_URL = "airfoil-url";
 
 	private static final System.Logger log = Log.get();
 
 	private static final double DEFAULT_SCALE = 0.5;
-
-	private static final String AIRFOIL_URL = "airfoil-url";
 
 	private Airfoil airfoil;
 
@@ -42,6 +47,12 @@ public class FlowTool extends ProgramTool {
 	private Group foilInflectionPointsLayer;
 
 	private double scale = DEFAULT_SCALE;
+
+	private Paint gridPaint = Color.web( "#80808080" );
+
+	private Action runPauseAction;
+
+	private Action resetAction;
 
 	public FlowTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
@@ -62,35 +73,74 @@ public class FlowTool extends ProgramTool {
 
 		//foilOutlineLayer.setVisible( false );
 
-		//foilButton.setOnAction( e -> requestAirfoilData() );
+		runPauseAction = new RunPauseAction( getProgram(), this );
+		resetAction = new ResetAction( getProgram(), this );
 	}
 
 	@Override
-	protected void display() throws ToolException {
-		pushToolActions( "reset", ActionUtil.SEPARATOR, "runpause" );
-	}
-
-	@Override
-	protected void conceal() throws ToolException {
-		pullToolActions();
-	}
-
-	@Override
-	public void assetReady( OpenAssetRequest request ) {
+	protected void assetReady( OpenAssetRequest request ) {
 		Flow2D flow = getAssetModel();
 
 		// Load the initial state from the flow (asset model)
-		String airfoilUrl = flow.getAirfoilUrl();
-		if( airfoilUrl == null ) airfoilUrl = getSettings().get( AIRFOIL_URL );
-		loadAirfoilPoints( airfoilUrl );
+		if( flow.getAirfoil() == null || !flow.getAirfoil().isAnalyzed() ) {
+			String airfoilUrl = getAsset().getSettings().get( "airfoil-url" );
+			if( airfoilUrl == null ) airfoilUrl = getSettings().get( AIRFOIL_URL );
+			loadAirfoilPoints( airfoilUrl );
+		}
 
 		// Register flow (asset model) event handlers...
-		flow.register( AIRFOIL_URL, ( e ) -> loadAirfoilPoints( (String)e.getNewValue() ) );
+		flow.register( Flow2D.AIRFOIL, ( e ) -> flow.reset() );
+		//flow.register( Flow2D.PRESSURE_FIELD, ( e ) -> redrawPressureField() );
+		//flow.register( Flow2D.VELOCITY_FIELD, ( e ) -> redrawVelocityField() );
+		//flow.register( Flow2D.STREAM_FIELD, ( e ) -> redrawStreamField() );
 	}
 
 	@Override
 	protected void assetRefreshed() {
 		// The asset has been refreshed...
+	}
+
+	@Override
+	protected void display() {
+		pushAction( "runpause", runPauseAction );
+		pushAction( "reset", resetAction );
+
+		pushToolActions( "toggle-grid", "toggle-airfoil", ActionUtil.SEPARATOR, "reset", "runpause" );
+
+		// Set the current action state
+		if( getAsset().isOpen() ) {
+			Flow2D flow = getAssetModel();
+			FlowSolver solver = flow.getFlowSolver();
+			runPauseAction.setState( solver != null && solver.isRunning() ? "pause" : "run" );
+		}
+	}
+
+	@Override
+	protected void conceal() {
+		pullToolActions();
+
+		pullAction( "runpause", runPauseAction );
+		pullAction( "reset", resetAction );
+	}
+
+	public void run() {
+		Flow2D flow = getAssetModel();
+		final FlowSolver solver = new SimpleFlowSolver( flow, getProgram().getTaskManager().getExecutor() );
+
+		Task<?> t = Task.of( "Start flow solver", solver );
+		t.register( TaskEvent.FINISH, ( e ) -> {
+			log.log( Log.INFO, "Flow solver complete!" );
+			runPauseAction.setState( "run" );
+		} );
+		getProgram().getTaskManager().submit( t );
+	}
+
+	public void pause() {
+		((Flow2D)getAssetModel()).getFlowSolver().pause();
+	}
+
+	public void reset() {
+		((Flow2D)getAssetModel()).getFlowSolver().reset();
 	}
 
 	private void scaleAndTranslate( Parent parent ) {
@@ -121,10 +171,10 @@ public class FlowTool extends ProgramTool {
 		this.airfoil = airfoil;
 		if( airfoil == null ) return;
 
-		generateRuler();
+		generateGrid();
 
 		// Foil shape
-		Path shape = generatePath( airfoil.getPoints(), true );
+		Path shape = generatePath( airfoil.getStationPoints(), true );
 		shape.setFill( Color.web( "#00000080" ) );
 		foilShapeLayer.getChildren().clear();
 		foilShapeLayer.getChildren().add( shape );
@@ -169,7 +219,7 @@ public class FlowTool extends ProgramTool {
 		return new Circle( point.getX(), point.getY(), 0.002, fill );
 	}
 
-	private void generateRuler() {
+	private void generateGrid() {
 		gridLayer.getChildren().clear();
 
 		double horizontalInterval = 0.1;
@@ -183,7 +233,7 @@ public class FlowTool extends ProgramTool {
 		// Horizontal lines
 		for( double y = bot; y <= top; y += verticalInterval ) {
 			Line line = new Line( left, y, right, y );
-			line.setStroke( Color.RED );
+			line.setStroke( gridPaint );
 			setStrokeWidth( line );
 			gridLayer.getChildren().add( line );
 		}
@@ -191,7 +241,7 @@ public class FlowTool extends ProgramTool {
 		// Vertical lines
 		for( double x = left; x <= right; x += horizontalInterval ) {
 			Line line = new Line( x, top, x, bot );
-			line.setStroke( Color.RED );
+			line.setStroke( gridPaint );
 			setStrokeWidth( line );
 			gridLayer.getChildren().add( line );
 		}
@@ -209,7 +259,7 @@ public class FlowTool extends ProgramTool {
 		if( url == null ) return;
 		try {
 			getSettings().set( AIRFOIL_URL, url );
-			Airfoil airfoil = new AirfoilCodec().load( new URL( url.trim() ).openStream() );
+			Airfoil airfoil = new AirfoilStationPointCodec().loadStationPoints( new URL( url.trim() ).openStream() );
 			Platform.runLater( () -> setAirfoil( airfoil ) );
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, "Unable to load airfoil data", exception );

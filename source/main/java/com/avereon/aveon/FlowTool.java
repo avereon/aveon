@@ -2,7 +2,6 @@ package com.avereon.aveon;
 
 import com.avereon.math.Arithmetic;
 import com.avereon.util.Log;
-import com.avereon.util.TypeReference;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.asset.Asset;
@@ -78,11 +77,15 @@ public class FlowTool extends ProgramTool {
 
 	@Override
 	public void assetReady( OpenAssetRequest request ) {
-		URL airfoilUrl = ((Flow2D)getAsset().getModel()).getAirfoilUrl();
-		if( airfoilUrl == null ) airfoilUrl = getSettings().get( AIRFOIL_URL, new TypeReference<>() {} );
+		Flow2D flow = getAssetModel();
+
+		// Load the initial state from the flow (asset model)
+		String airfoilUrl = flow.getAirfoilUrl();
+		if( airfoilUrl == null ) airfoilUrl = getSettings().get( AIRFOIL_URL );
 		loadAirfoilPoints( airfoilUrl );
 
-		((Flow2D)getAsset().getModel()).register( AIRFOIL_URL, (e) -> log.log( Log.WARN, "Event to watch AIRFOIL_URL is working" ) );
+		// Register flow (asset model) event handlers...
+		flow.register( AIRFOIL_URL, ( e ) -> loadAirfoilPoints( (String)e.getNewValue() ) );
 	}
 
 	@Override
@@ -202,11 +205,11 @@ public class FlowTool extends ProgramTool {
 	}
 
 	// THREAD Task
-	private void loadAirfoilPoints( URL url ) {
+	private void loadAirfoilPoints( String url ) {
 		if( url == null ) return;
 		try {
 			getSettings().set( AIRFOIL_URL, url );
-			Airfoil airfoil = new AirfoilCodec().load( url.openStream() );
+			Airfoil airfoil = new AirfoilCodec().load( new URL( url.trim() ).openStream() );
 			Platform.runLater( () -> setAirfoil( airfoil ) );
 		} catch( IOException exception ) {
 			log.log( Log.ERROR, "Unable to load airfoil data", exception );

@@ -62,7 +62,7 @@ public class AirfoilCodecTest {
 		lines.add( "  0.160000 -0.030255" );
 		lines.add( "  1.000000 -0.000599" );
 
-		Airfoil foil = codec.loadLednicer( lines, 3, 3 );
+		Airfoil foil = codec.loadLednicer( lines );
 
 		assertThat( foil.getName(), is( "TEST AIRFOIL" ) );
 		int index = 0;

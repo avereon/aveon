@@ -45,7 +45,7 @@ public class AirfoilCodec extends Codec {
 	public void save( Asset asset, OutputStream output ) throws IOException {}
 
 	Airfoil load( InputStream input ) throws IOException {
-		// Load the data into lines
+		// Load the data into lines skipping any blank lines
 		BufferedReader reader = new BufferedReader( new InputStreamReader( input, StandardCharsets.UTF_8 ) );
 		List<String> result = new ArrayList<>();
 		for( ; ; ) {
@@ -54,19 +54,25 @@ public class AirfoilCodec extends Codec {
 			if( !TextUtil.isEmpty( line ) ) result.add( line );
 		}
 
+		// If the first point has values greater than one then
+		// it contains the point counts and
+		// the file is assumed to be in Lednicer format
 		Point2D point = loadPoint( result.get( 1 ) );
 		boolean lednicer = point.getX() > 1;
 
-		Airfoil foil = lednicer ? loadLednicer( result, (int)point.getX(), (int)point.getY() ) : loadSelig( result );
+		Airfoil foil = lednicer ? loadLednicer( result ) : loadSelig( result );
 		foil.analyze();
 
 		return foil;
 	}
 
-	Airfoil loadLednicer( List<String> lines, int upperCount, int lowerCount ) {
+	Airfoil loadLednicer( List<String> lines ) {
 		String name = lines.get( 0 ).trim();
+		Point2D point = loadPoint( lines.get( 1 ) );
+		int upperCount = (int)point.getX();
+		int lowerCount = (int)point.getY();
 		List<Point2D> upper = loadPoints( lines, 2, upperCount );
-		List<Point2D> lower = loadPoints( lines, upperCount + 2, lowerCount );
+		List<Point2D> lower = loadPoints( lines, 2 + upperCount, lowerCount );
 		return createAirfoil( name, upper, lower );
 	}
 

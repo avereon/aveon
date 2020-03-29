@@ -1,6 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.data.Node;
+import com.avereon.geometry.Cubic2D;
 import javafx.geometry.Point2D;
 
 import java.util.ArrayList;
@@ -99,11 +100,11 @@ public class Airfoil extends Node {
 		return points;
 	}
 
-	public List<Curve2D> getUpperCurves() {
+	public List<Cubic2D> getUpperCurves() {
 		return getValue( UPPER_CURVES );
 	}
 
-	public List<Curve2D> getLowerCurves() {
+	public List<Cubic2D> getLowerCurves() {
 		return getValue( LOWER_CURVES );
 	}
 

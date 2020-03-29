@@ -27,6 +27,10 @@ public class Point2D {
 		this.y = y;
 	}
 
+	public Point2D( Point2D p ) {
+		this( p.x, p.y );
+	}
+
 	public final double getX() {
 		return x;
 	}

@@ -1,7 +1,5 @@
 package com.avereon.geometry;
 
-import javafx.geometry.Point2D;
-
 import java.util.List;
 
 /**

@@ -10,6 +10,7 @@ module com.avereon.aveon {
 	opens com.avereon.aveon.bundles;
 
 	exports com.avereon.aveon to com.avereon.xenon;
+	exports com.avereon.geometry;
 
 	provides com.avereon.xenon.Mod with com.avereon.aveon.Aveon;
 

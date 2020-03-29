@@ -204,7 +204,8 @@ public class Cubic2D extends Shape {
 	}
 
 	/**
-	 * Subdivide the given curve.
+	 * Subdivide the given curve. This is an optimized implementation that
+	 * subdivides the curve with a value of 0.5.
 	 *
 	 * @param src the curve to be subdivided
 	 */
@@ -229,39 +230,6 @@ public class Cubic2D extends Shape {
 		double ctrly21 = 0.5 * (ctrly2 + centery);
 		centerx = 0.5 * (ctrlx12 + ctrlx21);
 		centery = 0.5 * (ctrly12 + ctrly21);
-
-		Cubic2D left = new Cubic2D( x1, y1, ctrlx1, ctrly1, ctrlx12, ctrly12, centerx, centery );
-		Cubic2D right = new Cubic2D( centerx, centery, ctrlx21, ctrly21, ctrlx2, ctrly2, x2, y2 );
-
-		return new Cubic2D[]{ left, right };
-	}
-
-	/**
-	 * Subdivide the given curve.
-	 *
-	 * @param src the curve to be subdivided
-	 */
-	public static Cubic2D[] subdivide( Cubic2D src, double t ) {
-		double x1 = src.x1;
-		double y1 = src.y1;
-		double ctrlx1 = src.ctrlx1;
-		double ctrly1 = src.ctrly1;
-		double ctrlx2 = src.ctrlx2;
-		double ctrly2 = src.ctrly2;
-		double x2 = src.x2;
-		double y2 = src.y2;
-		double centerx = t * (ctrlx1 + ctrlx2);
-		double centery = t * (ctrly1 + ctrly2);
-		ctrlx1 = t * (x1 + ctrlx1);
-		ctrly1 = t * (y1 + ctrly1);
-		ctrlx2 = t * (x2 + ctrlx2);
-		ctrly2 = t * (y2 + ctrly2);
-		double ctrlx12 = t * (ctrlx1 + centerx);
-		double ctrly12 = t * (ctrly1 + centery);
-		double ctrlx21 = t * (ctrlx2 + centerx);
-		double ctrly21 = t * (ctrly2 + centery);
-		centerx = t * (ctrlx12 + ctrlx21);
-		centery = t * (ctrly12 + ctrly21);
 
 		Cubic2D left = new Cubic2D( x1, y1, ctrlx1, ctrly1, ctrlx12, ctrly12, centerx, centery );
 		Cubic2D right = new Cubic2D( centerx, centery, ctrlx21, ctrly21, ctrlx2, ctrly2, x2, y2 );

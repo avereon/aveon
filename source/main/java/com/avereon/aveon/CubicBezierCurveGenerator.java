@@ -9,12 +9,14 @@ public class CubicBezierCurveGenerator {
 
 	public enum Hint {
 		LEADING,
+		INTERMEDIATE,
 		TRAILING
 	}
 
 	public Cubic2D generate( List<Point2D> points, Hint hint ) {
-		Point2D start = points.get( 0 );
-		Point2D end = points.get( points.size() - 1 );
+		Point2D p = points.get( 0 );
+		Point2D q = points.get( points.size() - 2 );
+		Point2D r = points.get( points.size() - 1 );
 
 		// Determine initial control points based on the incoming hint
 		Point2D a;
@@ -25,24 +27,24 @@ public class CubicBezierCurveGenerator {
 		switch( hint ) {
 			case LEADING: {
 				a = new Point2D( 0.0, 0.0 );
-				b = new Point2D( 0.0, end.y );
-				c = new Point2D( 0.0, end.y );
-				d = new Point2D( end );
+				b = new Point2D( 0.0, r.y );
+				c = new Point2D( 0.0, r.y );
+				d = new Point2D( r );
 				break;
 			}
 			case TRAILING: {
-				a = new Point2D( start );
-				b = new Point2D( end.x, start.y );
-				// FIXME This point should have the angle of the trailing edge
-				c = new Point2D( start.x, end.y );
-				d = new Point2D( end );
+				a = new Point2D( p );
+				b = new Point2D( r.x, p.y );
+				c = new Point2D( p.x, r.y );
+				//c = q.subtract( r ).normalize().multiply( Math.abs( r.x - p.x ) );
+				d = new Point2D( r );
 				break;
 			}
 			default: {
-				a = new Point2D( start );
-				b = new Point2D( end.x, start.y );
-				c = new Point2D( start.x, end.y );
-				d = new Point2D( end );
+				a = new Point2D( p );
+				b = new Point2D( r.x, p.y );
+				c = new Point2D( p.x, r.y );
+				d = new Point2D( r );
 				break;
 			}
 		}

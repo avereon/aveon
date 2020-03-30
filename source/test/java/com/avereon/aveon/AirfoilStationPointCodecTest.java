@@ -1,6 +1,6 @@
 package com.avereon.aveon;
 
-import javafx.geometry.Point2D;
+import com.avereon.geometry.Point2D;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +50,7 @@ public class AirfoilStationPointCodecTest {
 	}
 
 	@Test
-	void testLoadLednicer() throws Exception {
+	void testLoadLednicer() {
 		List<String> lines = new ArrayList<>();
 
 		lines.add( "TEST AIRFOIL" );
@@ -78,7 +78,7 @@ public class AirfoilStationPointCodecTest {
 	}
 
 	@Test
-	void testLoadSelig() throws Exception {
+	void testLoadSelig() {
 		List<String> lines = new ArrayList<>();
 
 		lines.add( "TEST AIRFOIL" );
@@ -106,7 +106,12 @@ public class AirfoilStationPointCodecTest {
 	@Test
 	void testParsePoint() {
 		assertThat( codec.loadStationPoint( "0 0" ), is( Point2D.ZERO ) );
-		assertThat( codec.loadStationPoint( "  0.25  0.01" ), is( new Point2D( 0.25, 0.01 ) ) );
+		assertThat( codec.loadStationPoint( "  0.25  0.01  " ), is( new Point2D( 0.25, 0.01 ) ) );
+	}
+
+	@Test
+	void testParsePointCleanup() {
+		assertThat( codec.loadStationPoint( "  0.0001  0.01  " ), is( Point2D.ZERO ) );
 	}
 
 	private Airfoil loadAirfoil( String name ) throws Exception {

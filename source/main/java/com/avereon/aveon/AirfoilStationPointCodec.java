@@ -1,10 +1,10 @@
 package com.avereon.aveon;
 
+import com.avereon.geometry.Point2D;
 import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
-import javafx.geometry.Point2D;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -68,9 +68,9 @@ public class AirfoilStationPointCodec extends Codec {
 
 	Airfoil loadLednicer( List<String> lines ) {
 		String name = lines.get( 0 ).trim();
-		Point2D point = loadStationPoint( lines.get( 1 ) );
-		int upperCount = (int)point.getX();
-		int lowerCount = (int)point.getY();
+		Point2D counts = loadStationPoint( lines.get( 1 ) );
+		int upperCount = (int)counts.getX();
+		int lowerCount = (int)counts.getY();
 		List<Point2D> upper = loadStationPoints( lines, 2, upperCount );
 		List<Point2D> lower = loadStationPoints( lines, 2 + upperCount, lowerCount );
 		return createAirfoilFromStationPoints( name, upper, lower );
@@ -110,8 +110,15 @@ public class AirfoilStationPointCodec extends Codec {
 	}
 
 	Point2D loadStationPoint( String line ) {
+		double tolerance = 0.001;
 		String[] values = line.trim().split( "\\s+" );
-		return new Point2D( Double.parseDouble( values[ 0 ] ), Double.parseDouble( values[ 1 ] ) );
+		double x = Double.parseDouble( values[ 0 ] );
+		double y = Double.parseDouble( values[ 1 ] );
+
+		if( Math.abs( x ) < tolerance ) x = 0.0;
+		if( x == 0.0 ) y = 0.0;
+
+		return new Point2D( x, y );
 	}
 
 }

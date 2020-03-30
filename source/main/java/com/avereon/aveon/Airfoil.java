@@ -2,7 +2,7 @@ package com.avereon.aveon;
 
 import com.avereon.data.Node;
 import com.avereon.geometry.Cubic2D;
-import javafx.geometry.Point2D;
+import com.avereon.geometry.Point2D;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -177,9 +177,17 @@ public class Airfoil extends Node {
 		upperInflections = Collections.unmodifiableList( findInflections( upperPointGroups ) );
 		lowerInflections = Collections.unmodifiableList( findInflections( lowerPointGroups ) );
 
-		// NEXT Determine upper curves
+		// TODO Determine upper curves
+		int count = upperPointGroups.size();
+		List<Cubic2D> upperCurves = new ArrayList<>();
+		upperCurves.add( new CubicBezierCurveGenerator().generate( upperPointGroups.get(0), CubicBezierCurveGenerator.Hint.LEADING ) );
+		for( int index = 1; index < count -1; index++ ) {
+			upperCurves.add( new CubicBezierCurveGenerator().generate( upperPointGroups.get(index), CubicBezierCurveGenerator.Hint.INTERMEDIATE ) );
+		}
+		upperCurves.add( new CubicBezierCurveGenerator().generate( upperPointGroups.get(count-1), CubicBezierCurveGenerator.Hint.TRAILING ) );
+		setValue( UPPER_CURVES, upperCurves );
 
-		// NEXT Determine lower curves
+		// TODO Determine lower curves
 
 		//		int count = getLower().size();
 		//		List<Point2D> camber = new ArrayList<>();

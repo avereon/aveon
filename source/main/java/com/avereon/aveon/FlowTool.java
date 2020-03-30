@@ -1,5 +1,7 @@
 package com.avereon.aveon;
 
+import com.avereon.geometry.Cubic2D;
+import com.avereon.geometry.Point2D;
 import com.avereon.math.Arithmetic;
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.util.Log;
@@ -15,7 +17,6 @@ import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.util.ActionUtil;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.paint.Color;
@@ -32,7 +33,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 	private static final System.Logger log = Log.get();
 
-	private static final double DEFAULT_SCALE = 0.5;
+	private static final double DEFAULT_SCALE = 0.8;
 
 	private Airfoil airfoil;
 
@@ -167,6 +168,16 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		return path;
 	}
 
+	private Path generatePath( List<Cubic2D> curves ) {
+		Path path = new Path();
+		Cubic2D g = curves.get( 0 );
+		path.getElements().add( new MoveTo( g.x1, g.y1 ) );
+		for( Cubic2D c : curves ) {
+			path.getElements().add( new CubicCurveTo( c.ctrlx1, c.ctrly1, c.ctrlx2, c.ctrly2, c.x2, c.y2 ) );
+		}
+		return path;
+	}
+
 	private void setAirfoil( Airfoil airfoil ) {
 		this.airfoil = airfoil;
 		if( airfoil == null ) return;
@@ -174,18 +185,28 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		generateGrid();
 
 		// Foil shape
-		Path shape = generatePath( airfoil.getStationPoints(), true );
-		shape.setFill( Color.web( "#00000080" ) );
+		Path stationPointShape = generatePath( airfoil.getStationPoints(), true );
+		stationPointShape.setFill( Color.web( "#00000080" ) );
 		foilShapeLayer.getChildren().clear();
-		foilShapeLayer.getChildren().add( shape );
+		foilShapeLayer.getChildren().add( stationPointShape );
 
 		// Foil outline
-		Path outline = new Path( shape.getElements() );
-		outline.setStroke( Color.YELLOW );
-		outline.setStrokeType( StrokeType.INSIDE );
-		setStrokeWidth( outline );
+		Path stationPointOutline = new Path( stationPointShape.getElements() );
+		stationPointOutline.setStroke( Color.ORANGE );
+		//stationPointOutline.setStrokeType( StrokeType.INSIDE );
+		setStrokeWidth( stationPointOutline );
 		foilOutlineLayer.getChildren().clear();
-		foilOutlineLayer.getChildren().add( outline );
+		foilOutlineLayer.getChildren().add( stationPointOutline );
+
+		// Foil shape
+		Path stationCurveShape = generatePath( airfoil.getUpperCurves() );
+
+		// Foil outline
+		Path stationCurveOutline = new Path( stationCurveShape.getElements() );
+		stationCurveOutline.setStroke( Color.YELLOW );
+		//stationCurveOutline.setStrokeType( StrokeType.INSIDE );
+		setStrokeWidth( stationCurveOutline );
+		foilOutlineLayer.getChildren().add( stationCurveOutline );
 
 		// Thickness
 		Point2D thicknessUpper = airfoil.getThicknessUpper();

@@ -3,6 +3,7 @@ package com.avereon.aveon;
 import com.avereon.data.Node;
 import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
+import com.avereon.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +35,8 @@ public class Airfoil extends Node {
 	private static final String UPPER_POINTS = "upper-points";
 
 	private static final String LOWER_POINTS = "lower-points";
+
+	private static final System.Logger log = Log.get();
 
 	private double minY;
 
@@ -180,11 +183,11 @@ public class Airfoil extends Node {
 		// TODO Determine upper curves
 		int count = upperPointGroups.size();
 		List<Cubic2D> upperCurves = new ArrayList<>();
-		upperCurves.add( new CubicBezierCurveGenerator().generate( upperPointGroups.get(0), CubicBezierCurveGenerator.Hint.LEADING ) );
-		for( int index = 1; index < count -1; index++ ) {
-			upperCurves.add( new CubicBezierCurveGenerator().generate( upperPointGroups.get(index), CubicBezierCurveGenerator.Hint.INTERMEDIATE ) );
+		upperCurves.add( new CubicBezierCurveFitter().generate( upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ) );
+		for( int index = 1; index < count - 1; index++ ) {
+			upperCurves.add( new CubicBezierCurveFitter().generate( upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.INTERMEDIATE ) );
 		}
-		upperCurves.add( new CubicBezierCurveGenerator().generate( upperPointGroups.get(count-1), CubicBezierCurveGenerator.Hint.TRAILING ) );
+		upperCurves.add( new CubicBezierCurveFitter().generate( upperPointGroups.get( count - 1 ), CubicBezierCurveFitter.Hint.TRAILING ) );
 		setValue( UPPER_CURVES, upperCurves );
 
 		// TODO Determine lower curves
@@ -217,9 +220,12 @@ public class Airfoil extends Node {
 		List<Point2D> inflections = new ArrayList<>();
 
 		int count = groups.size();
-		for( int index = 1; index < count; index++ ) {
+		for( int index = 0; index < count; index++ ) {
 			inflections.add( groups.get( index ).get( 0 ) );
 		}
+
+		List<Point2D> last = groups.get( groups.size() - 1 );
+		inflections.add( last.get( last.size() - 1 ) );
 
 		return inflections;
 	}
@@ -250,25 +256,30 @@ public class Airfoil extends Node {
 
 		int index = 1;
 		int count = points.size();
-		Point2D prior = points.get( 0 );
+		Point2D point = points.get( 0 );
+		Point2D next = null;
 		double priordY = 0;
 		List<Point2D> group = new ArrayList<>();
 		while( index < count ) {
-			group.add( prior );
-			Point2D point = points.get( index );
-			double dY = point.getY() - prior.getY();
+			group.add( point );
+
+			next = points.get( index );
+			double dY = next.getY() - point.getY();
 
 			if( switched( priordY, dY ) ) {
 				groups.add( group );
 				group = new ArrayList<>();
-				group.add( prior );
+				group.add( point );
 			}
 
-			prior = point;
+			point = next;
 			priordY = dY;
 			index++;
 		}
+		group.add( next );
 		groups.add( group );
+
+		int groupPointCount = groups.stream().mapToInt( List::size ).sum();
 
 		return groups;
 	}

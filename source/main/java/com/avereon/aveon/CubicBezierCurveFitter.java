@@ -5,7 +5,7 @@ import com.avereon.geometry.Point2D;
 
 import java.util.List;
 
-public class CubicBezierCurveGenerator {
+public class CubicBezierCurveFitter {
 
 	public enum Hint {
 		LEADING,
@@ -26,9 +26,9 @@ public class CubicBezierCurveGenerator {
 
 		switch( hint ) {
 			case LEADING: {
-				a = new Point2D( 0.0, 0.0 );
-				b = new Point2D( 0.0, r.y );
-				c = new Point2D( 0.0, r.y );
+				a = new Point2D( p.x, p.y );
+				b = new Point2D( p.x, r.y );
+				c = new Point2D( p.x, r.y );
 				d = new Point2D( r );
 				break;
 			}

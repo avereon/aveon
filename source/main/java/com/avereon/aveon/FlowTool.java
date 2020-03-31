@@ -192,7 +192,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 		// Foil outline
 		Path stationPointOutline = new Path( stationPointShape.getElements() );
-		stationPointOutline.setStroke( Color.ORANGE );
+		stationPointOutline.setStroke( Color.GRAY );
 		//stationPointOutline.setStrokeType( StrokeType.INSIDE );
 		setStrokeWidth( stationPointOutline );
 		foilOutlineLayer.getChildren().clear();
@@ -203,7 +203,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 		// Foil outline
 		Path stationCurveOutline = new Path( stationCurveShape.getElements() );
-		stationCurveOutline.setStroke( Color.YELLOW );
+		stationCurveOutline.setStroke( Color.ORANGE );
 		//stationCurveOutline.setStrokeType( StrokeType.INSIDE );
 		setStrokeWidth( stationCurveOutline );
 		foilOutlineLayer.getChildren().add( stationCurveOutline );
@@ -215,29 +215,30 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		thickness.setStroke( Color.MAGENTA );
 		setStrokeWidth( thickness );
 		referenceLayer.getChildren().clear();
-		referenceLayer.getChildren().add( thickness );
+		//referenceLayer.getChildren().add( thickness );
 
 		// Camber
 		Path camber = generatePath( airfoil.getCamber(), false );
 		camber.setStroke( Color.MAGENTA );
 		setStrokeWidth( camber );
-		referenceLayer.getChildren().add( camber );
+		//referenceLayer.getChildren().add( camber );
 
 		// Max camber
-		referenceLayer.getChildren().add( generateDot( airfoil.getMaxCamber(), Color.MAGENTA ) );
+		//referenceLayer.getChildren().add( generateDot( airfoil.getMaxCamber(), Color.MAGENTA ) );
 
 		// Inflections
+		double r = 0.001;
 		foilInflectionPointsLayer.getChildren().clear();
 		for( Point2D i : airfoil.getUpperInflections() ) {
-			foilInflectionPointsLayer.getChildren().add( generateDot( i, Color.YELLOW ) );
+			foilInflectionPointsLayer.getChildren().add( generateDot( i, r, Color.YELLOW ) );
 		}
 		for( Point2D i : airfoil.getLowerInflections() ) {
-			foilInflectionPointsLayer.getChildren().add( generateDot( i, Color.YELLOW ) );
+			foilInflectionPointsLayer.getChildren().add( generateDot( i, r, Color.YELLOW ) );
 		}
 	}
 
-	private Circle generateDot( Point2D point, Paint fill ) {
-		return new Circle( point.getX(), point.getY(), 0.002, fill );
+	private Circle generateDot( Point2D point, double r, Paint fill ) {
+		return new Circle( point.getX(), point.getY(), r, fill );
 	}
 
 	private void generateGrid() {

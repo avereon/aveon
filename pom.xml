@@ -54,6 +54,7 @@
 					<!-- The argLine and systemPropertyVariables should match the failsafe configuration below -->
 					<argLine>
 						--add-opens=com.avereon.aveon/com.avereon.aveon=ALL-UNNAMED
+						--add-opens=com.avereon.aveon/com.avereon.geometry=ALL-UNNAMED
 					</argLine>
 				</configuration>
 			</plugin>

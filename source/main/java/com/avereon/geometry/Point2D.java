@@ -1,5 +1,8 @@
 package com.avereon.geometry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * An immutable 2D point that contains the x and y components of a point or vector.
  */
@@ -291,6 +294,19 @@ public class Point2D {
 		double x = getX() + (point.x - this.x) * t;
 		double y = getY() + (point.y - this.y) * t;
 		return new Point2D( x, y );
+	}
+
+	public static List<Line2D> toSegments( List<Point2D> points ) {
+		List<Line2D> segments = new ArrayList<>( points.size() - 1 );
+
+		Point2D prior = points.get( 0 );
+		for( Point2D point : points ) {
+			if( point == prior ) continue;
+			segments.add( new Line2D( prior, point ) );
+			prior = point;
+		}
+
+		return segments;
 	}
 
 	/**

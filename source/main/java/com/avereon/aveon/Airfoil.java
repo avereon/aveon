@@ -183,11 +183,11 @@ public class Airfoil extends Node {
 		// TODO Determine upper curves
 		int count = upperPointGroups.size();
 		List<Cubic2D> upperCurves = new ArrayList<>();
-		upperCurves.add( new CubicBezierCurveFitter().generate( upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ) );
+		upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
 		for( int index = 1; index < count - 1; index++ ) {
-			upperCurves.add( new CubicBezierCurveFitter().generate( upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.INTERMEDIATE ) );
+			upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
 		}
-		upperCurves.add( new CubicBezierCurveFitter().generate( upperPointGroups.get( count - 1 ), CubicBezierCurveFitter.Hint.TRAILING ) );
+		upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( count - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
 		setValue( UPPER_CURVES, upperCurves );
 
 		// TODO Determine lower curves

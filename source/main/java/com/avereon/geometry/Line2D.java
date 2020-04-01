@@ -1,5 +1,7 @@
 package com.avereon.geometry;
 
+import java.util.List;
+
 /**
  * An immutable 2D line segment that contains the start and end point coordinates.
  */
@@ -14,6 +16,10 @@ public class Line2D extends Shape {
 	public final double x2;
 
 	public final double y2;
+
+	public final Point2D a;
+
+	public final Point2D b;
 
 	private int hash;
 
@@ -30,15 +36,9 @@ public class Line2D extends Shape {
 		this.y1 = y1;
 		this.x2 = x2;
 		this.y2 = y2;
-	}
 
-	/**
-	 * Compute bounding box of the line.
-	 *
-	 * @return the bounding box of the line
-	 */
-	public Bounds2D getBounds() {
-		return new Bounds2D(x1, y1, x2, y2);
+		this.a = new Point2D( x1, y1 );
+		this.b = new Point2D( x2, y2 );
 	}
 
 	/**
@@ -50,6 +50,15 @@ public class Line2D extends Shape {
 	 */
 	public Line2D( Point2D p1, Point2D p2 ) {
 		this( p1.getX(), p1.getY(), p2.getX(), p2.getY() );
+	}
+
+	/**
+	 * Compute bounding box of the line.
+	 *
+	 * @return the bounding box of the line
+	 */
+	public Bounds2D getBounds() {
+		return new Bounds2D( x1, y1, x2, y2 );
 	}
 
 	/**
@@ -145,6 +154,14 @@ public class Line2D extends Shape {
 		float x1, float y1, float x2, float y2, float px, float py
 	) {
 		return (float)Math.sqrt( ptSegDistSq( x1, y1, x2, y2, px, py ) );
+	}
+
+	public List<Point2D> intersections( Line2D line ) {
+		return segmentIntersections( this, line );
+	}
+
+	public static List<Point2D> segmentIntersections( Line2D a, Line2D b ) {
+		return Intersection2D.intersectLineLine( a.a, a.b, b.a,b.b ).getPoints();
 	}
 
 	/**

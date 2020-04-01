@@ -2,35 +2,49 @@ package com.avereon.aveon;
 
 import com.avereon.geometry.Bounds2D;
 import com.avereon.geometry.Cubic2D;
+import com.avereon.geometry.Geometry2D;
 import com.avereon.geometry.Point2D;
+import com.avereon.util.Log;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class CubicBezierCurveFitter {
 
+	private static final System.Logger log = Log.get();
+
 	public enum Hint {
 		LEADING,
-		INTERMEDIATE,
+		MIDDLE,
 		TRAILING
 	}
 
-	public Cubic2D generate( List<Point2D> points, Hint hint ) {
+	private String id;
+
+	private List<Point2D> points;
+
+	private Hint hint;
+
+	public CubicBezierCurveFitter( String id, List<Point2D> points, Hint hint ) {
+		this.id = id;
+		this.points = points;
+		this.hint = hint;
+	}
+
+	public Cubic2D generate() {
 		Cubic2D curve = getInitial( points, hint );
 
-		boolean closeEnough = closeEnough( points, curve );
-		while( !closeEnough ) {
-			// try again
+		int iteration = 0;
+		while( !closeEnough( points, curve, iteration++ ) ) {
 			curve = adjustCurve( curve );
-
-			closeEnough = closeEnough( points, curve );
 		}
 
 		return curve;
 	}
 
 	private Cubic2D adjustCurve( Cubic2D curve ) {
-		return curve;
+		return new Cubic2D( curve );
 	}
 
 	/**
@@ -40,28 +54,37 @@ public class CubicBezierCurveFitter {
 	 * @param curve The curve to test
 	 * @return True if the curve is "close enough"
 	 */
-	private boolean closeEnough( List<Point2D> points, Cubic2D curve ) {
-		//
-
-		return true;
+	private boolean closeEnough( List<Point2D> points, Cubic2D curve, int iteration ) {
+		double error = calcError( points, curve );
+		log.log( Log.WARN, "id=" + id + " hint=" + hint + " iteration=" + iteration + " error=" + error );
+		return error <= 0.1 || iteration >= 100;
 	}
 
 	private double calcError( List<Point2D> points, Cubic2D curve ) {
+		Point2D pA = points.get( 0 );
+		Point2D cA = curve.a;
+		Point2D pD = points.get( points.size() - 1 );
+		Point2D cD = curve.d;
+
 		// The first and last points should match
-		if( !points.get( 0 ).equals( curve.a ) || points.get( points.size() - 1 ).equals( curve.d ) ) return Double.NaN;
+		if( !Objects.equals( pA, cA ) || !Objects.equals( pD, cD ) ) return Double.NaN;
 
-		double pointArea = getArea( points );
-		double curveArea = getArea( curve.toPoints( 100 ) );
+		// TODO There are several ways to generate the curve points
+		// 1. Simple count
+		// 2. Count based on number of points
+		// 3. Flatness
+		List<Point2D> curvePoints = curve.toPoints( 100 );
 
-		return Math.abs( pointArea - curveArea );
+		return findAreas( points, curvePoints ).stream().mapToDouble( Double::doubleValue ).sum();
 	}
 
-	private double getArea( Collection<Point2D> points ) {
-		Bounds2D bounds = getBounds( points );
+	private List<Double> findAreas( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
+		// Find the polygons...
+		List<List<Point2D>> polygons = Geometry2D.findPolygons( fitPoints, curvePoints );
 
-		//
+		// NEXT Find the areas of the polygons
 
-		return 0.0;
+		return List.of( 0.0 );
 	}
 
 	private Bounds2D getBounds( Collection<Point2D> points ) {
@@ -80,11 +103,7 @@ public class CubicBezierCurveFitter {
 		return new Bounds2D( minX, minY, maxX, maxY );
 	}
 
-	private double getMinY( Collection<Point2D> points ) {
-		return points.stream().mapToDouble( Point2D::getY ).min().getAsDouble();
-	}
-
-	public Cubic2D getInitial( List<Point2D> points, Hint hint ) {
+	private Cubic2D getInitial( List<Point2D> points, Hint hint ) {
 		Point2D p = points.get( 0 );
 		Point2D q = points.get( points.size() - 2 );
 		Point2D r = points.get( points.size() - 1 );

@@ -1,5 +1,6 @@
 package com.avereon.geometry;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -76,6 +77,10 @@ public class Cubic2D extends Shape {
 		this( a.getX(), a.getY(), b.getX(), b.getY(), c.getX(), c.getY(), d.getX(), d.getY() );
 	}
 
+	public Cubic2D( Cubic2D curve ) {
+		this( curve.x1, curve.y1, curve.ctrlx1, curve.ctrly1, curve.ctrlx2, curve.ctrly2, curve.x2, curve.y2 );
+	}
+
 	/**
 	 * Compute bounding box of the curve.
 	 *
@@ -97,7 +102,7 @@ public class Cubic2D extends Shape {
 	 * @param t the value at which to evaluate the curve
 	 * @return a new point that is the location on the curve at that value
 	 */
-	public Point2D eval( float t ) {
+	public Point2D eval( double t ) {
 		return new Point2D( calcX( t ), calcY( t ) );
 	}
 
@@ -248,8 +253,6 @@ public class Cubic2D extends Shape {
 		return new Cubic2D[]{ left, right };
 	}
 
-	// TODO Future methods
-
 	/**
 	 * Get the list of points that estimate the curve with a specific number of
 	 * line segments.
@@ -258,8 +261,16 @@ public class Cubic2D extends Shape {
 	 * @return The points that define the curve as line segements
 	 */
 	public List<Point2D> toPoints( int count ) {
-		return List.of();
+		double fraction = 1.0 / count;
+		count ++;
+		List<Point2D> points = new ArrayList<>( count );
+		for( int index = 0; index < count; index++ ) {
+			points.add( eval( index * fraction ) );
+		}
+		return points;
 	}
+
+	// TODO Future methods
 
 	/**
 	 * Get the list of points that estimate the curve as line segments no larger
@@ -268,8 +279,19 @@ public class Cubic2D extends Shape {
 	 * @param size The largest permitted line segment length
 	 * @return The points that estimate the curve as line segments
 	 */
-	public List<Point2D> toPoints( double size ) {
-		return List.of();
+	public List<Point2D> toSizePoints( double size ) {
+		return List.of( a, d );
+	}
+
+	/**
+	 * Get the list of points that estimate the curve as line segments with
+	 * flatness no larger than flatness.
+	 *
+	 * @param flatness The largest permitted line segment flatness
+	 * @return The points that estimate the curve as line segments
+	 */
+	public List<Point2D> toFlatPoints( double flatness ) {
+		return List.of( a, d );
 	}
 
 	private double calcX( final double t ) {

@@ -89,7 +89,7 @@ public class Geometry2D {
 					b.add( curveLine.b );
 				}
 
-				priorIntersection = intersections.get( 0 );
+				if( intersections.size() > 0 ) priorIntersection = intersections.get( 0 );
 			}
 		}
 

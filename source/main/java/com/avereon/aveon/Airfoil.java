@@ -50,6 +50,10 @@ public class Airfoil extends Node {
 
 	private Point2D maxCamber = Point2D.ZERO;
 
+	private List<List<Point2D>> upperPointGroups;
+
+	private List<List<Point2D>> lowerPointGroups;
+
 	private List<Point2D> upperInflections = List.of();
 
 	private List<Point2D> lowerInflections = List.of();
@@ -155,7 +159,7 @@ public class Airfoil extends Node {
 		return getUpperCurves() != null && getLowerCurves() != null;
 	}
 
-	public void analyze() {
+	public void analyzePoints() {
 		// Min Y
 		double minY = Double.MAX_VALUE;
 		for( Point2D point : getLowerStationPoints() ) {
@@ -171,15 +175,17 @@ public class Airfoil extends Node {
 		this.maxY = maxY;
 
 		// Point groups
-		List<List<Point2D>> upperPointGroups = getStationPointGroups( getUpperStationPoints() );
-		List<List<Point2D>> lowerPointGroups = getStationPointGroups( getLowerStationPoints() );
+		upperPointGroups = getStationPointGroups( getUpperStationPoints() );
+		lowerPointGroups = getStationPointGroups( getLowerStationPoints() );
 
 		// Inflections
 		//		upperInflections = Collections.unmodifiableList( findInflectionsY( getUpperStationPoints() ) );
 		//		lowerInflections = Collections.unmodifiableList( findInflectionsY( getLowerStationPoints() ) );
 		upperInflections = Collections.unmodifiableList( findInflections( upperPointGroups ) );
 		lowerInflections = Collections.unmodifiableList( findInflections( lowerPointGroups ) );
+	}
 
+	public void analyzeCurves() {
 		// TODO Determine upper curves
 		int count = upperPointGroups.size();
 		List<Cubic2D> upperCurves = new ArrayList<>();

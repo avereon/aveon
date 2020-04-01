@@ -61,7 +61,6 @@ public class AirfoilStationPointCodec extends Codec {
 		boolean lednicer = point.getX() > 1;
 
 		Airfoil foil = lednicer ? loadLednicer( result ) : loadSelig( result );
-		foil.analyze();
 
 		return foil;
 	}
@@ -89,6 +88,7 @@ public class AirfoilStationPointCodec extends Codec {
 		airfoil.setName( name );
 		airfoil.setUpperStationPoints( upper );
 		airfoil.setLowerStationPoints( lower );
+		airfoil.analyzePoints();
 		return airfoil;
 	}
 

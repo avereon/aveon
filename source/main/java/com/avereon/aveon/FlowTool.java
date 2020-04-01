@@ -182,6 +182,8 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		this.airfoil = airfoil;
 		if( airfoil == null ) return;
 
+		airfoil.analyzeCurves();
+
 		generateGrid();
 
 		// Foil shape

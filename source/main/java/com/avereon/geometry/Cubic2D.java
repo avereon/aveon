@@ -26,6 +26,14 @@ public class Cubic2D extends Shape {
 
 	public final double y2;
 
+	public final Point2D a;
+
+	public final Point2D b;
+
+	public final Point2D c;
+
+	public final Point2D d;
+
 	private int hash;
 
 	/**
@@ -49,6 +57,11 @@ public class Cubic2D extends Shape {
 		this.ctrly2 = ctrly2;
 		this.x2 = x2;
 		this.y2 = y2;
+
+		this.a = new Point2D( x1, y1 );
+		this.b = new Point2D( ctrlx1, ctrly1 );
+		this.c = new Point2D( ctrlx2, ctrly2 );
+		this.d = new Point2D( x2, y2 );
 	}
 
 	/**

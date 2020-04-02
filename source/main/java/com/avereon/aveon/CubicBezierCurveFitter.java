@@ -25,6 +25,20 @@ public class CubicBezierCurveFitter {
 
 	private Hint hint;
 
+	private double error;
+
+	private boolean head = true;
+
+	/**
+	 * What direction to change the control point: shrink(-1) grow(1)
+	 */
+	private double headDirection = -1;
+
+	/**
+	 * What direction to change the control point: shrink(-1) grow(1)
+	 */
+	private double tailDirection = -1;
+
 	public CubicBezierCurveFitter( String id, List<Point2D> points, Hint hint ) {
 		this.id = id;
 		this.points = points;
@@ -33,17 +47,40 @@ public class CubicBezierCurveFitter {
 
 	public Cubic2D generate() {
 		Cubic2D curve = getInitial( points, hint );
+		error = calcError( points, curve );
+
+		System.err.println( "initalerror=" + error );
 
 		int iteration = 0;
-		while( !closeEnough( points, curve, iteration++ ) ) {
-			curve = adjustCurve( curve );
+		while( !closeEnough( points, curve, iteration ) ) {
+			curve = adjustCurve( curve, iteration );
+			iteration++;
 		}
 
 		return curve;
 	}
 
-	private Cubic2D adjustCurve( Cubic2D curve ) {
-		return new Cubic2D( curve );
+	private Cubic2D adjustCurve( Cubic2D curve, int iteration ) {
+		// Need to adjust the magnitude of either control point
+		if( head ) {
+			// Adjust the head
+			Point2D v = curve.b.subtract( curve.a );
+			double m = v.magnitude();
+			double mo = m;
+
+			m = m + (m * 0.1 * headDirection);
+			Point2D u = v.normalize().multiply( m );
+			System.err.println( "  mag=" + mo + " newmag=" + m + " u=" + u + " newb=" + curve.a.add( u ) );
+
+			return new Cubic2D( curve.a, curve.a.add( u ), curve.c, curve.d );
+		} else {
+			// Adjust the tail
+			Point2D v = curve.c.subtract( curve.d );
+			double m = v.magnitude();
+			m = m + (m * 0.1 * tailDirection);
+			Point2D u = v.normalize().multiply( m );
+			return new Cubic2D( curve.a, curve.b, curve.d.add( u ), curve.d );
+		}
 	}
 
 	/**
@@ -54,31 +91,47 @@ public class CubicBezierCurveFitter {
 	 * @return True if the curve is "close enough"
 	 */
 	private boolean closeEnough( List<Point2D> points, Cubic2D curve, int iteration ) {
+		System.err.println( "\niteration=" + iteration + " curve=" + curve );
 		double error = calcError( points, curve );
-		log.log( Log.WARN, "id=" + id + " hint=" + hint + " iteration=" + iteration + " error=" + error );
+		System.err.println( "  id=" + id + " hint=" + hint + " iteration=" + iteration + " error=" + error );
+		if( Double.isNaN( error ) ) throw new RuntimeException( "Error returned NaN" );
 		return error <= 0.1 || iteration >= 100;
 	}
 
 	private double calcError( List<Point2D> points, Cubic2D curve ) {
-		Point2D pA = points.get( 0 );
-		Point2D cA = curve.a;
-		Point2D pD = points.get( points.size() - 1 );
-		Point2D cD = curve.d;
+		boolean headPointsMatch = Objects.equals( points.get( 0 ), curve.a );
+		boolean tailPointsMatch = Objects.equals( points.get( points.size() - 1 ), curve.d );
 
 		// The first and last points should match
-		if( !Objects.equals( pA, cA ) || !Objects.equals( pD, cD ) ) return Double.NaN;
+		if( !headPointsMatch ) {
+			log.log( Log.WARN, "Head points don't match" );
+			return Double.NaN;
+		}
+		else if( !tailPointsMatch ) {
+			log.log( Log.WARN, "Tail points don't match" );
+			return Double.NaN;
+		}
+		//if( !headPointsMatch || !tailPointsMatch ) return Double.NaN;
 
 		// TODO There are several ways to generate the curve points
 		// 1. Simple count
 		// 2. Count based on number of points
 		// 3. Flatness
-		List<Point2D> curvePoints = curve.toPoints( 100 );
+		List<Point2D> curvePoints = curve.toPoints( 8 );
+		System.err.println( "  statnpoints=" + points );
+		System.err.println( "  curvepoints=" + curvePoints );
 
 		return findAreas( points, curvePoints ).stream().mapToDouble( Double::doubleValue ).sum();
 	}
 
 	private List<Double> findAreas( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( fitPoints, curvePoints );
+		if( polygons.size() == 0 ) {
+			//log.log( Log.WARN, "No polygons defined" );
+			//log.log( Log.WARN, "  fitPoints=" + fitPoints );
+			//log.log( Log.WARN, "  curvePoints=" + curvePoints );
+			return List.of( Double.NaN );
+		}
 		return polygons.stream().map( Geometry2D::calcPolygonArea ).collect( Collectors.toList() );
 	}
 

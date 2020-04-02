@@ -48,7 +48,7 @@ public class Geometry2D {
 	}
 
 	public static List<List<Point2D>> findPolygons( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
-		// It is assumed that both lists of points are ordered in the desired direction
+		// It is assumed that both lists of points are ordered in the same direction
 		// There must be two or more intersections for this method to work
 
 		List<List<Point2D>> polygons = new ArrayList<>();
@@ -70,6 +70,7 @@ public class Geometry2D {
 						b.add( intersections.get( 0 ) );
 						a.add( fitLine.b );
 						b.add( curveLine.b );
+						System.err.println( "xtn=" + intersections.get(0));
 					}
 				} else {
 					if( intersections.size() > 0 ) {
@@ -81,6 +82,7 @@ public class Geometry2D {
 						b = new ArrayList<>();
 						a.add( intersections.get( 0 ) );
 						b.add( intersections.get( 0 ) );
+						System.err.println( "xtn=" + intersections.get(0));
 					}
 					a.add( fitLine.b );
 					b.add( curveLine.b );

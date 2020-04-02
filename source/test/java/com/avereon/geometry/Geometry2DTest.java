@@ -32,6 +32,24 @@ public class Geometry2DTest {
 	}
 
 	@Test
+	void testFindPolygonsWithHarmonicPaths() {
+		Cubic2D c = new Cubic2D( 0, 0, 0, 0.1, 0.2, 0.2, 0.4, 0.2 );
+		List<Point2D> a = c.toPoints( 8 );
+		List<Point2D> b = c.toPoints( 4 );
+
+		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
+
+		for( List<Point2D> polygon : polygons ) System.err.println( "poly=" + polygon );
+
+		assertThat( polygons.get( 0 ).size(), is( 3 ) );
+		assertThat( polygons.get( 1 ).size(), is( 3 ) );
+		assertThat( polygons.get( 2 ).size(), is( 3 ) );
+		assertThat( polygons.get( 3 ).size(), is( 3 ) );
+
+		assertThat( polygons.size(), is( 4 ) );
+	}
+
+	@Test
 	void testFindPolygonsWithOnePolygonSameHeadSameTail() {
 		List<Point2D> a = new ArrayList<>();
 		List<Point2D> b = new ArrayList<>();
@@ -210,6 +228,35 @@ public class Geometry2DTest {
 		assertThat( polygon.get( index++ ), is( new Point2D( 0, 1 ) ) );
 		assertThat( polygon.get( index++ ), is( new Point2D( -1, 0 ) ) );
 		assertThat( index, is( 6 ) );
+	}
+
+	@Test
+	void testToTrianglePolygon() {
+		List<Point2D> a = new ArrayList<>();
+		List<Point2D> b = new ArrayList<>();
+
+		a.add( new Point2D( 1, 1 ) );
+		a.add( new Point2D( 2, 1 ) );
+
+		b.add( new Point2D( 1, 1 ) );
+		b.add( new Point2D( 1.5, 1.5 ) );
+		b.add( new Point2D( 2, 1 ) );
+
+		List<Point2D> polygon = Geometry2D.toCcwPolygon( a, b );
+
+		int index = 0;
+		assertThat( polygon.get( index++ ), is( new Point2D( 1, 1 ) ) );
+		assertThat( polygon.get( index++ ), is( new Point2D( 2, 1 ) ) );
+		assertThat( polygon.get( index++ ), is( new Point2D( 1.5, 1.5 ) ) );
+		assertThat( index, is( 3 ) );
+
+		polygon = Geometry2D.toCcwPolygon( b, a );
+
+		index = 0;
+		assertThat( polygon.get( index++ ), is( new Point2D( 2, 1 ) ) );
+		assertThat( polygon.get( index++ ), is( new Point2D( 1.5, 1.5 ) ) );
+		assertThat( polygon.get( index++ ), is( new Point2D( 1, 1 ) ) );
+		assertThat( index, is( 3 ) );
 	}
 
 	@Test

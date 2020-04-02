@@ -22,10 +22,12 @@ class CubicBezierCurveFitterTest {
 
 		Cubic2D curve = new CubicBezierCurveFitter( "TEST", stationPoints, CubicBezierCurveFitter.Hint.LEADING ).generate();
 
+		assertThat( CubicBezierCurveFitter.calcError( stationPoints, curve ), lessThan( 0.0) );
+
 		assertThat( curve.a, is( new Point2D( 0.0, 0.0 ) ) );
 		assertThat( curve.b.x, is( 0.0 ) );
-		assertThat( Math.abs( 0.2 - curve.b.y ), lessThanOrEqualTo( 0.0001 ) );
-		assertThat( Math.abs( 0.2 - curve.c.x ), lessThanOrEqualTo( 0.0001 ) );
+		assertThat( Math.abs( 0.2 - curve.b.y ), lessThanOrEqualTo( 0.01 ) );
+		assertThat( Math.abs( 0.2 - curve.c.x ), lessThanOrEqualTo( 0.01 ) );
 		assertThat( curve.c.y, is( 0.2 ) );
 		assertThat( curve.d, is( new Point2D( 0.4, 0.2 ) ) );
 	}

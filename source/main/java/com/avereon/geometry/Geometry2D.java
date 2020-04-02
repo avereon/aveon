@@ -1,6 +1,7 @@
 package com.avereon.geometry;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Geometry2D {
 
@@ -61,7 +62,7 @@ public class Geometry2D {
 		for( Line2D aSegment : aSegments ) {
 			for( Line2D bSegment : bSegments ) {
 				Intersection2D intersection = aSegment.intersection( bSegment );
-				if( intersection.getType() == Intersection2D.Type.INTERSECTION) {
+				if( intersection.getType() == Intersection2D.Type.INTERSECTION ) {
 					intersections.addAll( intersection.getPoints() );
 				} else {
 					return List.of();
@@ -70,6 +71,12 @@ public class Geometry2D {
 		}
 
 		return intersections;
+	}
+
+	public static List<Double> findAreas( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
+		List<List<Point2D>> polygons = findPolygons( fitPoints, curvePoints );
+		if( polygons.size() == 0 ) throw new RuntimeException( "No polygons found to calculate area" );
+		return polygons.stream().map( Geometry2D::calcPolygonArea ).collect( Collectors.toList() );
 	}
 
 	/**
@@ -85,6 +92,14 @@ public class Geometry2D {
 	 */
 	public static List<List<Point2D>> findPolygons( List<Point2D> a, List<Point2D> b ) {
 		List<List<Point2D>> polygons = new ArrayList<>();
+
+		// Performance improvement to use the smallest count on the outside loop
+		if( a.size() > b.size() ) {
+			List<Point2D> c = b;
+			b = a;
+			a = c;
+		}
+
 		List<Line2D> aSegments = Point2D.toSegments( a );
 		List<Line2D> bSegments = Point2D.toSegments( b );
 
@@ -97,40 +112,49 @@ public class Geometry2D {
 		Point2D priorIntersection = null;
 
 		for( int aIndex = 0; aIndex < aCount; aIndex++ ) {
-			for( int bIndex = 0; bIndex < bCount; bIndex++ ) {
+			for( int bIndex = bOffset; bIndex < bCount; bIndex++ ) {
 				Line2D aSegment = aSegments.get( aIndex );
 				Line2D bSegment = bSegments.get( bIndex );
 				Intersection2D intersection = aSegment.intersection( bSegment );
 
-				if( intersection.getType() == Intersection2D.Type.SAME ) {
-					// Jump to the next line segments
-					aIndex++;
-					bIndex=bCount;
-				}
+				System.err.println();
+				System.err.println( "aIndex=" + aIndex + " aSeg=" + aSegment );
+				System.err.println( "bIndex=" + bIndex + " bSeg=" + bSegment );
+
+				// If segments are the same jump to the next segments
+				if( intersection.getType() == Intersection2D.Type.SAME ) aIndex++;
 				if( intersection.getType() != Intersection2D.Type.INTERSECTION ) continue;
 
 				Point2D intersectionPoint = intersection.getPoints().get( 0 );
 
-				if( priorIntersection != null ) {
-					// Add points up to intersecting segments
-					c.addAll( a.subList( aOffset, aIndex+1 ) );
-					d.addAll( b.subList( bOffset, bIndex+1 ) );
+				if( !Objects.equals( intersectionPoint, priorIntersection ) ) {
+					System.err.println( "  aIndex=" + aIndex + " bIndex=" + bIndex + " intxn=" + intersectionPoint );
+					if( priorIntersection != null ) {
+						// Add points up to intersecting segments
+						System.err.println( "  adding a points " + aOffset + " to " + (aIndex + 1) );
+						System.err.println( "  adding b points " + bOffset + " to " + (bIndex + 1) );
+						c.addAll( a.subList( aOffset, aIndex + 1 ) );
+						d.addAll( b.subList( bOffset, bIndex + 1 ) );
 
-					// Add closing intersection
+						// Add closing intersection
+						c.add( intersectionPoint );
+						d.add( intersectionPoint );
+
+						System.err.println( "  c=" + c );
+						System.err.println( "  d=" + d );
+
+						// Add polygon
+						polygons.add( toCcwPolygon( c, d ) );
+
+						// Start new paths
+						c = new ArrayList<>();
+						d = new ArrayList<>();
+					}
+
+					// Add starting intersection
 					c.add( intersectionPoint );
 					d.add( intersectionPoint );
-
-					// Add polygon
-					polygons.add( toCcwPolygon( c, d ) );
-
-					// Start new paths
-					c = new ArrayList<>();
-					d = new ArrayList<>();
 				}
-
-				// Add starting intersection
-				c.add( intersectionPoint );
-				d.add( intersectionPoint );
 
 				// Store state
 				priorIntersection = intersectionPoint;

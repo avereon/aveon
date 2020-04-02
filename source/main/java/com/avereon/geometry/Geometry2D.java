@@ -5,7 +5,7 @@ import java.util.*;
 public class Geometry2D {
 
 	/**
-	 * Determine if two line segments, a and b, intersect.
+	 * Determine if two line segments intersect.
 	 *
 	 * @param a Line segment a
 	 * @param b Line segment b
@@ -16,8 +16,7 @@ public class Geometry2D {
 	}
 
 	/**
-	 * Determine if two line segments, a and b, intersect given the respective end
-	 * points.
+	 * Determine if two line segments intersect given the respective end points.
 	 *
 	 * @param a1 First point of line segment a
 	 * @param a2 Second point of line segment a
@@ -30,8 +29,8 @@ public class Geometry2D {
 	}
 
 	/**
-	 * Use the x and y coordinates to determine if the three points are in
-	 * counter-clockwise(-1), straight(0), or clockwise(1) order.
+	 * Determine if the three points are in counter-clockwise(-1), straight(0),
+	 * or clockwise(1) order.
 	 *
 	 * @param a The anchor point/vector to test
 	 * @param b The direction point/vector to test
@@ -47,63 +46,109 @@ public class Geometry2D {
 		return ccw > 0 ? 1 : -1;
 	}
 
-	public static List<List<Point2D>> findPolygons( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
-		// It is assumed that both lists of points are ordered in the same direction
-		// There must be two or more intersections for this method to work
+	/**
+	 * Find the intersections between two segmented paths.
+	 *
+	 * @param a A segmented path
+	 * @param b Another segmented path
+	 * @return The list of intersection points
+	 */
+	public static List<Point2D> findIntersections( List<Point2D> a, List<Point2D> b ) {
+		List<Line2D> aSegments = Point2D.toSegments( a );
+		List<Line2D> bSegments = Point2D.toSegments( b );
 
+		List<Point2D> intersections = new ArrayList<>();
+		for( Line2D aSegment : aSegments ) {
+			for( Line2D bSegment : bSegments ) {
+				intersections.addAll( aSegment.intersections( bSegment ) );
+			}
+		}
+
+		return intersections;
+	}
+
+	/**
+	 * Find the polygons (areas of intersection) between two segmented paths. It
+	 * is assumed that both paths are ordered. For any polygons to be returned
+	 * there must be two or more intersections. If there are not enough
+	 * intersection points then an empty list is returned. The generated polygons
+	 * are in closed counterclockwise form as returned from {@link #toCcwPolygon}.
+	 *
+	 * @param a Segmented path a
+	 * @param b Segmented path b
+	 * @return The list of polygons (areas of intersection)
+	 */
+	public static List<List<Point2D>> findPolygons( List<Point2D> a, List<Point2D> b ) {
 		List<List<Point2D>> polygons = new ArrayList<>();
-		List<Line2D> fitLines = Point2D.toSegments( fitPoints );
-		List<Line2D> curveLines = Point2D.toSegments( curvePoints );
+		List<Line2D> aSegments = Point2D.toSegments( a );
+		List<Line2D> bSegments = Point2D.toSegments( b );
 
-		List<Point2D> a = new ArrayList<>();
-		List<Point2D> b = new ArrayList<>();
+		int aOffset = 0;
+		int bOffset = 0;
+		int aCount = aSegments.size();
+		int bCount = bSegments.size();
+		List<Point2D> c = new ArrayList<>();
+		List<Point2D> d = new ArrayList<>();
 		Point2D priorIntersection = null;
-		for( Line2D fitLine : fitLines ) {
-			for( Line2D curveLine : curveLines ) {
-				List<Point2D> intersections = fitLine.intersections( curveLine );
-				if( priorIntersection == null ) {
-					if( intersections.size() == 0 ) {
-						continue;
-					} else {
-						// Start both paths
-						a.add( intersections.get( 0 ) );
-						b.add( intersections.get( 0 ) );
-						a.add( fitLine.b );
-						b.add( curveLine.b );
-						System.err.println( "xtn=" + intersections.get(0));
-					}
-				} else {
-					if( intersections.size() > 0 ) {
-						// Add a polygon
-						a.add( intersections.get( 0 ) );
-						b.add( intersections.get( 0 ) );
-						polygons.add( toCcwPolygon( a, b ) );
-						a = new ArrayList<>();
-						b = new ArrayList<>();
-						a.add( intersections.get( 0 ) );
-						b.add( intersections.get( 0 ) );
-						System.err.println( "xtn=" + intersections.get(0));
-					}
-					a.add( fitLine.b );
-					b.add( curveLine.b );
+
+		for( int aIndex = 0; aIndex < aCount; aIndex++ ) {
+			for( int bIndex = 0; bIndex < bCount; bIndex++ ) {
+				Line2D aSegment = aSegments.get( aIndex );
+				Line2D bSegment = bSegments.get( bIndex );
+				List<Point2D> intersections = aSegment.intersections( bSegment );
+				if( intersections.isEmpty() ) continue;
+
+				Point2D intersection = intersections.get( 0 );
+
+				if( priorIntersection != null ) {
+					// Add points up to intersecting segments
+					c.addAll( a.subList( aOffset, aIndex+1 ) );
+					d.addAll( b.subList( bOffset, bIndex+1 ) );
+
+					// Add closing intersection
+					c.add( intersection );
+					d.add( intersection );
+
+					// Add polygon
+					polygons.add( toCcwPolygon( c, d ) );
+
+					// Start new paths
+					c = new ArrayList<>();
+					d = new ArrayList<>();
 				}
 
-				if( intersections.size() > 0 ) priorIntersection = intersections.get( 0 );
+				// Add starting intersection
+				c.add( intersection );
+				d.add( intersection );
+
+				// Store state
+				priorIntersection = intersection;
+				aOffset = aIndex + 1;
+				bOffset = bIndex + 1;
 			}
 		}
 
 		return polygons;
 	}
 
+	/**
+	 * Convert two segmented paths that start and end at the same point into a
+	 * closed counterclockwise segmented path. It is assumed that the two
+	 * segmented paths are already ordered, that there are two or more points in
+	 * one of the paths, that there are three or more points in the other path,
+	 * that the first and last points are equal and that the paths do not
+	 * intersect.
+	 *
+	 * @param a Segmented path a
+	 * @param b Segmented path b
+	 * @return A counterclockwise polygon path
+	 */
 	public static List<Point2D> toCcwPolygon( List<Point2D> a, List<Point2D> b ) {
 		// It is assumed that a and b are ordered
 		// and that there are two or more points in one list
-		// and that there are two or more points in the other list
+		// and that there are three or more points in the other list
 		// and that the first and last points are equal
-		// and that the lists do not intersect
-
-		a = new ArrayList<>( a );
-		b = new ArrayList<>( b );
+		// and that the paths do not intersect
 
 		if( b.size() < 3 && a.size() < 3 ) throw new IllegalArgumentException( "Not enough points in lists" );
 		if( !Objects.equals( a.get( 0 ), b.get( 0 ) ) ) throw new IllegalArgumentException( "Starting point mismatch" );
@@ -113,6 +158,9 @@ public class Geometry2D {
 		Point2D pA = a.get( 0 );
 		Point2D pB = a.get( 1 );
 		Point2D pC = b.get( 1 );
+
+		a = new ArrayList<>( a );
+		b = new ArrayList<>( b );
 
 		// If pC is CCW then a is in order and b needs to be reversed
 		// If pC is CW then b is in order and a needs to be reversed
@@ -129,6 +177,13 @@ public class Geometry2D {
 		return polygon;
 	}
 
+	/**
+	 * Calculate the area of a polygon using <a href="https://en.wikipedia.org/wiki/Green%27s_theorem#Area_calculation">Green's theorem</a>.
+	 * It is assumed that the points form a closed, counterclockwise, non-intersecting segmented path.
+	 *
+	 * @param points The polygon
+	 * @return The area of the polygon
+	 */
 	public static double calcPolygonArea( List<Point2D> points ) {
 		// It is assumed that the points form a closed, non-intersecting polygon in counterclockwise order
 
@@ -144,12 +199,18 @@ public class Geometry2D {
 			if( index2 >= count ) index2 = 0;
 			p2 = points.get( index2 );
 
-			result += 0.5 * (p2.x + p1.x ) * (p2.y - p1.y);
+			result += 0.5 * (p2.x + p1.x) * (p2.y - p1.y);
 		}
 
 		return result;
 	}
 
+	/**
+	 * Determine the bounds of the collection of points.
+	 *
+	 * @param points A collection of points
+	 * @return The bounds of the points
+	 */
 	public static Bounds2D getBounds( Collection<Point2D> points ) {
 		double minX = Double.MAX_VALUE;
 		double minY = Double.MAX_VALUE;
@@ -164,21 +225,6 @@ public class Geometry2D {
 		}
 
 		return new Bounds2D( minX, minY, maxX, maxY );
-	}
-
-
-	public static List<Point2D> findIntersections( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
-		List<Line2D> fitLines = Point2D.toSegments( fitPoints );
-		List<Line2D> curveLines = Point2D.toSegments( curvePoints );
-
-		List<Point2D> intersections = new ArrayList<>();
-		for( Line2D fitLine : fitLines ) {
-			for( Line2D curveLine : curveLines ) {
-				intersections.addAll( fitLine.intersections( curveLine ) );
-			}
-		}
-
-		return intersections;
 	}
 
 }

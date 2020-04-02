@@ -1,6 +1,7 @@
 package com.avereon.geometry;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * An immutable 2D line segment that contains the start and end point coordinates.
@@ -161,7 +162,11 @@ public class Line2D extends Shape {
 	}
 
 	public static List<Point2D> segmentIntersections( Line2D a, Line2D b ) {
-		return Intersection2D.intersectLineLine( a.a, a.b, b.a,b.b ).getPoints();
+		if( Objects.equals( a.a, b.a ) ) return List.of( new Point2D( a.a ) );
+		if( Objects.equals( a.a, b.b ) ) return List.of( new Point2D( a.a ) );
+		if( Objects.equals( a.b, b.a ) ) return List.of( new Point2D( a.b ) );
+		if( Objects.equals( a.b, b.b ) ) return List.of( new Point2D( a.b ) );
+		return Intersection2D.intersectLineLine( a.a, a.b, b.a, b.b ).getPoints();
 	}
 
 	/**

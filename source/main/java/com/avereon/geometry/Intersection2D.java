@@ -137,8 +137,7 @@ public class Intersection2D {
 			}
 		}
 
-		return intersections.size() == 0 ? new Intersection2D( Type.NONE ) : new Intersection2D(
-			Type.INTERSECTION,
+		return intersections.size() == 0 ? new Intersection2D( Type.NONE ) : new Intersection2D( Type.INTERSECTION,
 			intersections.toArray( new Point2D[ intersections.size() ] )
 		);
 	}

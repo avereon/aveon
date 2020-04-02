@@ -19,11 +19,11 @@ public class CubicBezierCurveFitter {
 		TRAILING
 	}
 
-	private String id;
+	private final String id;
 
-	private List<Point2D> points;
+	private final List<Point2D> points;
 
-	private Hint hint;
+	private final Hint hint;
 
 	private double error;
 
@@ -46,21 +46,41 @@ public class CubicBezierCurveFitter {
 	}
 
 	public Cubic2D generate() {
-		Cubic2D curve = getInitial( points, hint );
-		error = calcError( points, curve );
+		System.err.println( "initalstate" );
 
-		System.err.println( "initalerror=" + error );
+		Cubic2D curve = getInitial( hint );
+		error = calcError( points, curve );
 
 		int iteration = 0;
 		while( !closeEnough( points, curve, iteration ) ) {
-			curve = adjustCurve( curve, iteration );
+			curve = adjustCurve( curve );
 			iteration++;
 		}
 
 		return curve;
 	}
 
-	private Cubic2D adjustCurve( Cubic2D curve, int iteration ) {
+	private Cubic2D adjustCurve( Cubic2D curve ) {
+		Cubic2D result = curve;
+
+		// Adjust the head
+		head = true;
+		for( int index = 0; index < 4; index++ ) {
+			result = tweakCurve( result );
+			error = calcError( points, result );
+		}
+
+		// Adjust the tail
+		head = false;
+		for( int index = 0; index < 4; index++ ) {
+			result = tweakCurve( result );
+			error = calcError( points, result );
+		}
+
+		return result;
+	}
+
+	private Cubic2D tweakCurve( Cubic2D curve ) {
 		// Need to adjust the magnitude of either control point
 		if( head ) {
 			// Adjust the head
@@ -68,17 +88,20 @@ public class CubicBezierCurveFitter {
 			double m = v.magnitude();
 			double mo = m;
 
-			m = m + (m * 0.1 * headDirection);
+			m = m + (m * 0.2 * headDirection);
 			Point2D u = v.normalize().multiply( m );
-			System.err.println( "  mag=" + mo + " newmag=" + m + " u=" + u + " newb=" + curve.a.add( u ) );
+			System.err.println( "  [head] mag=" + mo + " newmag=" + m + " u=" + u + " newb=" + curve.a.add( u ) );
 
 			return new Cubic2D( curve.a, curve.a.add( u ), curve.c, curve.d );
 		} else {
 			// Adjust the tail
 			Point2D v = curve.c.subtract( curve.d );
 			double m = v.magnitude();
-			m = m + (m * 0.1 * tailDirection);
+			double mo = m;
+
+			m = m + (m * 0.2 * tailDirection);
 			Point2D u = v.normalize().multiply( m );
+			System.err.println( "  [tail] mag=" + mo + " newmag=" + m + " u=" + u + " newb=" + curve.a.add( u ) );
 			return new Cubic2D( curve.a, curve.b, curve.d.add( u ), curve.d );
 		}
 	}
@@ -98,44 +121,7 @@ public class CubicBezierCurveFitter {
 		return error <= 0.1 || iteration >= 100;
 	}
 
-	private double calcError( List<Point2D> points, Cubic2D curve ) {
-		boolean headPointsMatch = Objects.equals( points.get( 0 ), curve.a );
-		boolean tailPointsMatch = Objects.equals( points.get( points.size() - 1 ), curve.d );
-
-		// The first and last points should match
-		if( !headPointsMatch ) {
-			log.log( Log.WARN, "Head points don't match" );
-			return Double.NaN;
-		}
-		else if( !tailPointsMatch ) {
-			log.log( Log.WARN, "Tail points don't match" );
-			return Double.NaN;
-		}
-		//if( !headPointsMatch || !tailPointsMatch ) return Double.NaN;
-
-		// TODO There are several ways to generate the curve points
-		// 1. Simple count
-		// 2. Count based on number of points
-		// 3. Flatness
-		List<Point2D> curvePoints = curve.toPoints( 8 );
-		System.err.println( "  statnpoints=" + points );
-		System.err.println( "  curvepoints=" + curvePoints );
-
-		return findAreas( points, curvePoints ).stream().mapToDouble( Double::doubleValue ).sum();
-	}
-
-	private List<Double> findAreas( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
-		List<List<Point2D>> polygons = Geometry2D.findPolygons( fitPoints, curvePoints );
-		if( polygons.size() == 0 ) {
-			//log.log( Log.WARN, "No polygons defined" );
-			//log.log( Log.WARN, "  fitPoints=" + fitPoints );
-			//log.log( Log.WARN, "  curvePoints=" + curvePoints );
-			return List.of( Double.NaN );
-		}
-		return polygons.stream().map( Geometry2D::calcPolygonArea ).collect( Collectors.toList() );
-	}
-
-	private Cubic2D getInitial( List<Point2D> points, Hint hint ) {
+	private Cubic2D getInitial( Hint hint ) {
 		Point2D p = points.get( 0 );
 		Point2D q = points.get( points.size() - 2 );
 		Point2D r = points.get( points.size() - 1 );
@@ -172,6 +158,43 @@ public class CubicBezierCurveFitter {
 
 		// Determine initial control points based on the incoming hint
 		return new Cubic2D( a, b, c, d );
+	}
+
+	private static double calcError( List<Point2D> fitPoints, Cubic2D curve ) {
+		boolean headPointsMatch = Objects.equals( fitPoints.get( 0 ), curve.a );
+		boolean tailPointsMatch = Objects.equals( fitPoints.get( fitPoints.size() - 1 ), curve.d );
+
+		// The first and last points should match
+		if( !headPointsMatch ) {
+			log.log( Log.WARN, "Head points don't match" );
+			return Double.NaN;
+		} else if( !tailPointsMatch ) {
+			log.log( Log.WARN, "Tail points don't match" );
+			return Double.NaN;
+		}
+
+		// TODO There are several ways to generate the curve points
+		// 1. Simple count
+		// 2. Count based on number of points
+		// 3. Flatness
+		List<Point2D> curvePoints = curve.toPoints( 8 );
+
+		double error = findAreas( fitPoints, curvePoints ).stream().mapToDouble( Double::doubleValue ).sum();
+
+		// Scale the error by the curve distance
+		error = error / (curve.a.subtract( curve.d ).magnitude());
+
+		//System.err.println( "  statnpoints=" + points );
+		//System.err.println( "  curvepoints=" + curvePoints );
+		System.err.println( "  error=" + error );
+
+		return error;
+	}
+
+	private static List<Double> findAreas( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
+		List<List<Point2D>> polygons = Geometry2D.findPolygons( fitPoints, curvePoints );
+		if( polygons.size() == 0 ) throw new RuntimeException( "No polygons found to calculate area");
+		return polygons.stream().map( Geometry2D::calcPolygonArea ).collect( Collectors.toList() );
 	}
 
 }

@@ -16,6 +16,8 @@ public class Bounds2D {
 
 	private double maxY;
 
+	private int hash;
+
 	/**
 	 * Create a new {@code Bounds2D}.
 	 *
@@ -46,4 +48,40 @@ public class Bounds2D {
 	public double getMaxY() {
 		return maxY;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals( Object object ) {
+		if( object == this ) return true;
+		if( !(object instanceof Bounds2D) ) return false;
+		Bounds2D that = (Bounds2D)object;
+		return this.minX == that.minX && this.minY == that.minY && this.maxX == that.maxX && this.maxY == that.maxY;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		if( hash == 0 ) {
+			long bits = 11L;
+			bits = 73L * bits + Double.doubleToLongBits( minX );
+			bits = 73L * bits + Double.doubleToLongBits( minY );
+			bits = 73L * bits + Double.doubleToLongBits( maxX );
+			bits = 73L * bits + Double.doubleToLongBits( maxY );
+			hash = (int)(bits ^ (bits >> 32));
+		}
+		return hash;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "Line2D[minX=" + minX + ",minY=" + minY + ",maxX=" + maxX + ",maxY=" + maxY + "]";
+	}
+
 }

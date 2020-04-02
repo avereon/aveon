@@ -55,4 +55,31 @@ public class Geometry2DTest {
 		assertThat( index, is( 6 ) );
 	}
 
+	@Test
+	void testCalcPolygonArea() {
+		List<Point2D> p = new ArrayList<>();
+
+		p.add( new Point2D( 1, 1 ) );
+		p.add( new Point2D( 0, 1 ) );
+		p.add( new Point2D( -1, 0 ) );
+		p.add( new Point2D( -1, -1 ) );
+		p.add( new Point2D( 0, -1 ) );
+		p.add( new Point2D( 1, 0 ) );
+
+		assertThat( Geometry2D.calcPolygonArea( p ), is( 3.0 ) );
+	}
+
+	@Test
+	void testGetBounds() {
+		List<Point2D> p = new ArrayList<>();
+
+		p.add( new Point2D( 1, 1 ) );
+		p.add( new Point2D( 0, 1 ) );
+		p.add( new Point2D( -1, 0 ) );
+		p.add( new Point2D( -1, -1 ) );
+		p.add( new Point2D( 0, -1 ) );
+		p.add( new Point2D( 1, 0 ) );
+
+		assertThat( Geometry2D.getBounds( p ), is( new Bounds2D( -1, -1, 1, 1 ) ) );
+	}
 }

@@ -1,9 +1,6 @@
 package com.avereon.geometry;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Geometry2D {
 
@@ -129,6 +126,44 @@ public class Geometry2D {
 
 		return polygon;
 	}
+
+	public static double calcPolygonArea( List<Point2D> points ) {
+		// It is assumed that the points form a closed, non-intersecting polygon in counterclockwise order
+
+		// This process uses Green's theorem to calculate the area
+		// https://en.wikipedia.org/wiki/Green%27s_theorem#Area_calculation
+		double result = 0;
+		Point2D p1;
+		Point2D p2;
+		int count = points.size();
+		for( int index1 = 0; index1 < count; index1++ ) {
+			p1 = points.get( index1 );
+			int index2 = index1 + 1;
+			if( index2 >= count ) index2 = 0;
+			p2 = points.get( index2 );
+
+			result += 0.5 * (p2.x + p1.x ) * (p2.y - p1.y);
+		}
+
+		return result;
+	}
+
+	public static Bounds2D getBounds( Collection<Point2D> points ) {
+		double minX = Double.MAX_VALUE;
+		double minY = Double.MAX_VALUE;
+		double maxX = Double.MIN_VALUE;
+		double maxY = Double.MIN_VALUE;
+
+		for( Point2D p : points ) {
+			if( p.x < minX ) minX = p.x;
+			if( p.y < minY ) minY = p.y;
+			if( p.x > maxX ) maxX = p.x;
+			if( p.y > maxY ) maxY = p.y;
+		}
+
+		return new Bounds2D( minX, minY, maxX, maxY );
+	}
+
 
 	public static List<Point2D> findIntersections( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
 		List<Line2D> fitLines = Point2D.toSegments( fitPoints );

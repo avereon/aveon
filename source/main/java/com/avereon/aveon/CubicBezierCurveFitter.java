@@ -1,14 +1,13 @@
 package com.avereon.aveon;
 
-import com.avereon.geometry.Bounds2D;
 import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Geometry2D;
 import com.avereon.geometry.Point2D;
 import com.avereon.util.Log;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class CubicBezierCurveFitter {
 
@@ -79,28 +78,8 @@ public class CubicBezierCurveFitter {
 	}
 
 	private List<Double> findAreas( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
-		// Find the polygons...
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( fitPoints, curvePoints );
-
-		// NEXT Find the areas of the polygons
-
-		return List.of( 0.0 );
-	}
-
-	private Bounds2D getBounds( Collection<Point2D> points ) {
-		double minX = Double.MAX_VALUE;
-		double minY = Double.MAX_VALUE;
-		double maxX = Double.MIN_VALUE;
-		double maxY = Double.MIN_VALUE;
-
-		for( Point2D p : points ) {
-			if( p.x < minX ) minX = p.x;
-			if( p.y < minY ) minY = p.y;
-			if( p.x > maxX ) maxX = p.x;
-			if( p.y > maxY ) maxY = p.y;
-		}
-
-		return new Bounds2D( minX, minY, maxX, maxY );
+		return polygons.stream().map( Geometry2D::calcPolygonArea ).collect( Collectors.toList() );
 	}
 
 	private Cubic2D getInitial( List<Point2D> points, Hint hint ) {

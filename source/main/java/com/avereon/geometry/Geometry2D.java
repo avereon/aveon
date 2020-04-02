@@ -60,7 +60,12 @@ public class Geometry2D {
 		List<Point2D> intersections = new ArrayList<>();
 		for( Line2D aSegment : aSegments ) {
 			for( Line2D bSegment : bSegments ) {
-				intersections.addAll( aSegment.intersections( bSegment ) );
+				Intersection2D intersection = aSegment.intersection( bSegment );
+				if( intersection.getType() == Intersection2D.Type.INTERSECTION) {
+					intersections.addAll( intersection.getPoints() );
+				} else {
+					return List.of();
+				}
 			}
 		}
 
@@ -95,10 +100,16 @@ public class Geometry2D {
 			for( int bIndex = 0; bIndex < bCount; bIndex++ ) {
 				Line2D aSegment = aSegments.get( aIndex );
 				Line2D bSegment = bSegments.get( bIndex );
-				List<Point2D> intersections = aSegment.intersections( bSegment );
-				if( intersections.isEmpty() ) continue;
+				Intersection2D intersection = aSegment.intersection( bSegment );
 
-				Point2D intersection = intersections.get( 0 );
+				if( intersection.getType() == Intersection2D.Type.SAME ) {
+					// Jump to the next line segments
+					aIndex++;
+					bIndex=bCount;
+				}
+				if( intersection.getType() != Intersection2D.Type.INTERSECTION ) continue;
+
+				Point2D intersectionPoint = intersection.getPoints().get( 0 );
 
 				if( priorIntersection != null ) {
 					// Add points up to intersecting segments
@@ -106,8 +117,8 @@ public class Geometry2D {
 					d.addAll( b.subList( bOffset, bIndex+1 ) );
 
 					// Add closing intersection
-					c.add( intersection );
-					d.add( intersection );
+					c.add( intersectionPoint );
+					d.add( intersectionPoint );
 
 					// Add polygon
 					polygons.add( toCcwPolygon( c, d ) );
@@ -118,11 +129,11 @@ public class Geometry2D {
 				}
 
 				// Add starting intersection
-				c.add( intersection );
-				d.add( intersection );
+				c.add( intersectionPoint );
+				d.add( intersectionPoint );
 
 				// Store state
-				priorIntersection = intersection;
+				priorIntersection = intersectionPoint;
 				aOffset = aIndex + 1;
 				bOffset = bIndex + 1;
 			}

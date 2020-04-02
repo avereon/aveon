@@ -52,7 +52,8 @@ public class CubicBezierCurveFitter {
 		error = calcError( points, curve );
 
 		int iteration = 0;
-		while( !closeEnough( points, curve, iteration ) ) {
+		while( !closeEnough( curve, iteration ) ) {
+			System.out.println( "iteration=" + iteration);
 			curve = adjustCurve( curve );
 			iteration++;
 		}
@@ -109,16 +110,13 @@ public class CubicBezierCurveFitter {
 	/**
 	 * Determine if the curve matches close enough to the curve
 	 *
-	 * @param points The points to match
 	 * @param curve The curve to test
 	 * @return True if the curve is "close enough"
 	 */
-	private boolean closeEnough( List<Point2D> points, Cubic2D curve, int iteration ) {
-		System.err.println( "\niteration=" + iteration + " curve=" + curve );
-		double error = calcError( points, curve );
-		System.err.println( "  id=" + id + " hint=" + hint + " iteration=" + iteration + " error=" + error );
-		if( Double.isNaN( error ) ) throw new RuntimeException( "Error returned NaN" );
-		return error <= 0.1 || iteration >= 100;
+	private boolean closeEnough( Cubic2D curve, int iteration ) {
+		//double error = calcError( points, curve );
+		//if( Double.isNaN( error ) ) throw new RuntimeException( "Error returned NaN" );
+		return error <= 0.00001 || iteration >= 100;
 	}
 
 	private Cubic2D getInitial( Hint hint ) {

@@ -1,6 +1,5 @@
 package com.avereon.geometry;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -149,7 +148,6 @@ public class Line2D extends Shape {
 	 * measured against the specified line segment
 	 * @return a double value that is the distance from the specified point
 	 * to the specified line segment.
-	 * @see #ptLineDist(double, double, double, double, double, double)
 	 */
 	public static float ptSegDist(
 		float x1, float y1, float x2, float y2, float px, float py
@@ -157,16 +155,22 @@ public class Line2D extends Shape {
 		return (float)Math.sqrt( ptSegDistSq( x1, y1, x2, y2, px, py ) );
 	}
 
-	public List<Point2D> intersections( Line2D line ) {
-		return segmentIntersections( this, line );
+	public Intersection2D intersection( Line2D line ) {
+		return segmentIntersection( this, line );
 	}
 
-	public static List<Point2D> segmentIntersections( Line2D a, Line2D b ) {
-		if( Objects.equals( a.a, b.a ) ) return List.of( new Point2D( a.a ) );
-		if( Objects.equals( a.a, b.b ) ) return List.of( new Point2D( a.a ) );
-		if( Objects.equals( a.b, b.a ) ) return List.of( new Point2D( a.b ) );
-		if( Objects.equals( a.b, b.b ) ) return List.of( new Point2D( a.b ) );
-		return Intersection2D.intersectLineLine( a.a, a.b, b.a, b.b ).getPoints();
+	public static Intersection2D segmentIntersection( Line2D a, Line2D b ) {
+		// Same lines
+		if( Objects.equals( a.a, b.a ) && Objects.equals( a.b, b.b ) ) return new Intersection2D( Intersection2D.Type.SAME );
+		if( Objects.equals( a.a, b.b ) && Objects.equals( a.b, b.a ) ) return new Intersection2D( Intersection2D.Type.SAME );
+
+		// Matching end points
+		if( Objects.equals( a.a, b.a ) ) return new Intersection2D( Intersection2D.Type.INTERSECTION, new Point2D( a.a ) );
+		if( Objects.equals( a.a, b.b ) ) return new Intersection2D( Intersection2D.Type.INTERSECTION, new Point2D( a.a ) );
+		if( Objects.equals( a.b, b.a ) ) return new Intersection2D( Intersection2D.Type.INTERSECTION, new Point2D( a.b ) );
+		if( Objects.equals( a.b, b.b ) ) return new Intersection2D( Intersection2D.Type.INTERSECTION, new Point2D( a.b ) );
+
+		return Intersection2D.intersectLineLine( a.a, a.b, b.a, b.b );
 	}
 
 	/**

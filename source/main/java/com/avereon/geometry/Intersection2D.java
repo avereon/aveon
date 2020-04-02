@@ -12,20 +12,20 @@ public class Intersection2D {
 		INTERSECTION
 	}
 
-	private Type type;
+	private final Type type;
 
-	private List<Point2D> points;
+	private final List<Point2D> points;
 
 	public Intersection2D( Type status, Point2D... points ) {
 		this.type = status;
 		this.points = Arrays.asList( points );
 	}
 
-	public Type getType() {
+	public final Type getType() {
 		return type;
 	}
 
-	public List<Point2D> getPoints() {
+	public final List<Point2D> getPoints() {
 		return points;
 	}
 
@@ -257,6 +257,14 @@ public class Intersection2D {
 		}
 
 		return intersections.size() == 0 ? new Intersection2D( Type.NONE ) : new Intersection2D( Type.INTERSECTION, intersections.toArray( new Point2D[ 0 ] ) );
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return "Intersection2D[type=" + type + ",points=" + points + "]";
 	}
 
 	private static Polynomial bezout( double[] e1, double[] e2 ) {

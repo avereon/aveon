@@ -18,11 +18,21 @@ public class Geometry2DTest {
 	}
 
 	@Test
+	void testFindPolygonsWithSamePaths() {
+		List<Point2D> a = new ArrayList<>();
+		a.add( new Point2D( 1, 1 ) );
+		a.add( new Point2D( 0, 1 ) );
+		a.add( new Point2D( -1, 0 ) );
+		a.add( new Point2D( -1, -1 ) );
+		List<Point2D> b = new ArrayList<>( a );
+
+		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
+
+		assertThat( polygons.size(), is( 0 ) );
+	}
+
+	@Test
 	void testFindPolygonsWithOnePolygonSameHeadSameTail() {
-		// Need a head crossing test
-		// Need a tail crossing test
-		// Need a both crossing test
-		// Need a multi-polygon test
 		List<Point2D> a = new ArrayList<>();
 		List<Point2D> b = new ArrayList<>();
 
@@ -37,12 +47,6 @@ public class Geometry2DTest {
 		b.add( new Point2D( -1, -1 ) );
 
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
-
-		System.err.println();
-		List<Point2D> polygon = polygons.get( 0 );
-		for( Point2D point : polygon ) {
-			System.err.println( "p=" + point );
-		}
 
 		int index = 0;
 		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 1, 1 ) ) );

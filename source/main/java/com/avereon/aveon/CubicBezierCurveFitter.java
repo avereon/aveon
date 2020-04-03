@@ -22,7 +22,7 @@ public class CubicBezierCurveFitter {
 		TRAILING
 	}
 
-	private static final double factor = 0.5;
+	private static final double factor = 0.2;
 
 	private final String id;
 
@@ -84,11 +84,13 @@ public class CubicBezierCurveFitter {
 	 * @return True if the curve is "close enough"
 	 */
 	private boolean closeEnough( Cubic2D curve, int iteration ) {
+		int iterations = 10;
+
 		double headDir = Math.abs( headDirection );
 		double tailDir = Math.abs( tailDirection );
 		double dErr = Math.abs( dError );
 
-		return iteration != 0 && ((headDir < 0.0001 && tailDir < 0.0001) || error < 0.00001 || iteration >= 5);
+		return iteration != 0 && ((headDir < 0.0001 && tailDir < 0.0001) || error < 0.00001 || iteration >= iterations);
 	}
 
 	private Cubic2D adjustCurve( Cubic2D curve ) {
@@ -102,17 +104,23 @@ public class CubicBezierCurveFitter {
 		// Adjust the head
 		for( int index = 0; index < steps; index++ ) {
 			test = tweakHead( test );
-			System.err.println( "  head curve=" + test );
 			newError = calcError( points, test );
 			dError = newError - priorError;
+
+			// At this point we know if we are improving or not
+			if( dError > 0 ) {
+				// Unfortunately we already moved the wrong direction...
+			}
+
+			System.err.println( "  head curve=" + test );
+			System.err.println( "  head error=" + format.format( calcError( points, test ) ) + " dError=" + format.format( dError ) );
 			if( dError < 0 ) {
 				// Less error
 				priorError = newError;
 				result = test;
-				System.err.println( "  head error=" + format.format( calcError( points, test ) ) + " dError=" + format.format( dError ) );
 			} else {
 				// More error
-				headDirection *= -factor;
+				headDirection *= -1;
 				System.err.println( "  head error increased, switching direction: " + headDirection );
 				break;
 			}
@@ -121,15 +129,15 @@ public class CubicBezierCurveFitter {
 		// Adjust the tail
 		for( int index = 0; index < steps; index++ ) {
 			test = tweakTail( test );
-			System.err.println( "  tail curve=" + test );
 			newError = calcError( points, test );
 			dError = newError - priorError;
+			System.err.println( "  tail curve=" + test );
+			System.err.println( "  tail error=" + format.format( calcError( points, test ) ) + " dError=" + format.format( dError ) );
 			if( dError < 0 ) {
 				priorError = newError;
 				result = test;
-				System.err.println( "  tail error=" + format.format( calcError( points, test ) ) + " dError=" + format.format( dError ) );
 			} else {
-				tailDirection *= -factor;
+				tailDirection *= -1;
 				System.err.println( "  tail error increased, switching direction: " + tailDirection );
 				break;
 			}
@@ -143,6 +151,8 @@ public class CubicBezierCurveFitter {
 		Point2D u = curve.b.subtract( curve.a );
 		// Using the initial curve avoids additive rounding errors
 		Point2D d = initialCurve.b.subtract( initialCurve.a ).normalize();
+		double factor = 1 + headDirection;
+		System.err.println( "    head factor=" + factor );
 		Point2D v = d.multiply( u.magnitude() * (1 + headDirection) );
 		return new Cubic2D( curve.a, curve.a.add( v ), curve.c, curve.d );
 	}
@@ -152,7 +162,9 @@ public class CubicBezierCurveFitter {
 		Point2D u = curve.c.subtract( curve.d );
 		// Using the initial curve avoids additive rounding errors
 		Point2D d = initialCurve.c.subtract( initialCurve.d ).normalize();
-		Point2D v = d.multiply( u.magnitude() * ( 1 + tailDirection ) );
+		double factor = 1 + headDirection;
+		System.err.println( "    tail factor=" + factor );
+		Point2D v = d.multiply( u.magnitude() * (1 + tailDirection) );
 		return new Cubic2D( curve.a, curve.b, curve.d.add( v ), curve.d );
 	}
 
@@ -196,6 +208,40 @@ public class CubicBezierCurveFitter {
 	}
 
 	static double calcError( List<Point2D> fitPoints, Cubic2D curve ) {
+		return calcErrorByOffset( fitPoints, curve );
+	}
+
+	static double calcErrorByOffset( List<Point2D> fitPoints, Cubic2D curve ) {
+		// Calculate the sum of the shortest lines between the fit points and the
+		// curve. This method should reduce near zero as the curve more accurately
+		// fits the fitPoints. However, it is possible that the error may never
+		// reach zero because the curve may not be able to accurately estimate the
+		// fitPoints.
+
+		// TODO There are several ways to generate the curve points
+		// 1. Simple count
+		// 2. Count based on number of points
+		// 3. Flatness
+		List<Point2D> curvePoints = curve.toPoints( 16 );
+
+		double distance = Geometry2D.findDistances( fitPoints, curvePoints ).stream().mapToDouble( Double::doubleValue ).sum();
+
+		// Scale the error by the curve distance
+		return distance / (curve.a.distance( curve.d ));
+	}
+
+	/**
+	 * Calculate the error by finding the area between the fitPoints and the
+	 * curve. This method, unfortunately, will never return zero because there
+	 * will always be space between the segmented path defined by the fit points
+	 * and the smooth curve. Therefore iterating until there is no error is not
+	 * a valid process.
+	 *
+	 * @param fitPoints
+	 * @param curve
+	 * @return
+	 */
+	static double calcErrorByArea( List<Point2D> fitPoints, Cubic2D curve ) {
 		boolean headPointsMatch = Objects.equals( fitPoints.get( 0 ), curve.a );
 		boolean tailPointsMatch = Objects.equals( fitPoints.get( fitPoints.size() - 1 ), curve.d );
 

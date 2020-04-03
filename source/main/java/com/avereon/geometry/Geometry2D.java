@@ -73,6 +73,40 @@ public class Geometry2D {
 		return intersections;
 	}
 
+	public static List<Double> findDistances( List<Point2D> points, List<Point2D> curvePoints ) {
+		return points.stream().map( p -> findShortest( p, curvePoints ) ).collect( Collectors.toList() );
+	}
+
+	public static double findShortest( Point2D anchor, List<Point2D> path ) {
+		double result = Double.MAX_VALUE;
+
+		for( Point2D point : path ) {
+			double distance = anchor.distance( point );
+			if( distance < result ) result = distance;
+		}
+
+		return result;
+	}
+
+	public static List<Line2D> findLines( List<Point2D> points, List<Point2D> curvePoints ) {
+		return points.stream().map( p -> new Line2D( p, findNearest( p, curvePoints ) ) ).collect( Collectors.toList() );
+	}
+
+	public static Point2D findNearest( Point2D anchor, List<Point2D> path ) {
+		Point2D result = null;
+		double minDistance = Double.MAX_VALUE;
+
+		for( Point2D point : path ) {
+			double distance = anchor.distance( point );
+			if( distance < minDistance ) {
+				minDistance = distance;
+				result = point;
+			}
+		}
+
+		return result;
+	}
+
 	public static List<Double> findAreas( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
 		List<List<Point2D>> polygons = findPolygons( fitPoints, curvePoints );
 		if( polygons.size() == 0 ) throw new RuntimeException( "No polygons found to calculate area" );

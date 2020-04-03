@@ -5,6 +5,85 @@ import java.util.stream.Collectors;
 
 public class Geometry2D {
 
+	public static final double FULL_CIRCLE = Math.PI * 2.0;
+
+	public static final double HALF_CIRCLE = Math.PI;
+
+	public static final double QUARTER_CIRCLE = Math.PI * 0.5;
+
+	public static final double RADIANS_PER_DEGREE = Math.PI / 180.0;
+
+	public static final double DEGREES_PER_RADIAN = 180.0 / Math.PI;
+
+	//	public static final double RESOLUTION_LENGTH = 1e-6;
+	//
+	//	public static final double RESOLUTION_NORMAL = 1e-10;
+	//
+	//	public static final double RESOLUTION_ANGLE = Math.atan( RESOLUTION_NORMAL );
+	//
+	//	public static final double RESOLUTION_SMOOTH = 1e-3;
+
+	/**
+	 * Get the distance between a point and a line.
+	 *
+	 * @param p The point from which to determine the distance.
+	 * @param a The first point on the line.
+	 * @param b The second point on the line.
+	 * @return The distance between the point and line
+	 */
+	public static double getPointLineDistance( Point2D p, Point2D a, Point2D b ) {
+		Point2D t = b.subtract( a );
+		double s = t.crossProduct( b.subtract( p ) );
+		return Math.abs( s ) / t.magnitude();
+	}
+
+	/**
+	 * Get the distance between a plane and a point.
+	 *
+	 * @param origin The origin of the plane.
+	 * @param normal The normal of the plane.
+	 * @param p The point to which to determine the distance.
+	 * @return
+	 */
+	public static double getPointPlaneDistance( Point2D origin, Point2D normal, Point2D p ) {
+		return Math.abs( normal.dotProduct( new Point2D( p.x - origin.x, p.y - origin.y ) ) ) / normal.magnitude();
+	}
+
+	/**
+	 * Get the angle of a vector in the X-Y plane by computing Math.atan2(
+	 * vector.y, vector.x ).
+	 *
+	 * @param p
+	 * @return
+	 */
+	public static double getAngle( final Point2D p ) {
+		return Math.atan2( p.y, p.x );
+	}
+
+	public static final double getAngle( final Point2D v1, final Point2D v2 ) {
+		return Math.acos( v1.normalize().dotProduct( v2.normalize() ) );
+	}
+
+	/**
+	 * Get the distance between a point and a line. If the point is outside of the
+	 * line segment then Double.NaN is returned.
+	 *
+	 * @param p The point from which to determine the distance.
+	 * @param p The first point on the line.
+	 * @param a The second point on the line.
+	 * @return
+	 */
+	public static final double getPointLineBoundDistance( Point2D p, Point2D a, Point2D b ) {
+		Point2D pb = p.subtract( b );
+		Point2D pa = p.subtract( a );
+		Point2D ba = b.subtract( a );
+		Point2D ab = a.subtract( b );
+		double anglea = Geometry2D.getAngle( ba, pa );
+		double angleb = Geometry2D.getAngle( ab, pb );
+		if( anglea > Geometry2D.QUARTER_CIRCLE || angleb > Geometry2D.QUARTER_CIRCLE ) return Double.NaN;
+		return Math.abs( ba.crossProduct( b.subtract( p ) ) ) / ba.magnitude();
+	}
+
 	/**
 	 * Determine if two line segments intersect.
 	 *
@@ -33,15 +112,15 @@ public class Geometry2D {
 	 * Determine if the three points are in counter-clockwise(-1), straight(0),
 	 * or clockwise(1) order.
 	 *
-	 * @param a The anchor point/vector to test
-	 * @param b The direction point/vector to test
-	 * @param c The point/vector to compare
+	 * @param a The anchor point/Point2D to test
+	 * @param b The direction point/Point2D to test
+	 * @param c The point/Point2D to compare
 	 * @return Minus one if CCW, zero if straight, and one if CW.
 	 */
 	public static int getSpin( Point2D a, Point2D b, Point2D c ) {
 		Point2D ab = a.subtract( b );
 		Point2D cb = c.subtract( b );
-		double ccw = cb.crossProduct( ab ).z;
+		double ccw = cb.crossProduct( ab );
 
 		if( ccw == 0.0 || ccw == -0.0 ) return 0;
 		return ccw > 0 ? 1 : -1;
@@ -79,6 +158,21 @@ public class Geometry2D {
 
 	public static double findShortest( Point2D anchor, List<Point2D> path ) {
 		double result = Double.MAX_VALUE;
+
+		boolean first = true;
+		Point2D prior = null;
+		for( Point2D point : path ) {
+			double distance = anchor.distance( point );
+			if( first ) {
+				result = distance;
+			} else {
+				if( distance < result ) result = distance;
+				double lineDistance = getPointLineDistance( point, prior, point );
+				if( lineDistance < result ) result = lineDistance;
+			}
+			prior = point;
+			first = false;
+		}
 
 		for( Point2D point : path ) {
 			double distance = anchor.distance( point );
@@ -239,6 +333,29 @@ public class Geometry2D {
 	}
 
 	/**
+	 * Calculate the path length of a segmented path.
+	 *
+	 * @param points The path
+	 * @return The length of the path
+	 */
+	public static double calcPathLength( List<Point2D> points ) {
+		if( points.isEmpty() ) return Double.NaN;
+
+		double result = 0;
+
+		Point2D point;
+		Point2D prior = points.get( 0 );
+		int count = points.size();
+		for( int index = 1; index < count; index++ ) {
+			point = points.get( index );
+			result += prior.distance( point );
+			prior = point;
+		}
+
+		return result;
+	}
+
+	/**
 	 * Calculate the area of a polygon using <a href="https://en.wikipedia.org/wiki/Green%27s_theorem#Area_calculation">Green's theorem</a>.
 	 * It is assumed that the points form a closed, counterclockwise, non-intersecting segmented path.
 	 *
@@ -286,6 +403,48 @@ public class Geometry2D {
 		}
 
 		return new Bounds2D( minX, minY, maxX, maxY );
+	}
+
+	/**
+	 * Calculate the quadradic <a href="https://mathworld.wolfram.com/BernsteinPolynomial.html">Bernstein polynomial coefficient</a>.
+	 *
+	 * @param index The polynomial index
+	 * @param t The parameter
+	 * @return The quadradic Bernstein polynomial coefficient
+	 */
+	public static double calcQuadBasisEffect( int index, double t ) {
+		double s = 1 - t;
+		switch( index ) {
+			case 0:
+				return s * s;
+			case 1:
+				return 2 * s * t;
+			case 2:
+				return t * t;
+		}
+		return Double.NaN;
+	}
+
+	/**
+	 * Calculate the cubic <a href="https://mathworld.wolfram.com/BernsteinPolynomial.html">Bernstein polynomial coefficient</a>.
+	 *
+	 * @param index The polynomial index
+	 * @param t The parameter
+	 * @return The cubic Bernstein polynomial coefficient
+	 */
+	public static double calcCubicBasisEffect( int index, double t ) {
+		double s = 1 - t;
+		switch( index ) {
+			case 0:
+				return s * s * s;
+			case 1:
+				return 3 * t * s * s;
+			case 2:
+				return 3 * s * t * t;
+			case 3:
+				return t * t * t;
+		}
+		return Double.NaN;
 	}
 
 }

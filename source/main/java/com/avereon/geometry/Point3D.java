@@ -179,10 +179,7 @@ public class Point3D {
 	 * @return the angle between the two points/vectors in degrees
 	 */
 	public double angle( double x, double y, double z ) {
-		final double ax = getX();
-		final double ay = getY();
-		final double az = getZ();
-		return angle( ax, ay, az, x, y, z );
+		return angle( this.x, this.y, this.z, x, y, z );
 	}
 
 	/**
@@ -209,15 +206,12 @@ public class Point3D {
 	 * @throws NullPointerException if {@code p1} or {@code p2} is null
 	 */
 	public double angle( Point3D p1, Point3D p2 ) {
-		final double x = getX();
-		final double y = getY();
-		final double z = getZ();
-		final double ax = p1.getX() - x;
-		final double ay = p1.getY() - y;
-		final double az = p1.getZ() - z;
-		final double bx = p2.getX() - x;
-		final double by = p2.getY() - y;
-		final double bz = p2.getZ() - z;
+		final double ax = p1.getX() - this.x;
+		final double ay = p1.getY() - this.y;
+		final double az = p1.getZ() - this.z;
+		final double bx = p2.getX() - this.x;
+		final double by = p2.getY() - this.y;
+		final double bz = p2.getZ() - this.z;
 		return angle( ax, ay, az, bx, by, bz );
 	}
 
@@ -246,10 +240,7 @@ public class Point3D {
 	 * @return the magnitude of this point/vector
 	 */
 	public double magnitude() {
-		final double x = getX();
-		final double y = getY();
-		final double z = getZ();
-		return Math.sqrt( x * x + y * y + z * z );
+		return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
 	}
 
 	/**
@@ -261,7 +252,7 @@ public class Point3D {
 	 * @return the dot product of the coordinates and this point/vector
 	 */
 	public double dotProduct( double x, double y, double z ) {
-		return getX() * x + getY() * y + getZ() * z;
+		return this.x * x + this.y * y + this.z * z;
 	}
 
 	/**
@@ -272,7 +263,7 @@ public class Point3D {
 	 * @throws NullPointerException if the {@code point} is null
 	 */
 	public double dotProduct( Point3D point ) {
-		return dotProduct( point.getX(), point.getY(), point.getZ() );
+		return dotProduct( point.getX(), point.getY(), point.z );
 	}
 
 	/**
@@ -284,10 +275,7 @@ public class Point3D {
 	 * @return the cross product of the coordinates and this point/vector
 	 */
 	public Point3D crossProduct( double x, double y, double z ) {
-		final double ax = getX();
-		final double ay = getY();
-		final double az = getZ();
-		return new Point3D( ay * z - az * y, az * x - ax * z, ax * y - ay * x );
+		return new Point3D( this.y * z - this.z * y, this.z * x - this.x * z, this.x * y - this.y * x );
 	}
 
 	/**
@@ -298,7 +286,7 @@ public class Point3D {
 	 * @throws NullPointerException if the {@code point} is null
 	 */
 	public Point3D crossProduct( Point3D point ) {
-		return crossProduct( point.getX(), point.getY(), point.getZ() );
+		return crossProduct( point.x, point.y, point.z );
 	}
 
 	/**

@@ -34,6 +34,10 @@ public class Point2D {
 		this( p.x, p.y );
 	}
 
+	public static Point2D of( double x, double y ) {
+		return new Point2D( x, y );
+	}
+
 	public final double getX() {
 		return x;
 	}
@@ -134,7 +138,7 @@ public class Point2D {
 	 */
 	public Point2D normalize() {
 		final double mag = magnitude();
-		if( mag == 0.0 ) return new Point2D( 0.0, 0.0 );
+		if( mag == 0.0 ) return new Point2D( Double.NaN, Double.NaN );
 		return new Point2D( getX() / mag, getY() / mag );
 	}
 
@@ -265,10 +269,8 @@ public class Point2D {
 	 * @param y the Y coordinate
 	 * @return the cross product of the coordinates and this point/vector
 	 */
-	public Point3D crossProduct( double x, double y ) {
-		final double ax = getX();
-		final double ay = getY();
-		return new Point3D( 0, 0, ax * y - ay * x );
+	public double crossProduct( double x, double y ) {
+		return this.x * y - this.y * x;
 	}
 
 	/**
@@ -278,7 +280,7 @@ public class Point2D {
 	 * @return the cross product of the two vectors
 	 * @throws NullPointerException if the {@code point} is null
 	 */
-	public Point3D crossProduct( Point2D point ) {
+	public double crossProduct( Point2D point ) {
 		return crossProduct( point.getX(), point.getY() );
 	}
 

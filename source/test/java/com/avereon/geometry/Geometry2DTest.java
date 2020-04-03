@@ -5,16 +5,53 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
 
 public class Geometry2DTest {
+
+	@Test
+	public void testGetAngleWithTwoPoints() {
+		assertThat( Geometry2D.getAngle( Point2D.ZERO, Point2D.ZERO ), is( Double.NaN ) );
+
+		assertThat( Geometry2D.getAngle( new Point2D( 1, 0 ), new Point2D( 1, 0 ) ), is( 0.0 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( 0, 1 ) ), is( 0.0 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( -1, 0 ), new Point2D( -1, 0 ) ), is( 0.0 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, -1 ), new Point2D( 0, -1 ) ), is( 0.0 ) );
+
+		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( 1, 0 ) ), is( Math.PI / 2 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( -1, 0 ) ), is( Math.PI / 2 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, -1 ), new Point2D( 1, 0 ) ), is( Math.PI / 2 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, -1 ), new Point2D( -1, 0 ) ), is( Math.PI / 2 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 1, 0 ), new Point2D( 0, 1 ) ), is( Math.PI / 2 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 1, 0 ), new Point2D( 0, -1 ) ), is( Math.PI / 2 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( -1, 0 ), new Point2D( 0, 1 ) ), is( Math.PI / 2 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( -1, 0 ), new Point2D( 0, -1 ) ), is( Math.PI / 2 ) );
+
+		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( 0, -1 ) ), is( Math.PI ) );
+	}
+
+	@Test
+	public void testGetPointLineDistance() {
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( -0.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( 0.0, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( 0.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( 1.0, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( 1.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
+	}
 
 	@Test
 	void testGetSpin() {
 		assertThat( Geometry2D.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, 0.5 ) ), is( 1 ) );
 		assertThat( Geometry2D.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, 0.0 ) ), is( 0 ) );
 		assertThat( Geometry2D.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, -0.5 ) ), is( -1 ) );
+	}
+
+	@Test
+	void testFindShortest() {
+		List<Point2D> points = List.of( new Point2D( 0, 0 ), Point2D.of( 1, 1 ), Point2D.of( 2, 1 ), Point2D.of( 3, 0 ) );
+		assertThat( Geometry2D.findShortest( Point2D.of( 1.5, 0 ), points ), is( 1.0 ) );
 	}
 
 	@Test
@@ -260,6 +297,12 @@ public class Geometry2DTest {
 	}
 
 	@Test
+	void testCalcPathLength() {
+		Cubic2D c = new Cubic2D( 0, 0, 0, 0.5, 0.5, 1, 1, 1 );
+		assertThat( Geometry2D.calcPathLength( c.toPoints( 8 ) ), is( 1.5463566920835916 ) );
+	}
+
+	@Test
 	void testCalcPolygonArea() {
 		List<Point2D> p = new ArrayList<>();
 
@@ -286,4 +329,57 @@ public class Geometry2DTest {
 
 		assertThat( Geometry2D.getBounds( p ), is( new Bounds2D( -1, -1, 1, 1 ) ) );
 	}
+
+	@Test
+	void getCalcQuadBasisEffect() {
+		double error = 1e-15;
+
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 0 ), is( 1.0 ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 1.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 0.5 ), is( 0.25 ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 2.0 / 3.0 ), closeTo( 1.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 1 ), is( 0.0 ) );
+
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 0 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 1.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 0.5 ), is( 0.5 ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 2.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 1 ), is( 0.0 ) );
+
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 0 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 1.0 / 3.0 ), closeTo( 1.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 0.5 ), is( 0.25 ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 2.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 1 ), is( 1.0 ) );
+	}
+
+	@Test
+	void getCalcCubicBasisEffect() {
+		double error = 1e-15;
+
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 0 ), is( 1.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 1.0 / 3.0 ), closeTo( 8.0 / 27.0, error ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 0.5 ), is( 1.0 / 8.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 2.0 / 3.0 ), closeTo( 1.0 / 27.0, error ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 1 ), is( 0.0 ) );
+
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 0 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 1.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 0.5 ), is( 3.0 / 8.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 2.0 / 3.0 ), closeTo( 2.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 1 ), is( 0.0 ) );
+
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 0 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 1.0 / 3.0 ), closeTo( 2.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 0.5 ), is( 3.0 / 8.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 2.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 1 ), is( 0.0 ) );
+
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 0 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 1.0 / 3.0 ), closeTo( 1.0 / 27.0, error ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 0.5 ), is( 1.0 / 8.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 2.0 / 3.0 ), closeTo( 8.0 / 27.0, error ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 1 ), is( 1.0 ) );
+	}
+
 }

@@ -12,18 +12,54 @@ import static org.hamcrest.Matchers.*;
 class CubicBezierCurveFitterTest {
 
 	@Test
+	void testCalcErrorByOffset() {
+		List<Point2D> a = List.of( new Point2D( 0, 0 ), new Point2D( 1, 0.5 ), new Point2D( 2, 0.5 ), new Point2D( 3, 0 ) );
+		List<Point2D> b = List.of( new Point2D( 0, 0 ), new Point2D( 1, 1 ), new Point2D( 2, 1.1 ), new Point2D( 3, 0 ) );
+		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
+		assertThat( fitter.calcErrorByOffset( b ), is( 1.1 ) );
+	}
+
+	@Test
+	void testCalcErrorByOffset2() {
+		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.1, 0.2, 0.2, 0.4, 0.2 );
+		List<Point2D> a = goal.toPoints( 8 );
+		List<Point2D> b = goal.toPoints( 12 );
+		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
+		assertThat( fitter.calcErrorByOffset( b ), is( 0.0 ) );
+	}
+
+	@Test
+	void testCalcHeadError() {
+		List<Point2D> a = List.of( new Point2D( 0, 0 ), new Point2D( 1, 0.5 ), new Point2D( 2, 0.5 ), new Point2D( 3, 0 ) );
+		List<Point2D> b = List.of( new Point2D( 0, 0 ), new Point2D( 1, 1 ), new Point2D( 2, 1.1 ), new Point2D( 3, 0 ) );
+		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
+		assertThat( fitter.calcHeadError( b ), is( 0.3626281864453027 ) );
+	}
+
+	@Test
+	void testCalcTailError() {
+		List<Point2D> a = List.of( new Point2D( 0, 0 ), new Point2D( 1, 0.5 ), new Point2D( 2, 0.5 ), new Point2D( 3, 0 ) );
+		List<Point2D> b = List.of( new Point2D( 0, 0 ), new Point2D( 1, 1 ), new Point2D( 2, 1.1 ), new Point2D( 3, 0 ) );
+		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
+		assertThat( fitter.calcTailError( b ), is( 0.3835913237343632 ) );
+	}
+
+	@Test
 	void testGenerateLeading() {
+		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.1, 0.2, 0.2, 0.4, 0.2 );
+
 		// These points will be the station points to fit
-		List<Point2D> stationPoints = new Cubic2D( 0, 0, 0, 0.1, 0.2, 0.2, 0.4, 0.2 ).toPoints( 8 );
+		List<Point2D> stationPoints = goal.toPoints( 8 );
 
-		Cubic2D curve = new CubicBezierCurveFitter( "TEST", stationPoints, CubicBezierCurveFitter.Hint.LEADING ).generate();
+		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", stationPoints, CubicBezierCurveFitter.Hint.LEADING );
+		Cubic2D curve = fitter.generate();
 
-		//assertThat( CubicBezierCurveFitter.calcError( stationPoints, curve ), lessThanOrEqualTo( 0.0) );
+		assertThat( fitter.calcError( curve ), lessThanOrEqualTo( 0.0 ) );
 
 		assertThat( curve.a, is( new Point2D( 0.0, 0.0 ) ) );
 		assertThat( curve.b.x, is( 0.0 ) );
-		assertThat( Math.abs( 0.1 - curve.b.y ), lessThanOrEqualTo( 0.01 ) );
-		assertThat( Math.abs( 0.2 - curve.c.x ), lessThanOrEqualTo( 0.01 ) );
+		assertThat( curve.b.y, closeTo( 0.1, 0.0001 ) );
+		assertThat( curve.c.x, closeTo( 0.2, 0.0001 ) );
 		assertThat( curve.c.y, is( 0.2 ) );
 		assertThat( curve.d, is( new Point2D( 0.4, 0.2 ) ) );
 	}

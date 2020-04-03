@@ -117,10 +117,6 @@ public class Geometry2D {
 				Line2D bSegment = bSegments.get( bIndex );
 				Intersection2D intersection = aSegment.intersection( bSegment );
 
-				System.err.println();
-				System.err.println( "aIndex=" + aIndex + " aSeg=" + aSegment );
-				System.err.println( "bIndex=" + bIndex + " bSeg=" + bSegment );
-
 				// If segments are the same jump to the next segments
 				if( intersection.getType() == Intersection2D.Type.SAME ) aIndex++;
 				if( intersection.getType() != Intersection2D.Type.INTERSECTION ) continue;
@@ -128,11 +124,8 @@ public class Geometry2D {
 				Point2D intersectionPoint = intersection.getPoints().get( 0 );
 
 				if( !Objects.equals( intersectionPoint, priorIntersection ) ) {
-					System.err.println( "  aIndex=" + aIndex + " bIndex=" + bIndex + " intxn=" + intersectionPoint );
 					if( priorIntersection != null ) {
 						// Add points up to intersecting segments
-						System.err.println( "  adding a points " + aOffset + " to " + (aIndex + 1) );
-						System.err.println( "  adding b points " + bOffset + " to " + (bIndex + 1) );
 						c.addAll( a.subList( aOffset, aIndex + 1 ) );
 						d.addAll( b.subList( bOffset, bIndex + 1 ) );
 
@@ -140,11 +133,10 @@ public class Geometry2D {
 						c.add( intersectionPoint );
 						d.add( intersectionPoint );
 
-						System.err.println( "  c=" + c );
-						System.err.println( "  d=" + d );
-
 						// Add polygon
-						polygons.add( toCcwPolygon( c, d ) );
+						List<Point2D> e = c.stream().distinct().collect( Collectors.toList() );
+						List<Point2D> f = d.stream().distinct().collect( Collectors.toList() );
+						polygons.add( toCcwPolygon( e, f ) );
 
 						// Start new paths
 						c = new ArrayList<>();

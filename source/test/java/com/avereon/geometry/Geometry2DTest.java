@@ -49,9 +49,9 @@ public class Geometry2DTest {
 	}
 
 	@Test
-	void testFindShortest() {
+	void testFindNearestSegment() {
 		List<Point2D> points = List.of( new Point2D( 0, 0 ), Point2D.of( 1, 1 ), Point2D.of( 2, 1 ), Point2D.of( 3, 0 ) );
-		assertThat( Geometry2D.findShortest( Point2D.of( 1.5, 0 ), points ), is( 1.0 ) );
+		assertThat( Geometry2D.findNearestSegment( Point2D.of( 1.5, 0 ), points ), is( 1.0 ) );
 	}
 
 	@Test
@@ -75,8 +75,6 @@ public class Geometry2DTest {
 		List<Point2D> b = c.toPoints( 4 );
 
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
-
-		for( List<Point2D> polygon : polygons ) System.err.println( "poly=" + polygon );
 
 		assertThat( polygons.get( 0 ).size(), is( 3 ) );
 		assertThat( polygons.get( 1 ).size(), is( 3 ) );
@@ -331,7 +329,7 @@ public class Geometry2DTest {
 	}
 
 	@Test
-	void getCalcQuadBasisEffect() {
+	void testCalcQuadBasisEffect() {
 		double error = 1e-15;
 
 		assertThat( Geometry2D.calcQuadBasisEffect( 0, 0 ), is( 1.0 ) );
@@ -354,7 +352,7 @@ public class Geometry2DTest {
 	}
 
 	@Test
-	void getCalcCubicBasisEffect() {
+	void testCalcCubicBasisEffect() {
 		double error = 1e-15;
 
 		assertThat( Geometry2D.calcCubicBasisEffect( 0, 0 ), is( 1.0 ) );

@@ -153,40 +153,29 @@ public class Geometry2D {
 	}
 
 	public static List<Double> findDistances( List<Point2D> points, List<Point2D> curvePoints ) {
-		return points.stream().map( p -> findShortest( p, curvePoints ) ).collect( Collectors.toList() );
+		return points.stream().map( p -> findNearestSegment( p, curvePoints ) ).collect( Collectors.toList() );
 	}
 
-	public static double findShortest( Point2D anchor, List<Point2D> path ) {
+	public static double findNearestSegment( Point2D anchor, List<Point2D> path ) {
 		double result = Double.MAX_VALUE;
 
-		boolean first = true;
-		Point2D prior = null;
+		Point2D prior = path.get( 0 );
 		for( Point2D point : path ) {
-			double distance = anchor.distance( point );
-			if( first ) {
-				result = distance;
-			} else {
-				if( distance < result ) result = distance;
-				double lineDistance = getPointLineDistance( point, prior, point );
+			if( point != prior ) {
+				double lineDistance = getPointLineDistance( anchor, prior, point );
 				if( lineDistance < result ) result = lineDistance;
 			}
 			prior = point;
-			first = false;
-		}
-
-		for( Point2D point : path ) {
-			double distance = anchor.distance( point );
-			if( distance < result ) result = distance;
 		}
 
 		return result;
 	}
 
 	public static List<Line2D> findLines( List<Point2D> points, List<Point2D> curvePoints ) {
-		return points.stream().map( p -> new Line2D( p, findNearest( p, curvePoints ) ) ).collect( Collectors.toList() );
+		return points.stream().map( p -> new Line2D( p, findNearestPoint( p, curvePoints ) ) ).collect( Collectors.toList() );
 	}
 
-	public static Point2D findNearest( Point2D anchor, List<Point2D> path ) {
+	public static Point2D findNearestPoint( Point2D anchor, List<Point2D> path ) {
 		Point2D result = null;
 		double minDistance = Double.MAX_VALUE;
 

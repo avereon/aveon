@@ -32,7 +32,7 @@ public class CubicBezierCurveFitter {
 		TRAILING
 	}
 
-	private static final double factor = 0.05;
+	private static final double factor = 0.1;
 
 	private final String id;
 
@@ -57,6 +57,8 @@ public class CubicBezierCurveFitter {
 	 */
 	private double headError = 0;
 
+	private double headErrorDelta = 0;
+
 	private double headPercent = 1.0;
 
 	private double headMovement = -factor;
@@ -65,6 +67,8 @@ public class CubicBezierCurveFitter {
 	 * What direction to change the control point: shrink(negative) grow(positive)
 	 */
 	private double tailError = 0;
+
+	private double tailErrorDelta = 0;
 
 	private double tailPercent = 1.0;
 
@@ -112,8 +116,10 @@ public class CubicBezierCurveFitter {
 
 	private void print( String id ) {
 		StringBuilder builder = new StringBuilder( id );
-		builder.append( " err=" ).append( format( error ) );
-		builder.append( " dE=" ).append( format( dError ) );
+		builder.append( " eH=" ).append( format( headError ) );
+		builder.append( " eT=" ).append( format( tailError ) );
+		builder.append( " dH=" ).append( format( headErrorDelta ) );
+		builder.append( " dT=" ).append( format( tailErrorDelta ) );
 		builder.append( " pH=" ).append( format.format( headPercent ) );
 		builder.append( " pT=" ).append( format.format( tailPercent ) );
 		builder.append( " dH=" ).append( format( headMovement ) );
@@ -137,13 +143,14 @@ public class CubicBezierCurveFitter {
 		double headDir = Math.abs( headMovement );
 		double tailDir = Math.abs( tailMovement );
 
-		return iteration >= maxIterations;
+		//		return iteration >= maxIterations;
 
-		//return iteration != 0 && ((headDir < 0.0001 && tailDir < 0.0001) || error < 0.00001 || iteration >= maxIterations);
+		return iteration != 0 && ((headDir < 1e-15 && tailDir < 1e-15) || error < 0.00001 || iteration >= maxIterations);
 	}
 
 	private void adjustCurve() {
-		double priorError = this.error;
+		double headPriorError = this.headError;
+		double tailPriorError = this.tailError;
 		Cubic2D result = curve;
 		double error;
 		double dError;
@@ -159,21 +166,25 @@ public class CubicBezierCurveFitter {
 			double percent = headPercent += headMovement;
 
 			result = new Cubic2D( result.a, result.a.add( m.multiply( percent ) ), result.c, result.d );
-			error = calcError( result );
-			dError = error - priorError;
-			//error = calcHeadError( test );
-			//dError = error - this.headError;
-			//error = calcTailError( test );
-			//dError = error - this.tailError;
+			//error = calcError( result );
+			//dError = error - priorError;
+			//error = calcHeadError( result );
+			//dError = error - headPriorError;
+			error = calcTailError( result );
+			dError = error - tailPriorError;
+
+			System.err.println( "  head err=" + error + " dE=" + dError );
 
 			// At this point we know if we are improving or not
 			if( dError < 0 ) {
 				// Accept this result
 				this.curve = result;
-				this.error = error;
-				this.dError = dError;
-				this.headPercent = percent;
-				priorError = error;
+				//this.error = error;
+				//this.dError = dError;
+				this.tailError = error;
+				this.tailErrorDelta = dError;
+				this.tailPercent = percent;
+				tailPriorError = error;
 			} else {
 				// We did not improve
 				headMovement *= -0.1;
@@ -191,50 +202,31 @@ public class CubicBezierCurveFitter {
 			double percent = tailPercent += tailMovement;
 
 			result = new Cubic2D( result.a, result.b, result.d.add( m.multiply( percent ) ), result.d );
-			error = calcError( result );
-			dError = error - priorError;
-			//error = calcHeadError( test );
-			//dError = error - this.headError;
-			//error = calcTailError( test );
-			//dError = error - this.tailError;
+			//error = calcError( result );
+			//dError = error - priorError;
+			error = calcHeadError( result );
+			dError = error - headPriorError;
+			//error = calcTailError( result );
+			//dError = error - tailPriorError;
+
+			System.err.println( "  tail err=" + error + " dE=" + dError );
 
 			// At this point we know if we are improving or not
 			if( dError < 0 ) {
 				// Accept this result
 				this.curve = result;
-				this.error = error;
-				this.dError = dError;
-				this.tailPercent = percent;
-				priorError = error;
+				//this.error = error;
+				//this.dError = dError;
+				this.headError = error;
+				this.headErrorDelta = dError;
+				this.headPercent = percent;
+				headPriorError = error;
 			} else {
 				// We did not improve
 				tailMovement *= -0.1;
 				break;
 			}
 		}
-	}
-
-	private Cubic2D tweakHead( Cubic2D curve ) {
-		// Calculate a new percentage of the initial control point
-
-		// The initial magnitude
-		Point2D m = initialCurve.b.subtract( initialCurve.a );
-
-		// The new percent
-		double percent = headPercent += headMovement;
-
-		return new Cubic2D( curve.a, curve.a.add( m.multiply( percent ) ), curve.c, curve.d );
-	}
-
-	private Cubic2D tweakTail( Cubic2D curve ) {
-		// The current vector to the control point
-		Point2D u = curve.c.subtract( curve.d );
-		// Using the initial curve avoids additive rounding errors
-		Point2D d = initialCurve.c.subtract( initialCurve.d ).normalize();
-		double factor = 1 + headMovement;
-		//System.err.println( "    tail factor=" + factor );
-		Point2D v = d.multiply( u.magnitude() * (1 + tailMovement) );
-		return new Cubic2D( curve.a, curve.b, curve.d.add( v ), curve.d );
 	}
 
 	private Cubic2D getInitial( Hint hint ) {
@@ -286,7 +278,7 @@ public class CubicBezierCurveFitter {
 			// 1. Segment count
 			// 2. Sizeness
 			// 3. Flatness
-			points = curve.toPoints( 36 );
+			points = curve.toPoints( 100 );
 			//return curve.toSizePoints( 0.001 * scale );
 			//return curve.toFlatPoints( 0.0001 * scale );
 
@@ -343,22 +335,12 @@ public class CubicBezierCurveFitter {
 	 * and the smooth curve. Therefore iterating until there is no error is not
 	 * a valid process.
 	 *
-	 * @param curve
-	 * @return
+	 * @param path The path to check
+	 * @return The total error
 	 */
-	double calcErrorByArea( Cubic2D curve ) {
-		validateEndPoints( curve );
-
-		// TODO There are several ways to generate the curve points
-		// 1. Simple count
-		// 2. Count based on number of points
-		// 3. Flatness
-		List<Point2D> curvePoints = curve.toPoints( 16 );
-
-		double area = Geometry2D.findAreas( path.points, curvePoints ).stream().mapToDouble( Double::doubleValue ).sum();
-
-		// Scale the error by the curve distance
-		return area / (curve.a.distance( curve.d ));
+	double calcErrorByArea( List<Point2D> path ) {
+		validateEndPoints( path );
+		return Geometry2D.findAreas( this.path.points, path ).stream().mapToDouble( Double::doubleValue ).sum();
 	}
 
 	private void validateEndPoints( Cubic2D curve ) {

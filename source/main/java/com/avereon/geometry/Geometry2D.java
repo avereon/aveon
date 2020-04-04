@@ -38,6 +38,23 @@ public class Geometry2D {
 	}
 
 	/**
+	 * Given a ray starting at p1 and extending to p2, return the distance from the line. Positive values
+	 * are to the left of the ray direction. Negative values are to the right of the ray direction. A value
+	 * of zero means the point lies on the ray.
+	 *
+	 * @param a The first point on the line.
+	 * @param b The second point on the line.
+	 * @param p
+	 * @return
+	 */
+	public static double getRayPointDistance( Point2D a, Point2D b, Point2D p ) {
+		Point2D s = b.subtract( p );
+		Point2D t = b.subtract( a );
+		return -t.crossProduct( s ) / t.magnitude();
+	}
+
+
+	/**
 	 * Get the distance between a plane and a point.
 	 *
 	 * @param origin The origin of the plane.
@@ -169,6 +186,37 @@ public class Geometry2D {
 		}
 
 		return result;
+	}
+
+	public static List<Double> findCcwDistances( List<Point2D> points, List<Point2D> curvePoints ) {
+		return points.stream().map( p -> findCcwSegment( p, curvePoints ) ).collect( Collectors.toList() );
+	}
+
+	public static double findCcwSegment( Point2D anchor, List<Point2D> path ) {
+		double result = Double.MAX_VALUE;
+
+		Point2D prior = path.get( 0 );
+		for( Point2D point : path ) {
+			if( point != prior ) {
+				double lineDistance = getDistanceInNormalArea( prior, point, anchor );
+				if( lineDistance < result ) result = lineDistance;
+			}
+			prior = point;
+		}
+
+		return result;
+	}
+
+	public static double getDistanceInNormalArea( Point2D p1, Point2D p2, Point2D p ) {
+		Point2D rayVector = p2.subtract( p1 );
+		Point2D normalVector = new Point2D( -rayVector.getY(), rayVector.getX() );
+		Point2D p3 = new Point2D( p1.getX() + normalVector.getX(), p1.getY() + normalVector.getY() );
+		Point2D p4 = new Point2D( p2.getX() + normalVector.getX(), p2.getY() + normalVector.getY() );
+
+		double dl = getRayPointDistance( p1, p3, p );
+		double dr = getRayPointDistance( p2, p4, p );
+
+		return (dl < 0 && dr > 0) ? getRayPointDistance( p1, p2, p ) : Double.NaN;
 	}
 
 	public static List<Line2D> findLines( List<Point2D> points, List<Point2D> curvePoints ) {

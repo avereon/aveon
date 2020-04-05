@@ -33,6 +33,20 @@ public class Geometry2DTest {
 	}
 
 	@Test
+	public void testGetPointLineBoundDistance() {
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0, 0 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), closeTo( -Math.sqrt( 0.5 ), 1e-15 ) );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 1, 1 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), closeTo( Math.sqrt( 0.5 ), 1e-15 ) );
+
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0, 2 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 2, 0 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
+
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( -0.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, -0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, 1.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 1.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
+	}
+
+	@Test
 	public void testGetPointLineDistance() {
 		assertThat( Geometry2D.getPointLineDistance( new Point2D( -0.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
 		assertThat( Geometry2D.getPointLineDistance( new Point2D( 0.0, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );

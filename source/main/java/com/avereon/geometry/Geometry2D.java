@@ -32,72 +32,111 @@ public class Geometry2D {
 	 * @return The distance between the point and line
 	 */
 	public static double getPointLineDistance( Point2D p, Point2D a, Point2D b ) {
-		Point2D t = b.subtract( a );
-		double s = t.crossProduct( b.subtract( p ) );
-		return Math.abs( s ) / t.magnitude();
+		return Math.abs( getPointLineOffset( p, a, b ) );
 	}
 
 	/**
-	 * Given a ray starting at p1 and extending to p2, return the distance from the line. Positive values
-	 * are to the left of the ray direction. Negative values are to the right of the ray direction. A value
-	 * of zero means the point lies on the ray.
+	 * Given a line starting at a and extending through b, calculate the offset
+	 * from the line. Positive values are to the left of the line direction.
+	 * Negative values are to the right of the ray direction. A value of zero
+	 * means the point lies on the ray.
 	 *
-	 * @param a The first point on the line.
-	 * @param b The second point on the line.
-	 * @param p
-	 * @return
+	 * @param p The point from which to determine the distance
+	 * @param a The first point on the line
+	 * @param b The second point on the line
+	 * @return the offset from the line
 	 */
-	public static double getRayPointDistance( Point2D a, Point2D b, Point2D p ) {
+	public static double getPointLineOffset( Point2D p, Point2D a, Point2D b ) {
 		Point2D s = b.subtract( p );
 		Point2D t = b.subtract( a );
 		return -t.crossProduct( s ) / t.magnitude();
 	}
 
 	/**
-	 * Get the distance between a plane and a point.
+	 * Get the distance perpendicular to a line segment and "inside" the
+	 * endpoints. Inside the endpoints is the area between two lines drawn
+	 * perpendicular to the line at the endpoints. If the point lies outside that
+	 * area this method returns Double.NaN.
 	 *
-	 * @param origin The origin of the plane.
-	 * @param normal The normal of the plane.
-	 * @param p The point to which to determine the distance.
-	 * @return
+	 * @param p The point to check
+	 * @param a The first point on the line
+	 * @param b The second point on the line
+	 * @return the distance perpendicular to a line segment or Double.NaN if the
+	 * point lies outside the area perpendicular to the line
+	 */
+	public static double getPointLineBoundDistance( Point2D p, Point2D a, Point2D b ) {
+		return Math.abs( getPointLineBoundOffset( p, a, b ) );
+	}
+
+	/**
+	 * Get the offset perpendicular to a line segment and "inside" the
+	 * endpoints. Inside the endpoints is the area between two lines drawn
+	 * perpendicular to the line at the endpoints. If the point lies outside that
+	 * area this method returns Double.NaN.
+	 *
+	 * @param p The point to check
+	 * @param a The first point on the line
+	 * @param b The second point on the line
+	 * @return the offset perpendicular to a line segment or Double.NaN if the
+	 * point lies outside the area perpendicular to the line
+	 */
+	public static double getPointLineBoundOffset( Point2D p, Point2D a, Point2D b ) {
+		Point2D line = b.subtract( a );
+		Point2D c = a.add( -line.getY(), line.getX() );
+		Point2D d = b.add( -line.getY(), line.getX() );
+		double dl = getPointLineOffset( p, a, c );
+		double dr = getPointLineOffset( p, b, d );
+		return (dl < 0 && dr > 0) ? getPointLineOffset( p, a, b ) : Double.NaN;
+
+		// Deprecated implementation
+		//Point2D pb = p.subtract( b );
+		//Point2D pa = p.subtract( a );
+		//Point2D ba = b.subtract( a );
+		//Point2D ab = a.subtract( b );
+		//double anglea = Geometry2D.getAngle( ba, pa );
+		//double angleb = Geometry2D.getAngle( ab, pb );
+		//if( anglea > Geometry2D.QUARTER_CIRCLE || angleb > Geometry2D.QUARTER_CIRCLE ) return Double.NaN;
+		//return Math.abs( ba.crossProduct( b.subtract( p ) ) ) / ba.magnitude();
+	}
+
+	/**
+	 * Calculate the distance between a plane and a point.
+	 *
+	 * @param origin The origin of the plane
+	 * @param normal The normal of the plane
+	 * @param p The point to which to determine the distance
+	 * @return the distance between the point and plane
 	 */
 	public static double getPointPlaneDistance( Point2D origin, Point2D normal, Point2D p ) {
-		return Math.abs( normal.dotProduct( new Point2D( p.x - origin.x, p.y - origin.y ) ) ) / normal.magnitude();
+		return Math.abs( getPointPlaneOffset( origin, normal, p ) );
+	}
+
+	/**
+	 * Calculate the offset between a plane and a point. Positive values are in
+	 * the direction of the normal, negative values in the opposite direction.
+	 *
+	 * @param origin The origin of the plane
+	 * @param normal The normal of the plane
+	 * @param p The point to which to determine the distance
+	 * @return the offset between the point and plane
+	 */
+	public static double getPointPlaneOffset( Point2D origin, Point2D normal, Point2D p ) {
+		return normal.dotProduct( new Point2D( p.x - origin.x, p.y - origin.y ) ) / normal.magnitude();
 	}
 
 	/**
 	 * Get the angle of a vector in the X-Y plane by computing Math.atan2(
 	 * vector.y, vector.x ).
 	 *
-	 * @param p
-	 * @return
+	 * @param p The point/vector for which to calculate the angle
+	 * @return the angle of the point/vector
 	 */
 	public static double getAngle( final Point2D p ) {
 		return Math.atan2( p.y, p.x );
 	}
 
-	public static final double getAngle( final Point2D v1, final Point2D v2 ) {
+	public static double getAngle( final Point2D v1, final Point2D v2 ) {
 		return Math.acos( v1.normalize().dotProduct( v2.normalize() ) );
-	}
-
-	/**
-	 * Get the distance between a point and a line. If the point is outside of the
-	 * line segment then Double.NaN is returned.
-	 *
-	 * @param p The point from which to determine the distance.
-	 * @param p The first point on the line.
-	 * @param a The second point on the line.
-	 * @return
-	 */
-	public static final double getPointLineBoundDistance( Point2D p, Point2D a, Point2D b ) {
-		Point2D pb = p.subtract( b );
-		Point2D pa = p.subtract( a );
-		Point2D ba = b.subtract( a );
-		Point2D ab = a.subtract( b );
-		double anglea = Geometry2D.getAngle( ba, pa );
-		double angleb = Geometry2D.getAngle( ab, pb );
-		if( anglea > Geometry2D.QUARTER_CIRCLE || angleb > Geometry2D.QUARTER_CIRCLE ) return Double.NaN;
-		return Math.abs( ba.crossProduct( b.subtract( p ) ) ) / ba.magnitude();
 	}
 
 	/**
@@ -168,10 +207,28 @@ public class Geometry2D {
 		return intersections;
 	}
 
-	public static List<Double> findDistances( List<Point2D> points, List<Point2D> curvePoints ) {
+	/**
+	 * CAUTION: This method does not take into account the segment length and
+	 * might return unexpected results due to infinitely long segment lengths.
+	 *
+	 * @param points
+	 * @param curvePoints
+	 * @return
+	 */
+	public static List<Double> findPathSegmentDistances( List<Point2D> points, List<Point2D> curvePoints ) {
 		return points.stream().map( p -> findDistanceToNearestSegment( p, curvePoints ) ).collect( Collectors.toList() );
 	}
 
+	/**
+	 * Find the distance to the nearest segment in a path.
+	 * <p>
+	 * CAUTION: This method does not take into account the segment length and
+	 * might return unexpected results due to infinitely long segment lengths.
+	 *
+	 * @param anchor
+	 * @param path
+	 * @return
+	 */
 	public static double findDistanceToNearestSegment( Point2D anchor, List<Point2D> path ) {
 		double result = Double.MAX_VALUE;
 
@@ -187,18 +244,34 @@ public class Geometry2D {
 		return result;
 	}
 
-	public static List<Double> findCcwDistances( List<Point2D> points, List<Point2D> curvePoints ) {
-		return points.stream().map( p -> findCcwSegment( p, curvePoints ) ).collect( Collectors.toList() );
+	public static List<Double> findPathOffsets( List<Point2D> points, List<Point2D> curvePoints ) {
+		return points.stream().map( p -> findShortestPathOffset( p, curvePoints ) ).collect( Collectors.toList() );
 	}
 
-	public static double findCcwSegment( Point2D anchor, List<Point2D> path ) {
-		double result = Double.MAX_VALUE;
-
+	/**
+	 * Find the shortest distance between a point and a path. This method checks
+	 * the distances for both the points and the path segments in the path. It
+	 * also takes into account the length of the segment and only checks lengths
+	 * perpendicular to the segment.
+	 *
+	 * @param anchor The point from which to find the shortest distance
+	 * @param path The path to check
+	 * @return the shortest distance between the point and the path
+	 */
+	public static double findShortestPathOffset( Point2D anchor, List<Point2D> path ) {
+		double distance;
 		Point2D prior = path.get( 0 );
+		double result = anchor.distance( prior );
 		for( Point2D point : path ) {
 			if( point != prior ) {
-				double lineDistance = getDistanceInNormalArea( prior, point, anchor );
-				if( lineDistance < result ) result = lineDistance;
+				// Check the distance to the point first
+				distance = anchor.distance( point );
+				// FIXME This method should be used, but tests fail
+				//distance = getPointLineOffset( anchor, prior, point );
+				if( Math.abs( distance ) < Math.abs( result ) ) result = distance;
+				// Check the distance to the line segment next
+				distance = getPointLineBoundOffset( anchor, prior, point );
+				if( Math.abs( distance ) < Math.abs( result ) ) result = distance;
 			}
 			prior = point;
 		}
@@ -206,22 +279,25 @@ public class Geometry2D {
 		return result;
 	}
 
-	public static double getDistanceInNormalArea( Point2D p1, Point2D p2, Point2D p ) {
-		Point2D rayVector = p2.subtract( p1 );
-		Point2D normalVector = new Point2D( -rayVector.getY(), rayVector.getX() );
-		Point2D p3 = new Point2D( p1.getX() + normalVector.getX(), p1.getY() + normalVector.getY() );
-		Point2D p4 = new Point2D( p2.getX() + normalVector.getX(), p2.getY() + normalVector.getY() );
-
-		double dl = getRayPointDistance( p1, p3, p );
-		double dr = getRayPointDistance( p2, p4, p );
-
-		return (dl < 0 && dr > 0) ? getRayPointDistance( p1, p2, p ) : Double.NaN;
+	public static List<Double> findPointDistances( List<Point2D> points, List<Point2D> curvePoints ) {
+		return points.stream().map( p -> findSmallestDistance( p, curvePoints ) ).collect( Collectors.toList() );
 	}
 
-	public static List<Line2D> findLines( List<Point2D> points, List<Point2D> curvePoints ) {
-		return points.stream().map( p -> new Line2D( p, findNearestPoint( p, curvePoints ) ) ).collect( Collectors.toList() );
+	public static Double findSmallestDistance( Point2D anchor, List<Point2D> path ) {
+		return anchor.distance( findNearestPoint( anchor, path ) );
 	}
 
+	public static List<Point2D> findNearestPoints( List<Point2D> points, List<Point2D> curvePoints ) {
+		return points.stream().map( p -> findNearestPoint( p, curvePoints ) ).collect( Collectors.toList() );
+	}
+
+	/**
+	 * Find the nearest distance between a point and a path.
+	 *
+	 * @param anchor The point from which to find the shortest distance
+	 * @param path The path to check
+	 * @return the shortest distance between the point and the path
+	 */
 	public static Point2D findNearestPoint( Point2D anchor, List<Point2D> path ) {
 		Point2D result = null;
 		double minDistance = Double.MAX_VALUE;
@@ -237,9 +313,17 @@ public class Geometry2D {
 		return result;
 	}
 
-	public static List<Double> findAreas( List<Point2D> fitPoints, List<Point2D> curvePoints ) {
-		List<List<Point2D>> polygons = findPolygons( fitPoints, curvePoints );
-		if( polygons.size() == 0 ) throw new RuntimeException( "No polygons found to calculate area" );
+	/**
+	 * Calculate the areas of closed sections between two paths. If there are no
+	 * closed areas between the paths then an empty list is returned.
+	 *
+	 * @param a The first path
+	 * @param b The second path
+	 * @return a list of the closed area between the two paths
+	 */
+	public static List<Double> findAreas( List<Point2D> a, List<Point2D> b ) {
+		List<List<Point2D>> polygons = findPolygons( a, b );
+		if( polygons.size() == 0 ) return List.of();
 		return polygons.stream().map( Geometry2D::calcPolygonArea ).collect( Collectors.toList() );
 	}
 

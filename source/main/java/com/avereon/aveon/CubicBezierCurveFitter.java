@@ -40,7 +40,7 @@ public class CubicBezierCurveFitter {
 
 	private final Cubic2D initialCurve;
 
-	private final double[][] weights;
+	//private final double[][] fitPointWeights;
 
 	private final double scale;
 
@@ -88,20 +88,21 @@ public class CubicBezierCurveFitter {
 		// Setup initial values
 		this.curve = initialCurve;
 
-		// Calculate point weights
-		int count = path.getPointCount();
-		weights = new double[ 3 ][ count ];
-		for( int index = 0; index < count; index++ ) {
-			weights[ HEAD_WEIGHT_INDEX ][ index ] = Geometry2D.calcCubicBasisEffect( 1, path.getPercentDistance( index ) );
-			weights[ TAIL_WEIGHT_INDEX ][ index ] = Geometry2D.calcCubicBasisEffect( 2, path.getPercentDistance( index ) );
-		}
+		//		// Calculate point weights
+		//		int count = path.getPointCount();
+		//		fitPointWeights = new double[ 3 ][ count ];
+		//		for( int index = 0; index < count; index++ ) {
+		//			fitPointWeights[ HEAD_WEIGHT_INDEX ][ index ] = Geometry2D.calcCubicBasisEffect( 1, path.getPercentDistance( index ) );
+		//			fitPointWeights[ TAIL_WEIGHT_INDEX ][ index ] = Geometry2D.calcCubicBasisEffect( 2, path.getPercentDistance( index ) );
+		//		}
 
 		// What about CCW(left), CW(right)? Will need to know direction of control point also
 	}
 
 	public Cubic2D generate() {
-		//adjustCurve();
-		adjustCurve2();
+		// This is the process brought from fitfoil
+		adjustCurve1();
+		//		adjustCurve2();
 		return curve;
 	}
 
@@ -132,12 +133,15 @@ public class CubicBezierCurveFitter {
 	 */
 	private boolean closeEnough( int iteration ) {
 		int maxIterations = 100;
-		double headDir = Math.abs( headMovement );
-		double tailDir = Math.abs( tailMovement );
-		return iteration != 0 && ((headDir < 1e-15 && tailDir < 1e-15) || iteration >= maxIterations);
+		double headMove = Math.abs( headMovement );
+		double tailMove = Math.abs( tailMovement );
+		return iteration != 0 && ((headMove < 1e-15 && tailMove < 1e-15) || iteration >= maxIterations);
 	}
 
-	private void adjustCurve2() {
+	/**
+	 * This is the process brought from fitfoil.
+	 */
+	private void adjustCurve1() {
 		int iteration = 0;
 		boolean tail = false;
 		int iterationsPerSide = 2;
@@ -161,8 +165,8 @@ public class CubicBezierCurveFitter {
 		double tailDirection = 1;
 
 		while( !closeEnough( iteration ) ) {
-			headError = -calcHeadError2( curve );
-			tailError = -calcTailError2( curve );
+			headError = -calcHeadError1( curve );
+			tailError = -calcTailError1( curve );
 			// This value is for information purpose only
 			error = Math.abs( headError ) + Math.abs( tailError );
 
@@ -202,15 +206,15 @@ public class CubicBezierCurveFitter {
 		}
 	}
 
-	private void adjustCurve() {
+	private void adjustCurve2() {
 		int iteration = 0;
 		boolean tail = false;
 		int iterationsPerSide = 2;
 		Point2D initHeadVector = initialCurve.b.subtract( initialCurve.a );
 		Point2D initTailVector = initialCurve.c.subtract( initialCurve.d );
 
-		headError = calcHeadError( curve );
-		tailError = calcTailError( curve );
+		headError = calcHeadError2( curve );
+		tailError = calcTailError2( curve );
 		error = calcError( curve );
 
 		// NEXT Finish reworking this
@@ -235,7 +239,7 @@ public class CubicBezierCurveFitter {
 			//dError = error - priorError;
 			//error = calcHeadError( result );
 			//dError = error - headPriorError;
-			headError = calcTailError( result );
+			headError = calcTailError2( result );
 			dError = error - headErrorPrior;
 
 			//System.err.println( "  head err=" + error + " dE=" + dError );
@@ -264,7 +268,7 @@ public class CubicBezierCurveFitter {
 			result = new Cubic2D( result.a, result.b, result.d.add( initTailVector.multiply( percent ) ), result.d );
 			//error = calcError( result );
 			//dError = error - priorError;
-			error = calcHeadError( result );
+			error = calcHeadError2( result );
 			dError = error - headErrorPrior;
 			//error = calcTailError( result );
 			//dError = error - tailPriorError;
@@ -345,7 +349,7 @@ public class CubicBezierCurveFitter {
 			// 1. Segment count
 			// 2. Sizeness
 			// 3. Flatness
-			points = curve.toPoints( 100 );
+			points = curve.toPoints( 10 );
 			//return curve.toSizePoints( 0.001 * scale );
 			//return curve.toFlatPoints( 0.0001 * scale );
 
@@ -360,20 +364,20 @@ public class CubicBezierCurveFitter {
 		return calcErrorByOffset( curvePoints( curve ) ) / scale;
 	}
 
-	private double calcHeadError( Cubic2D curve ) {
-		return calcHeadError( curvePoints( curve ) ) / scale;
+	private double calcHeadError1( Cubic2D curve ) {
+		return calcHeadError1( curvePoints( curve ), path.points ) / scale;
 	}
 
-	private double calcTailError( Cubic2D curve ) {
-		return calcTailError( curvePoints( curve ) ) / scale;
+	private double calcTailError1( Cubic2D curve ) {
+		return calcTailError1( curvePoints( curve ), path.points ) / scale;
 	}
 
 	private double calcHeadError2( Cubic2D curve ) {
-		return calcHeadError2( curvePoints( curve ) );
+		return calcHeadError2( path.points, curvePoints( curve ) ) / scale;
 	}
 
 	private double calcTailError2( Cubic2D curve ) {
-		return calcTailError2( curvePoints( curve ) );
+		return calcTailError2( path.points, curvePoints( curve ) ) / scale;
 	}
 
 	/**
@@ -388,31 +392,51 @@ public class CubicBezierCurveFitter {
 	 */
 	double calcErrorByOffset( List<Point2D> curvePoints ) {
 		//validateEndPoints( curvePoints );
-		return Geometry2D.findDistances( path.points, curvePoints ).stream().mapToDouble( Double::doubleValue ).sum();
+		return Geometry2D.findPathOffsets( curvePoints, path.points ).stream().mapToDouble( Double::doubleValue ).sum();
 	}
 
-	double calcHeadError( List<Point2D> curvePoints ) {
+	double calcHeadError1( List<Point2D> curvePoints, List<Point2D> fitPoints ) {
 		//validateEndPoints( curvePoints );
-		final List<Double> offsets = Geometry2D.findDistances( path.points, curvePoints );
-		return IntStream.range( 0, offsets.size() ).mapToDouble( i -> offsets.get( i ) * weights[ HEAD_WEIGHT_INDEX ][ i ] ).sum();
+		final List<Double> offsets = Geometry2D.findPathOffsets( curvePoints, fitPoints );
+		int count = offsets.size() - 1;
+		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * Geometry2D.calcCubicBasisEffect( 1, ((double)i / (double)count) ) ).sum();
 	}
 
-	double calcTailError( List<Point2D> curvePoints ) {
+	double calcTailError1( List<Point2D> curvePoints, List<Point2D> fitPoints ) {
 		//validateEndPoints( curvePoints );
-		final List<Double> offsets = Geometry2D.findDistances( path.points, curvePoints );
-		return IntStream.range( 0, offsets.size() ).mapToDouble( i -> offsets.get( i ) * weights[ TAIL_WEIGHT_INDEX ][ i ] ).sum();
+		final List<Double> offsets = Geometry2D.findPathOffsets( curvePoints, fitPoints );
+		int count = offsets.size() - 1;
+		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * Geometry2D.calcCubicBasisEffect( 2, ((double)i / (double)count) ) ).sum();
 	}
 
-	double calcHeadError2( List<Point2D> curvePoints ) {
+	/**
+	 * Calculate the absolute error between the curve points and the fit points
+	 * weighted toward the head of the curve.
+	 *
+	 * @param curvePoints The curve points to test
+	 * @param fitPoints The points to compare with
+	 * @return The absolute error weighted toward the head of the curve
+	 */
+	double calcHeadError2( List<Point2D> curvePoints, List<Point2D> fitPoints ) {
 		//validateEndPoints( curvePoints );
-		final List<Double> offsets = Geometry2D.findCcwDistances( path.points, curvePoints );
-		return IntStream.range( 0, offsets.size() ).mapToDouble( i -> offsets.get( i ) * weights[ HEAD_WEIGHT_INDEX ][ i ] ).sum();
+		final List<Double> offsets = Geometry2D.findPathSegmentDistances( curvePoints, fitPoints );
+		int count = offsets.size() - 1;
+		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * Geometry2D.calcCubicBasisEffect( 1, ((double)i / (double)count) ) ).sum();
 	}
 
-	double calcTailError2( List<Point2D> curvePoints ) {
+	/**
+	 * Calculate the absolute error between the curve points and the fit points
+	 * weighted toward the tail of the curve.
+	 *
+	 * @param curvePoints The curve points to test
+	 * @param fitPoints The points to compare with
+	 * @return The absolute error weighted toward the tail of the curve
+	 */
+	double calcTailError2( List<Point2D> curvePoints, List<Point2D> fitPoints ) {
 		//validateEndPoints( curvePoints );
-		final List<Double> offsets = Geometry2D.findCcwDistances( path.points, curvePoints );
-		return IntStream.range( 0, offsets.size() ).mapToDouble( i -> offsets.get( i ) * weights[ TAIL_WEIGHT_INDEX ][ i ] ).sum();
+		final List<Double> offsets = Geometry2D.findPathSegmentDistances( curvePoints, fitPoints );
+		int count = offsets.size() - 1;
+		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * Geometry2D.calcCubicBasisEffect( 2, ((double)i / (double)count) ) ).sum();
 	}
 
 	/**

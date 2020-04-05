@@ -201,14 +201,18 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		foilOutlineLayer.getChildren().add( stationPointOutline );
 
 		// Foil shape
-		Path stationCurveShape = generatePath( airfoil.getUpperCurves() );
+		Path upperCurveShape = generatePath( airfoil.getUpperCurves() );
+		Path lowerCurveShape = generatePath( airfoil.getLowerCurves() );
 
 		// Foil outline
-		Path stationCurveOutline = new Path( stationCurveShape.getElements() );
-		stationCurveOutline.setStroke( Color.ORANGE );
-		//stationCurveOutline.setStrokeType( StrokeType.INSIDE );
-		setStrokeWidth( stationCurveOutline );
-		foilOutlineLayer.getChildren().add( stationCurveOutline );
+		Path upperCurveOutline = new Path( upperCurveShape.getElements() );
+		Path lowerCurveOutline = new Path( lowerCurveShape.getElements() );
+		upperCurveOutline.setStroke( Color.ORANGE );
+		lowerCurveOutline.setStroke( Color.ORANGE );
+		setStrokeWidth( upperCurveOutline );
+		setStrokeWidth( lowerCurveOutline );
+		foilOutlineLayer.getChildren().add( upperCurveOutline );
+		foilOutlineLayer.getChildren().add( lowerCurveOutline );
 
 		// Thickness
 		Point2D thicknessUpper = airfoil.getThicknessUpper();

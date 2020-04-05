@@ -186,17 +186,7 @@ public class Airfoil extends Node {
 	}
 
 	public void analyzeCurves() {
-		// TODO Determine upper curves
-		int count = upperPointGroups.size();
-		List<Cubic2D> upperCurves = new ArrayList<>();
-		upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
-		for( int index = 1; index < count - 1; index++ ) {
-			upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
-		}
-		upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( count - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
-		setValue( UPPER_CURVES, upperCurves );
-
-		// TODO Determine lower curves
+		fitCurves();
 
 		//		int count = getLower().size();
 		//		List<Point2D> camber = new ArrayList<>();
@@ -220,6 +210,28 @@ public class Airfoil extends Node {
 		//		}
 		//		this.camber = Collections.unmodifiableList( camber );
 		//		if( maxCamber.getX() == 0 ) maxCamber = new Point2D( getThicknessMoment(), 0 );
+	}
+
+	private void fitCurves() {
+		// TODO Determine upper curves
+		int upperCount = upperPointGroups.size();
+		List<Cubic2D> upperCurves = new ArrayList<>();
+		upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
+		for( int index = 1; index < upperCount - 1; index++ ) {
+			upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
+		}
+		upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( upperCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
+		setValue( UPPER_CURVES, upperCurves );
+
+		// TODO Determine lower curves
+		int lowerCount = lowerPointGroups.size();
+		List<Cubic2D> lowerCurves = new ArrayList<>();
+		lowerCurves.add( new CubicBezierCurveFitter( getName(), lowerPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
+		for( int index = 1; index < lowerCount - 1; index++ ) {
+			lowerCurves.add( new CubicBezierCurveFitter( getName(), lowerPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
+		}
+		lowerCurves.add( new CubicBezierCurveFitter( getName(), lowerPointGroups.get( lowerCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
+		setValue( LOWER_CURVES, lowerCurves );
 	}
 
 	List<Point2D> findInflections( List<List<Point2D>> groups ) {

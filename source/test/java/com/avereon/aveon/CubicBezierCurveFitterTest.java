@@ -54,6 +54,8 @@ class CubicBezierCurveFitterTest {
 		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", stationPoints, CubicBezierCurveFitter.Hint.LEADING );
 		Cubic2D curve = fitter.generate();
 
+		System.err.println( "result: " + curve.b.y + " " + curve.c.x );
+
 //		assertThat( fitter.calcError( curve ), lessThan( 1e-15 ) );
 
 		assertThat( curve.a, is( new Point2D( 0.0, 0.0 ) ) );

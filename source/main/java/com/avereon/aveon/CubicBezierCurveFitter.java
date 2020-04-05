@@ -100,21 +100,22 @@ public class CubicBezierCurveFitter {
 	}
 
 	public Cubic2D generate() {
-		error = calcError( curve );
-		headError = calcHeadError( curve );
-		tailError = calcTailError( curve );
+		//		error = calcError( curve );
+		//		headError = calcHeadError( curve );
+		//		tailError = calcTailError( curve );
+		//
+		//		//print( "initial" );
+		//
+		//		int iteration = 0;
+		//		while( !closeEnough( iteration ) ) {
+		//			print( "itr-" + iterationFormat.format( iteration ) );
+		//			adjustCurve();
+		//			iteration++;
+		//		}
+		//		System.err.println();
+		//		print( "result " );
 
-		//print( "initial" );
-
-		int iteration = 0;
-		while( !closeEnough( iteration ) ) {
-			print( "itr-" + iterationFormat.format( iteration ) );
-			adjustCurve();
-			iteration++;
-		}
-		System.err.println();
-		print( "result " );
-
+		adjustCurve2();
 		return curve;
 	}
 
@@ -133,7 +134,9 @@ public class CubicBezierCurveFitter {
 	}
 
 	private String format( double value ) {
-		return format.format( value );
+		String text = format.format( value );
+
+		return text.startsWith( "-" ) ? text : " " + text;
 	}
 
 	/**
@@ -142,7 +145,7 @@ public class CubicBezierCurveFitter {
 	 * @return True if the curve is "close enough"
 	 */
 	private boolean closeEnough( int iteration ) {
-		int maxIterations = 100;
+		int maxIterations = 80;
 		double headDir = Math.abs( headMovement );
 		double tailDir = Math.abs( tailMovement );
 		return iteration != 0 && ((headDir < 1e-15 && tailDir < 1e-15) || iteration >= maxIterations);
@@ -151,7 +154,7 @@ public class CubicBezierCurveFitter {
 	private void adjustCurve2() {
 		int iteration = 0;
 		boolean tail = false;
-		int iterationsPerSide = 4;
+		int iterationsPerSide = 3;
 		Point2D initHeadVector = initialCurve.b.subtract( initialCurve.a );
 		Point2D initTailVector = initialCurve.c.subtract( initialCurve.d );
 		Point2D newHeadVector;
@@ -213,6 +216,8 @@ public class CubicBezierCurveFitter {
 			headErrorPrior = headError;
 			tailErrorPrior = tailError;
 			errorPrior = error;
+
+			print( "itr-" + iterationFormat.format( iteration ) );
 
 			iteration++;
 			if( iteration % iterationsPerSide == 0 ) tail = !tail;
@@ -410,14 +415,14 @@ public class CubicBezierCurveFitter {
 	double calcHeadError2( List<Point2D> curvePoints ) {
 		//validateEndPoints( curvePoints );
 		final List<Double> offsets = Geometry2D.findDistances( path.points, curvePoints );
-//		return IntStream.range( 0, offsets.size() ).mapToDouble( i -> offsets.get( i ) * weights[ HEAD_WEIGHT_INDEX ][ i ] ).sum();
+		//		return IntStream.range( 0, offsets.size() ).mapToDouble( i -> offsets.get( i ) * weights[ HEAD_WEIGHT_INDEX ][ i ] ).sum();
 		return 0;
 	}
 
 	double calcTailError2( List<Point2D> curvePoints ) {
 		//validateEndPoints( curvePoints );
-//		final List<Double> offsets = Geometry2D.findDistances( path.points, curvePoints );
-//		return IntStream.range( 0, offsets.size() ).mapToDouble( i -> offsets.get( i ) * weights[ TAIL_WEIGHT_INDEX ][ i ] ).sum();
+		//		final List<Double> offsets = Geometry2D.findDistances( path.points, curvePoints );
+		//		return IntStream.range( 0, offsets.size() ).mapToDouble( i -> offsets.get( i ) * weights[ TAIL_WEIGHT_INDEX ][ i ] ).sum();
 		return 0;
 	}
 

@@ -53,7 +53,6 @@ public class Geometry2D {
 		return -t.crossProduct( s ) / t.magnitude();
 	}
 
-
 	/**
 	 * Get the distance between a plane and a point.
 	 *

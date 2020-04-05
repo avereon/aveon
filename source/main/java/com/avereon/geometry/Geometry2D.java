@@ -3,6 +3,23 @@ package com.avereon.geometry;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Terminology
+ * <dl>
+ *   <dt>Line</dt>
+ *   <dd>A line is an infinitely long line between two points</dd>
+ *   <dt>Ray</dt>
+ *   <dd>A line starting at one point and extending infinitely through a
+ *   second point</dd>
+ *   <dt>Segment</dt>
+ *   <dd>A line starting at one point and ending at another point</dd>
+ *   <dt>Distance</dt>
+ *   <dd>The distance between two items. Distances are always positive.</dd>
+ *   <dt>Offset</dt>
+ *   <dd>The directed distance between a vector and an item. Offsets may
+ *   be positive and negative and are in reference to some direction.</dd>
+ * </dl>
+ */
 public class Geometry2D {
 
 	public static final double FULL_CIRCLE = Math.PI * 2.0;

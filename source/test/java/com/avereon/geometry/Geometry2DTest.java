@@ -51,7 +51,7 @@ public class Geometry2DTest {
 	@Test
 	void testFindNearestSegment() {
 		List<Point2D> points = List.of( new Point2D( 0, 0 ), Point2D.of( 1, 1 ), Point2D.of( 2, 1 ), Point2D.of( 3, 0 ) );
-		assertThat( Geometry2D.findNearestSegment( Point2D.of( 1.5, 0 ), points ), is( 1.0 ) );
+		assertThat( Geometry2D.findDistanceToNearestSegment( Point2D.of( 1.5, 0 ), points ), is( 1.0 ) );
 	}
 
 	@Test

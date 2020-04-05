@@ -169,10 +169,10 @@ public class Geometry2D {
 	}
 
 	public static List<Double> findDistances( List<Point2D> points, List<Point2D> curvePoints ) {
-		return points.stream().map( p -> findNearestSegment( p, curvePoints ) ).collect( Collectors.toList() );
+		return points.stream().map( p -> findDistanceToNearestSegment( p, curvePoints ) ).collect( Collectors.toList() );
 	}
 
-	public static double findNearestSegment( Point2D anchor, List<Point2D> path ) {
+	public static double findDistanceToNearestSegment( Point2D anchor, List<Point2D> path ) {
 		double result = Double.MAX_VALUE;
 
 		Point2D prior = path.get( 0 );

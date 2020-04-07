@@ -63,7 +63,7 @@ public class CubicBezierCurveFitter {
 
 	private double headPercentPrior = 1.0;
 
-	private double headMovement = 1;
+	private double headMovement = -0.1;
 
 	/**
 	 * What direction to change the control point: shrink(negative) grow(positive)
@@ -76,7 +76,7 @@ public class CubicBezierCurveFitter {
 
 	private double tailPercentPrior = 1.0;
 
-	private double tailMovement = 1;
+	private double tailMovement = -0.1;
 
 	public CubicBezierCurveFitter( String id, List<Point2D> points, Hint hint ) {
 		this.id = id;
@@ -101,8 +101,8 @@ public class CubicBezierCurveFitter {
 
 	public Cubic2D generate() {
 		// This is the process brought from fitfoil
-		adjustCurve1();
-		//		adjustCurve2();
+		//		adjustCurve1();
+		adjustCurve2();
 		return curve;
 	}
 
@@ -132,7 +132,7 @@ public class CubicBezierCurveFitter {
 	 * @return True if the curve is "close enough"
 	 */
 	private boolean closeEnough( int iteration ) {
-		int maxIterations = 100;
+		int maxIterations = 10000;
 		double headMove = Math.abs( headMovement );
 		double tailMove = Math.abs( tailMovement );
 		return iteration != 0 && ((headMove < 1e-15 && tailMove < 1e-15) || iteration >= maxIterations);
@@ -209,7 +209,7 @@ public class CubicBezierCurveFitter {
 	private void adjustCurve2() {
 		int iteration = 0;
 		boolean tail = false;
-		int iterationsPerSide = 2;
+		int iterationsPerSide = 4;
 		Point2D initHeadVector = initialCurve.b.subtract( initialCurve.a );
 		Point2D initTailVector = initialCurve.c.subtract( initialCurve.d );
 
@@ -217,78 +217,68 @@ public class CubicBezierCurveFitter {
 		tailError = calcErrorByDistance( curve, 2 );
 		error = calcError( curve );
 
-		// NEXT Finish reworking this
+		double percent;
+		double testError;
+		double testErrorDelta;
+		double testErrorPrior = headError;
 
-		//			double error;
-		//			double dError;
-		double headErrorPrior = this.headError;
-		double tailErrorPrior = this.tailError;
+//		headMovement = -0.1;
+//		tailMovement = -0.1;
 
 		//print( "initial" );
 
 		Cubic2D result = curve;
 		while( !closeEnough( iteration ) ) {
+			if( !tail ) {
+				// The test percent
+				percent = headPercent + headMovement;
 
-			// Adjust the head
+				// Adjust the head
+				result = new Cubic2D( result.a, result.a.add( initHeadVector.multiply( percent ) ), result.c, result.d );
+				testError = calcErrorByDistance( result, 1 );
+				testErrorDelta = testError - testErrorPrior;
 
-			// The test percent
-			double percent = headPercent += headMovement;
+				//System.err.println( "  head err=" + testError + " dE=" + testErrorDelta );
 
-			result = new Cubic2D( result.a, result.a.add( initHeadVector.multiply( percent ) ), result.c, result.d );
-			//error = calcError( result );
-			//dError = error - priorError;
-			//error = calcHeadError( result );
-			//dError = error - headPriorError;
-			headError = calcErrorByDistance( result, 2 );
-			dError = error - headErrorPrior;
-
-			//System.err.println( "  head err=" + error + " dE=" + dError );
-
-			// At this point we know if we are improving or not
-			if( dError < 0 ) {
-				// Accept this result
-				this.curve = result;
-				//this.error = error;
-				//this.dError = dError;
-				this.headError = error;
-				this.headErrorDelta = dError;
-				this.headPercent = percent;
-				headErrorPrior = error;
-			} else {
-				// We did not improve
-				headMovement *= -0.1;
-				break;
+				// At this point we know if we are improving or not
+				if( testErrorDelta < 0 ) {
+					// Accept this result
+					this.curve = result;
+					this.headError = testError;
+					this.headErrorDelta = testErrorDelta;
+					this.headPercent = percent;
+				} else {
+					// We did not improve
+					headMovement *= -0.8;
+					//break;
+				}
 			}
 
-			// Adjust the tail
+			if( tail ) {
+				// The test percent
+				percent = tailPercent + tailMovement;
 
-			// The test percent
-			percent = tailPercent += tailMovement;
+				// Adjust the tail
+				result = new Cubic2D( result.a, result.b, result.d.add( initTailVector.multiply( percent ) ), result.d );
+				testError = calcErrorByDistance( result, 1 );
+				testErrorDelta = testError - testErrorPrior;
 
-			result = new Cubic2D( result.a, result.b, result.d.add( initTailVector.multiply( percent ) ), result.d );
-			//error = calcError( result );
-			//dError = error - priorError;
-			error = calcErrorByDistance( result, 1 );
-			dError = error - headErrorPrior;
-			//error = calcTailError( result );
-			//dError = error - tailPriorError;
+				//System.err.println( "  tail err=" + testError + " dE=" + testErrorDelta );
 
-			//System.err.println( "  tail err=" + error + " dE=" + dError );
-
-			// At this point we know if we are improving or not
-			if( dError < 0 ) {
-				// Accept this result
-				this.curve = result;
-				//this.error = error;
-				//this.dError = dError;
-				this.tailError = error;
-				this.tailErrorDelta = dError;
-				this.tailPercent = percent;
-				tailErrorPrior = error;
-			} else {
-				// We did not improve
-				tailMovement *= -0.1;
-				break;
+				// At this point we know if we are improving or not
+				if( testErrorDelta < 0 ) {
+					// Accept this result
+					this.curve = result;
+					//this.error = error;
+					//this.dError = dError;
+					this.tailError = testError;
+					this.tailErrorDelta = testErrorDelta;
+					this.tailPercent = percent;
+				} else {
+					// We did not improve
+					tailMovement *= -0.8;
+					//break;
+				}
 			}
 
 			print( "itr-" + iterationFormat.format( iteration ) );

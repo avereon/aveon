@@ -14,6 +14,28 @@ import static org.hamcrest.Matchers.is;
 class CubicBezierCurveFitterTest {
 
 	@Test
+	void testGenerateLeading() {
+		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.15, 0.2, 0.2, 0.4, 0.2 );
+
+		// These points will be the station points to fit
+		List<Point2D> stationPoints = goal.toPoints( 8 );
+
+		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", stationPoints, CubicBezierCurveFitter.Hint.LEADING );
+		Cubic2D curve = fitter.generate();
+
+		System.err.println( "result: " + curve.b.y + " " + curve.c.x );
+
+		assertThat( curve.a, is( new Point2D( 0.0, 0.0 ) ) );
+		assertThat( curve.b.x, is( 0.0 ) );
+		assertThat( curve.b.y, closeTo( 0.1, 0.0001 ) );
+		assertThat( curve.c.x, closeTo( 0.2, 0.0001 ) );
+		assertThat( curve.c.y, is( 0.2 ) );
+		assertThat( curve.d, is( new Point2D( 0.4, 0.2 ) ) );
+
+		//		assertThat( fitter.calcError( curve ), lessThan( 1e-15 ) );
+	}
+
+	@Test
 	void testCalcErrorByDistance() {
 		List<Point2D> a = List.of( new Point2D( 0, 0 ), new Point2D( 1, 0.5 ), new Point2D( 2, 0.5 ), new Point2D( 3, 0 ) );
 		List<Point2D> b = List.of( new Point2D( 0, 0 ), new Point2D( 1, 1 ), new Point2D( 2, 1.0 ), new Point2D( 3, 0 ) );
@@ -80,28 +102,6 @@ class CubicBezierCurveFitterTest {
 		double bError = bDistance1 * bWeight1 + bDistance2 * bWeight2;
 		// The error should be positive comparing b to a
 		assertThat( fitter.calcErrorByOffset( b, a, 2 ), is( bError ) );
-	}
-
-	@Test
-	void testGenerateLeading() {
-		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.15, 0.2, 0.2, 0.4, 0.2 );
-
-		// These points will be the station points to fit
-		List<Point2D> stationPoints = goal.toPoints( 8 );
-
-		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", stationPoints, CubicBezierCurveFitter.Hint.LEADING );
-		Cubic2D curve = fitter.generate();
-
-		System.err.println( "result: " + curve.b.y + " " + curve.c.x );
-
-		//		assertThat( fitter.calcError( curve ), lessThan( 1e-15 ) );
-
-//		assertThat( curve.a, is( new Point2D( 0.0, 0.0 ) ) );
-//		assertThat( curve.b.x, is( 0.0 ) );
-//		assertThat( curve.b.y, closeTo( 0.1, 0.0001 ) );
-//		assertThat( curve.c.x, closeTo( 0.2, 0.0001 ) );
-//		assertThat( curve.c.y, is( 0.2 ) );
-//		assertThat( curve.d, is( new Point2D( 0.4, 0.2 ) ) );
 	}
 
 }

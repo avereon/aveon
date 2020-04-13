@@ -354,6 +354,13 @@ public class CubicBezierCurveFitter {
 		return calcErrorByDistance( curvePoints( curve ) ) / scale;
 	}
 
+	double calcErrorBySquareOffset( List<Point2D> curvePoints, List<Point2D> fitPoints, int basisIndex ) {
+		//validateEndPoints( curvePoints );
+		final List<Double> offsets = Geometry2D.findPathOffsets( curvePoints, fitPoints );
+		int count = offsets.size() - 1;
+		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * offsets.get( i ) * Geometry2D.calcCubicBasisEffect( basisIndex, ((double)i / (double)count) ) ).sum();
+	}
+
 	private double calcErrorByOffset( Cubic2D curve, int basisIndex ) {
 		return calcErrorByOffset( curvePoints( curve ), path.points, basisIndex ) / scale;
 	}

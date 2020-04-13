@@ -22,9 +22,9 @@ public class CubicBezierCurveFitter {
 
 	private static final System.Logger log = Log.get();
 
-	private static NumberFormat iterationFormat = new DecimalFormat( "000" );
+	private static final NumberFormat iterationFormat = new DecimalFormat( "000" );
 
-	private static NumberFormat format = new DecimalFormat( "0.000000000" );
+	private static final NumberFormat format = new DecimalFormat( "0.000000000" );
 
 	public enum Hint {
 		LEADING,
@@ -102,21 +102,30 @@ public class CubicBezierCurveFitter {
 	public Cubic2D generate() {
 		// This is the process brought from fitfoil
 		//		adjustCurve1();
-		adjustCurve2();
+		//		adjustCurve2();
+		adjustCurve3();
 		return curve;
 	}
 
-	private void print( String id ) {
+	private void print( String id, int iteration ) {
+		print( id, iteration, 0 );
+	}
+
+	private void print( String id, int parentIteration, int iteration ) {
 		StringBuilder builder = new StringBuilder( id );
-		builder.append( " eH=" ).append( format( headError ) );
-		builder.append( " eT=" ).append( format( tailError ) );
-		builder.append( " dH=" ).append( format( headErrorDelta ) );
-		builder.append( " dT=" ).append( format( tailErrorDelta ) );
-		builder.append( " pH=" ).append( format.format( headPercent ) );
-		builder.append( " pT=" ).append( format.format( tailPercent ) );
-		builder.append( " dH=" ).append( format( headMovement ) );
-		builder.append( " dT=" ).append( format( tailMovement ) );
-		builder.append( " curve=" ).append( curve );
+		builder.append( " itr=" ).append( iterationFormat.format( parentIteration ) ).append( "." ).append( iterationFormat.format( iteration ) );
+
+		builder.append( " er=" ).append( format( error ) );
+		builder.append( " dE=" ).append( format( dError ) );
+		//		builder.append( " eH=" ).append( format( headError ) );
+		//		builder.append( " eT=" ).append( format( tailError ) );
+		//		builder.append( " dH=" ).append( format( headErrorDelta ) );
+		//		builder.append( " dT=" ).append( format( tailErrorDelta ) );
+		//		builder.append( " pH=" ).append( format.format( headPercent ) );
+		//		builder.append( " pT=" ).append( format.format( tailPercent ) );
+		//		builder.append( " dH=" ).append( format( headMovement ) );
+		//		builder.append( " dT=" ).append( format( tailMovement ) );
+		//		builder.append( " curve=" ).append( curve );
 		System.err.println( builder.toString() );
 	}
 
@@ -132,10 +141,60 @@ public class CubicBezierCurveFitter {
 	 * @return True if the curve is "close enough"
 	 */
 	private boolean closeEnough( int iteration ) {
-		int maxIterations = 10000;
+		int maxIterations = 1;
 		double headMove = Math.abs( headMovement );
 		double tailMove = Math.abs( tailMovement );
 		return iteration != 0 && ((headMove < 1e-15 && tailMove < 1e-15) || iteration >= maxIterations);
+	}
+
+	private void adjustCurve3() {
+		int iteration = 0;
+
+		error = calcErrorBySquareOffset( curve, 1 );
+		dError = Double.NaN;
+
+		while( !closeEnough( iteration ) ) {
+
+			adjustHead3( iteration );
+			adjustTail3( iteration );
+
+			iteration++;
+		}
+		print( "rt", iteration );
+	}
+
+	private void adjustHead3( int parentIteration ) {
+		int iteration = 0;
+
+		Point2D initHeadVector = initialCurve.b.subtract( initialCurve.a );
+		Point2D newHeadVector;
+
+		error = calcErrorBySquareOffset( curve, 1 );
+
+		dError = Double.NaN;
+		double headPercent = 1.0;
+		double headMovement = 1;
+		double priorError = error;
+
+		while( iteration < 20 ) {
+			print( "v3h", parentIteration, iteration );
+			headPercent = headPercent + headMovement;
+			newHeadVector = initHeadVector.multiply( headPercent );
+
+			curve = new Cubic2D( curve.a, curve.a.add( newHeadVector ), curve.c, curve.d );
+			error = calcErrorBySquareOffset( curve, 1 );
+			dError = error-priorError;
+
+			if( dError > 0 ) headMovement *= -(0.1*Math.PI);
+
+			priorError = error;
+
+			iteration++;
+		}
+	}
+
+	private void adjustTail3( int parentIteration ) {
+
 	}
 
 	/**
@@ -199,7 +258,7 @@ public class CubicBezierCurveFitter {
 			tailErrorPrior = tailError;
 			errorPrior = error;
 
-			print( "itr-" + iterationFormat.format( iteration ) );
+			print( "v1", iteration );
 
 			iteration++;
 			if( iteration % iterationsPerSide == 0 ) tail = !tail;
@@ -222,8 +281,8 @@ public class CubicBezierCurveFitter {
 		double testErrorDelta;
 		double testErrorPrior = headError;
 
-//		headMovement = -0.1;
-//		tailMovement = -0.1;
+		//		headMovement = -0.1;
+		//		tailMovement = -0.1;
 
 		//print( "initial" );
 
@@ -281,13 +340,13 @@ public class CubicBezierCurveFitter {
 				}
 			}
 
-			print( "itr-" + iterationFormat.format( iteration ) );
+			print( "v2", iteration );
 
 			iteration++;
 			if( iteration % iterationsPerSide == 0 ) tail = !tail;
 		}
-		System.err.println();
-		print( "result " );
+		//System.err.println();
+		print( "rt", iteration );
 	}
 
 	private Cubic2D getInitial( Hint hint ) {
@@ -354,11 +413,18 @@ public class CubicBezierCurveFitter {
 		return calcErrorByDistance( curvePoints( curve ) ) / scale;
 	}
 
+	private double calcErrorBySquareOffset( Cubic2D curve, int basisIndex ) {
+		return calcErrorBySquareOffset( curvePoints( curve ), path.points, basisIndex ) / scale;
+	}
+
 	double calcErrorBySquareOffset( List<Point2D> curvePoints, List<Point2D> fitPoints, int basisIndex ) {
 		//validateEndPoints( curvePoints );
 		final List<Double> offsets = Geometry2D.findPathOffsets( curvePoints, fitPoints );
 		int count = offsets.size() - 1;
-		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * offsets.get( i ) * Geometry2D.calcCubicBasisEffect( basisIndex, ((double)i / (double)count) ) ).sum();
+		return IntStream
+			.range( 0, count )
+			.mapToDouble( i -> offsets.get( i ) * offsets.get( i ) * Geometry2D.calcCubicBasisEffect( basisIndex, ((double)i / (double)count) ) )
+			.sum();
 	}
 
 	private double calcErrorByOffset( Cubic2D curve, int basisIndex ) {

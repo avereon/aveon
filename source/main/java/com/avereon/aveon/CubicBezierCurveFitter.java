@@ -50,14 +50,20 @@ public class CubicBezierCurveFitter {
 
 	private double error;
 
+	private double errorPrior;
+
 	private double dError;
+
+	private double dErrorPrior;
 
 	/**
 	 * What direction to change the control point: shrink(negative) grow(positive)
 	 */
-	private double headError = 0;
+	private double headError = Double.NaN;
 
-	private double headErrorDelta = 0;
+	private double headErrorPrior = Double.NaN;
+
+	private double headErrorDelta = Double.NaN;
 
 	private double headPercent = 1.0;
 
@@ -68,9 +74,11 @@ public class CubicBezierCurveFitter {
 	/**
 	 * What direction to change the control point: shrink(negative) grow(positive)
 	 */
-	private double tailError = 0;
+	private double tailError = Double.NaN;
 
-	private double tailErrorDelta = 0;
+	private double tailErrorPrior = Double.NaN;
+
+	private double tailErrorDelta = Double.NaN;
 
 	private double tailPercent = 1.0;
 
@@ -103,7 +111,8 @@ public class CubicBezierCurveFitter {
 		// This is the process brought from fitfoil
 		//		adjustCurve1();
 		//		adjustCurve2();
-		adjustCurve3();
+		//		adjustCurve3();
+		adjustCurve4();
 		return curve;
 	}
 
@@ -115,24 +124,33 @@ public class CubicBezierCurveFitter {
 		StringBuilder builder = new StringBuilder( id );
 		builder.append( " itr=" ).append( iterationFormat.format( parentIteration ) ).append( "." ).append( iterationFormat.format( iteration ) );
 
-		builder.append( " er=" ).append( format( error ) );
-		builder.append( " dE=" ).append( format( dError ) );
-		//		builder.append( " eH=" ).append( format( headError ) );
-		//		builder.append( " eT=" ).append( format( tailError ) );
-		//		builder.append( " dH=" ).append( format( headErrorDelta ) );
-		//		builder.append( " dT=" ).append( format( tailErrorDelta ) );
-		//		builder.append( " pH=" ).append( format.format( headPercent ) );
-		//		builder.append( " pT=" ).append( format.format( tailPercent ) );
-		//		builder.append( " dH=" ).append( format( headMovement ) );
-		//		builder.append( " dT=" ).append( format( tailMovement ) );
+		//		builder.append( " rE=" ).append( format( errorPrior ) );
+		//		builder.append( " er=" ).append( format( error ) );
+		//		builder.append( " dE=" ).append( format( dError, true ) );
+
+		builder.append( " rH=" ).append( format( headErrorPrior ) );
+		builder.append( " rT=" ).append( format( tailErrorPrior ) );
+		builder.append( " eH=" ).append( format( headError ) );
+		builder.append( " eT=" ).append( format( tailError ) );
+		builder.append( " dH=" ).append( format( headErrorDelta ) );
+		builder.append( " dT=" ).append( format( tailErrorDelta ) );
+
+		builder.append( " dH=" ).append( format( headMovement ) );
+		builder.append( " dT=" ).append( format( tailMovement ) );
+		builder.append( " %H=" ).append( format.format( headPercent ) );
+		builder.append( " %T=" ).append( format.format( tailPercent ) );
 		//		builder.append( " curve=" ).append( curve );
 		System.err.println( builder.toString() );
 	}
 
 	private String format( double value ) {
-		String text = format.format( value );
+		return format( value, false );
+	}
 
-		return text.startsWith( "-" ) ? text : " " + text;
+	private String format( double value, boolean showPlus ) {
+		String text = format.format( value );
+		String positive = showPlus ? "+" : " ";
+		return text.startsWith( "-" ) ? text : positive + text;
 	}
 
 	/**
@@ -144,57 +162,142 @@ public class CubicBezierCurveFitter {
 		int maxIterations = 1;
 		double headMove = Math.abs( headMovement );
 		double tailMove = Math.abs( tailMovement );
-		return iteration != 0 && ((headMove < 1e-15 && tailMove < 1e-15) || iteration >= maxIterations);
+		return headMove < 1e-15 && tailMove < 1e-15;
+		//return iteration != 0 && ((headMove < 1e-15 && tailMove < 1e-15) || iteration >= maxIterations);
+	}
+
+	private void adjustCurve4() {
+		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.05, 0.2, 0.2, 0.4, 0.2 );
+		SegmentedPath2D stationPath = goal.toPath( 8 );
+
+		Point2D headCtrl = new Point2D( goal.a.x, goal.d.y ).subtract( goal.a );
+		Point2D tailCtrl = new Point2D( goal.a.x, goal.d.y ).subtract( goal.d );
+
+		int tailCount = 10;
+		int headCount = 10;
+
+		for( int headIndex = 0; headIndex <= headCount; headIndex++ ) {
+			double headT = headIndex / (double)headCount;
+			System.out.print( headT );
+
+			for( int tailIndex = 0; tailIndex <= tailCount; tailIndex++ ) {
+				double tailT = tailIndex / (double)tailCount;
+				Cubic2D curve = new Cubic2D( goal.a, goal.a.add( headCtrl.multiply( headT ) ), goal.d.add( tailCtrl.multiply( tailT ) ), goal.d );
+
+				double e = calcErrorBySquareOffset( stationPath.getPoints(), curvePoints( curve ), -1 );
+
+				System.out.print( "," + e );
+				//System.out.println( "t=" + t + " e=" + e );
+			}
+			System.out.println();
+		}
 	}
 
 	private void adjustCurve3() {
 		int iteration = 0;
 
-		error = calcErrorBySquareOffset( curve, 1 );
-		dError = Double.NaN;
+		// Set the initial prior error to the current error
+		errorPrior = calcErrorBySquareOffset( curve, 1 );
+		dErrorPrior = Double.NaN;
 
-		while( !closeEnough( iteration ) ) {
+		// Start with moving the control vectors 1/10 their original size
+		headMovement = -0.5;
+		tailMovement = -0.5;
 
-			adjustHead3( iteration );
-			adjustTail3( iteration );
+		while( !closeEnough( iteration ) && iteration < 1 ) {
+
+			adjust3( iteration, true );
+			//			adjust3( iteration, false );
+			//			adjust3( iteration, false );
+			//			adjust3( iteration, true );
 
 			iteration++;
 		}
 		print( "rt", iteration );
 	}
 
-	private void adjustHead3( int parentIteration ) {
+	private void adjust3( int parentIteration, boolean head ) {
 		int iteration = 0;
 
+		//		this.headMovement = -Math.pow( 10, -(parentIteration + 1) );
+		//		this.tailMovement = -Math.pow( 10, -(parentIteration + 1) );
+
 		Point2D initHeadVector = initialCurve.b.subtract( initialCurve.a );
+		Point2D initTailVector = initialCurve.c.subtract( initialCurve.d );
 		Point2D newHeadVector;
+		Point2D newTailVector;
+		double headMovement = this.headMovement;
+		double tailMovement = this.tailMovement;
+		double headPercent = this.headPercent;
+		double tailPercent = this.tailPercent;
 
-		error = calcErrorBySquareOffset( curve, 1 );
+		double headError = this.headError;
+		double tailError = this.tailError;
+		double headErrorDelta = this.headErrorDelta;
+		double tailErrorDelta = this.tailErrorDelta;
+		double headErrorPrior = this.headErrorPrior;
+		double tailErrorPrior = this.tailErrorPrior;
 
-		dError = Double.NaN;
-		double headPercent = 1.0;
-		double headMovement = 1;
-		double priorError = error;
+		//		double errorPrior = this.errorPrior;
+		//		double dErrorPrior = this.dErrorPrior;
+		//		double error;
+		//		double dError;
+
+		Cubic2D curve = this.curve;
 
 		while( iteration < 20 ) {
-			print( "v3h", parentIteration, iteration );
-			headPercent = headPercent + headMovement;
-			newHeadVector = initHeadVector.multiply( headPercent );
+			if( iteration == 0 ) print( "v3" + (head ? "h" : "t") + "a", parentIteration, iteration );
 
-			curve = new Cubic2D( curve.a, curve.a.add( newHeadVector ), curve.c, curve.d );
-			error = calcErrorBySquareOffset( curve, 1 );
-			dError = error-priorError;
+			if( head ) {
+				headErrorPrior = headError;
+				headPercent = headPercent + headMovement;
+				newHeadVector = initHeadVector.multiply( headPercent );
+				curve = new Cubic2D( curve.a, curve.a.add( newHeadVector ), curve.c, curve.d );
+				headError = calcErrorBySquareOffset( curve, -1 );
+				headErrorDelta = headError - headErrorPrior;
+			} else {
+				tailErrorPrior = tailError;
+				tailPercent = tailPercent + tailMovement;
+				newTailVector = initTailVector.multiply( tailPercent );
+				curve = new Cubic2D( curve.a, curve.b, curve.d.add( newTailVector ), curve.d );
+				tailError = calcErrorBySquareOffset( curve, -1 );
+				tailErrorDelta = tailError - tailErrorPrior;
+			}
 
-			if( dError > 0 ) headMovement *= -(0.1*Math.PI);
+			//error = calcErrorBySquareOffset( curve, 1 );
+			//dError = error - errorPrior;
+			//errorPrior = error;
+			//dErrorPrior = dError;
 
-			priorError = error;
+			if( head && headErrorDelta > 0 ) headMovement *= -0.1;
+			if( !head && tailErrorDelta > 0 ) tailMovement *= -0.1;
+			//			if( dError > 0 ) {
+			//				if( head ) {
+			//					headMovement *= -1;
+			//				} else {
+			//					tailMovement *= -1;
+			//				}
+			//			}
 
+			this.curve = curve;
+			//			this.error = error;
+			//			this.dError = dError;
+			//			this.errorPrior = errorPrior;
+			//			this.dErrorPrior = dErrorPrior;
+			this.headError = headError;
+			this.headErrorDelta = headErrorDelta;
+			this.headErrorPrior = headErrorPrior;
+			this.tailError = tailError;
+			this.tailErrorDelta = tailErrorDelta;
+			this.tailErrorPrior = tailErrorPrior;
+			this.headMovement = headMovement;
+			this.tailMovement = tailMovement;
+			this.headPercent = headPercent;
+			this.tailPercent = tailPercent;
+
+			print( "v3" + (head ? "h" : "t") + "b", parentIteration, iteration );
 			iteration++;
 		}
-	}
-
-	private void adjustTail3( int parentIteration ) {
-
 	}
 
 	/**
@@ -360,25 +463,26 @@ public class CubicBezierCurveFitter {
 		Point2D c;
 		Point2D d;
 
+		// FIXME Switch these to vertical, horizontal and tangent for the head and tail
 		switch( hint ) {
 			case LEADING: {
 				a = new Point2D( p.x, p.y );
-				b = new Point2D( p.x, r.y );
-				c = new Point2D( p.x, r.y );
+				b = new Point2D( p.x, 0.5 * r.y );
+				c = new Point2D( 0.5 * p.x, r.y );
 				d = new Point2D( r );
 				break;
 			}
 			case TRAILING: {
 				a = new Point2D( p );
-				b = new Point2D( r.x, p.y );
-				c = r.add( q.subtract( r ).normalize().multiply( Math.abs( r.x - p.x ) ) );
+				b = new Point2D( 0.5 * r.x, p.y );
+				c = r.add( q.subtract( r ).normalize().multiply( Math.abs( r.x - p.x ) ).multiply( 0.5 ) );
 				d = new Point2D( r );
 				break;
 			}
 			default: {
 				a = new Point2D( p );
-				b = new Point2D( r.x, p.y );
-				c = new Point2D( p.x, r.y );
+				b = new Point2D( 0.5 * r.x, p.y );
+				c = new Point2D( 0.5 * p.x, r.y );
 				d = new Point2D( r );
 				break;
 			}

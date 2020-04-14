@@ -261,13 +261,17 @@ public class Cubic2D extends Shape {
 	 * @return The points that define the curve as line segements
 	 */
 	public List<Point2D> toPoints( int count ) {
+		return toPath( count ).getPoints();
+	}
+
+	public SegmentedPath2D toPath( int count ) {
 		double fraction = 1.0 / count;
-		count ++;
+		count++;
 		List<Point2D> points = new ArrayList<>( count );
 		for( int index = 0; index < count; index++ ) {
 			points.add( eval( index * fraction ) );
 		}
-		return points;
+		return SegmentedPath2D.of( points );
 	}
 
 	// TODO Future methods

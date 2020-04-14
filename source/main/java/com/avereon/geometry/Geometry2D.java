@@ -570,6 +570,8 @@ public class Geometry2D {
 	 * @return The cubic Bernstein polynomial coefficient
 	 */
 	public static double calcCubicBasisEffect( int index, double t ) {
+		if( index < 0 ) return t;
+
 		double s = 1 - t;
 		switch( index ) {
 			case 0:
@@ -581,6 +583,7 @@ public class Geometry2D {
 			case 3:
 				return t * t * t;
 		}
+
 		return Double.NaN;
 	}
 

@@ -15,7 +15,7 @@ class CubicBezierCurveFitterTest {
 
 	@Test
 	void testGenerateLeading() {
-		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.15, 0.2, 0.2, 0.4, 0.2 );
+		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.1, 0.2, 0.2, 0.4, 0.2 );
 
 		// These points will be the station points to fit
 		List<Point2D> stationPoints = goal.toPoints( 8 );
@@ -24,13 +24,17 @@ class CubicBezierCurveFitterTest {
 		Cubic2D curve = fitter.generate();
 
 		//		System.err.println( "result: " + curve.b.y + " " + curve.c.x );
-		//
-		//		assertThat( curve.a, is( new Point2D( 0.0, 0.0 ) ) );
-		//		assertThat( curve.b.x, is( 0.0 ) );
-		//		assertThat( curve.b.y, closeTo( 0.1, 0.0001 ) );
-		//		assertThat( curve.c.x, closeTo( 0.2, 0.0001 ) );
-		//		assertThat( curve.c.y, is( 0.2 ) );
-		//		assertThat( curve.d, is( new Point2D( 0.4, 0.2 ) ) );
+
+		// By percent
+		//assertThat( Math.abs( curve.b.y / 0.1 - 1 ), closeTo( 0, 0.0001 ) );
+		//assertThat( Math.abs( curve.c.x / 0.2 - 1 ), closeTo( 0, 0.0001 ) );
+
+//		assertThat( curve.a, is( new Point2D( 0.0, 0.0 ) ) );
+//		assertThat( curve.b.x, is( 0.0 ) );
+//		assertThat( curve.b.y, closeTo( 0.1, 0.01 ) );
+//		assertThat( curve.c.x, closeTo( 0.2, 0.02 ) );
+//		assertThat( curve.c.y, is( 0.2 ) );
+//		assertThat( curve.d, is( new Point2D( 0.4, 0.2 ) ) );
 
 		//		assertThat( fitter.calcError( curve ), lessThan( 1e-15 ) );
 	}

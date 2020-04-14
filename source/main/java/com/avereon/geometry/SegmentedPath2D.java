@@ -35,6 +35,10 @@ public class SegmentedPath2D {
 		}
 	}
 
+	public static SegmentedPath2D of( List<Point2D> points ) {
+		return new SegmentedPath2D( points );
+	}
+
 	public final List<Point2D> getPoints() {
 		return points;
 	}

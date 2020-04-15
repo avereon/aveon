@@ -8,10 +8,7 @@ import com.avereon.util.Log;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class CubicBezierCurveFitter {
@@ -88,7 +85,7 @@ public class CubicBezierCurveFitter {
 
 	public CubicBezierCurveFitter( String id, List<Point2D> points, Hint hint ) {
 		this.id = id;
-		this.path = new SegmentedPath2D( points );
+		this.path = SegmentedPath2D.of( points );
 		this.initialCurve = getInitial( hint );
 		this.scale = initialCurve.a.distance( initialCurve.d );
 		this.hint = hint;
@@ -112,7 +109,8 @@ public class CubicBezierCurveFitter {
 		//		adjustCurve1();
 		//		adjustCurve2();
 		//		adjustCurve3();
-		adjustCurve4();
+		//adjustCurve4();
+		adjustCurve4Research();
 		return curve;
 	}
 
@@ -167,14 +165,32 @@ public class CubicBezierCurveFitter {
 	}
 
 	private void adjustCurve4() {
-		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.05, 0.2, 0.2, 0.4, 0.2 );
+		double priorHeadT = 0.5;
+		double priorTailT = 0.5;
+		for( int index = 0; index < 1; index++ ) {
+			double headT = adjust4FindT( curve, true, priorTailT );
+			System.out.println( "headT=" + headT + " tailT=" + priorTailT );
+			double tailT = adjust4FindT( curve, false, priorHeadT );
+			System.out.println( "headT=" + priorHeadT + " tailT=" + tailT );
+			priorHeadT = headT;
+			priorTailT = tailT;
+		}
+	}
+
+	/**
+	 * Calculate the error for a 20x20 grid of curve points to chart the area
+	 * of the various options. This had helped visualize where the error is the
+	 * lowest and helped understand that there is not always one solution.
+	 */
+	private void adjustCurve4Research() {
+		Cubic2D goal = new Cubic2D( 0, 0, 0.3, 0, 0.5, 1, 1, 1 );
 		SegmentedPath2D stationPath = goal.toPath( 8 );
 
 		Point2D headCtrl = new Point2D( goal.a.x, goal.d.y ).subtract( goal.a );
 		Point2D tailCtrl = new Point2D( goal.a.x, goal.d.y ).subtract( goal.d );
 
-		int tailCount = 10;
-		int headCount = 10;
+		int tailCount = 20;
+		int headCount = 20;
 
 		for( int headIndex = 0; headIndex <= headCount; headIndex++ ) {
 			double headT = headIndex / (double)headCount;
@@ -184,13 +200,44 @@ public class CubicBezierCurveFitter {
 				double tailT = tailIndex / (double)tailCount;
 				Cubic2D curve = new Cubic2D( goal.a, goal.a.add( headCtrl.multiply( headT ) ), goal.d.add( tailCtrl.multiply( tailT ) ), goal.d );
 
-				double e = calcErrorBySquareOffset( stationPath.getPoints(), curvePoints( curve ), -1 );
+				double e = -calcErrorBySquareOffset( stationPath, curvePath( curve ), -1 );
 
 				System.out.print( "," + e );
 				//System.out.println( "t=" + t + " e=" + e );
 			}
 			System.out.println();
 		}
+	}
+
+	private double adjust4FindT( Cubic2D test, boolean head, double oppositeT ) {
+		double leftOffset = oppositeT - (0.1 * oppositeT);
+		double rightOffset = oppositeT + (0.1 * (1 - oppositeT));
+		//System.out.println( "lOffset=" + leftOffset + " rightOffset=" + rightOffset );
+		SegmentedPath2D fortyPercentPath = adjust4HeadErrorPath( test, head, leftOffset );
+		SegmentedPath2D sixtyPercentPath = adjust4HeadErrorPath( test, head, rightOffset );
+
+		List<Point2D> intersections = Geometry2D.findIntersections( fortyPercentPath, sixtyPercentPath );
+		return intersections.isEmpty() ? Double.NaN : intersections.get( 0 ).x;
+	}
+
+	private SegmentedPath2D adjust4HeadErrorPath( Cubic2D test, boolean head, double oppositeT ) {
+		int count = 10;
+		Point2D headCtrl = new Point2D( test.a.x, test.d.y ).subtract( test.a );
+		Point2D tailCtrl = new Point2D( test.a.x, test.d.y ).subtract( test.d );
+
+		Cubic2D curve;
+		List<Point2D> tPoints = new ArrayList<>();
+		for( int headIndex = 0; headIndex <= count; headIndex++ ) {
+			double t = headIndex / (double)count;
+			if( head ) {
+				curve = new Cubic2D( test.a, test.a.add( headCtrl.multiply( t ) ), test.d.add( tailCtrl.multiply( oppositeT ) ), test.d );
+			} else {
+				curve = new Cubic2D( test.a, test.a.add( headCtrl.multiply( oppositeT ) ), test.d.add( tailCtrl.multiply( t ) ), test.d );
+			}
+			tPoints.add( new Point2D( t, calcErrorBySquareOffset( curvePath( curve ), path, -1 ) ) );
+		}
+
+		return SegmentedPath2D.of( tPoints );
 	}
 
 	private void adjustCurve3() {
@@ -492,25 +539,30 @@ public class CubicBezierCurveFitter {
 		return new Cubic2D( a, b, c, d );
 	}
 
-	private Map<Cubic2D, List<Point2D>> pointCache = new HashMap<>();
+	private Map<Cubic2D, SegmentedPath2D> pathCache = new HashMap<>();
 
+	@Deprecated
 	private List<Point2D> curvePoints( Cubic2D curve ) {
-		List<Point2D> points = pointCache.get( curve );
+		return curvePath( curve ).getPoints();
+	}
 
-		if( points == null ) {
-			// TODO There are several ways to generate the curve points
+	private SegmentedPath2D curvePath( Cubic2D curve ) {
+		SegmentedPath2D path = pathCache.get( curve );
+
+		if( path == null ) {
+			// TODO There are several ways to generate the curve path
 			// 1. Segment count
 			// 2. Sizeness
 			// 3. Flatness
-			points = curve.toPoints( 10 );
-			//return curve.toSizePoints( 0.001 * scale );
-			//return curve.toFlatPoints( 0.0001 * scale );
+			path = curve.toPath( (int)Math.round( this.path.pointCount * Math.PI ) );
+			//return curve.toSizePath( 0.001 * scale );
+			//return curve.toFlatPath( 0.0001 * scale );
 
-			pointCache.clear();
-			pointCache.put( curve, points );
+			pathCache.clear();
+			pathCache.put( curve, path );
 		}
 
-		return points;
+		return path;
 	}
 
 	double calcError( Cubic2D curve ) {
@@ -518,12 +570,12 @@ public class CubicBezierCurveFitter {
 	}
 
 	private double calcErrorBySquareOffset( Cubic2D curve, int basisIndex ) {
-		return calcErrorBySquareOffset( curvePoints( curve ), path.points, basisIndex ) / scale;
+		return calcErrorBySquareOffset( curvePath( curve ), path, basisIndex ) / scale;
 	}
 
-	double calcErrorBySquareOffset( List<Point2D> curvePoints, List<Point2D> fitPoints, int basisIndex ) {
+	double calcErrorBySquareOffset( SegmentedPath2D curvePath, SegmentedPath2D fitPath, int basisIndex ) {
 		//validateEndPoints( curvePoints );
-		final List<Double> offsets = Geometry2D.findPathOffsets( curvePoints, fitPoints );
+		final List<Double> offsets = Geometry2D.findPathOffsets( curvePath, fitPath );
 		int count = offsets.size() - 1;
 		return IntStream
 			.range( 0, count )

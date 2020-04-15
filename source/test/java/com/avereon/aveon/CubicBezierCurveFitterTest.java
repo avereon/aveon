@@ -15,7 +15,7 @@ class CubicBezierCurveFitterTest {
 
 	@Test
 	void testGenerateLeading() {
-		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.1, 0.2, 0.2, 0.4, 0.2 );
+		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.1, 0.1, 0.2, 0.4, 0.2 );
 
 		// These points will be the station points to fit
 		List<Point2D> stationPoints = goal.toPoints( 8 );

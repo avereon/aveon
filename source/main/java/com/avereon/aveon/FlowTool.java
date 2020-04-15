@@ -204,15 +204,33 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		Path upperCurveShape = generatePath( airfoil.getUpperCurves() );
 		Path lowerCurveShape = generatePath( airfoil.getLowerCurves() );
 
-		// Foil outline
-		Path upperCurveOutline = new Path( upperCurveShape.getElements() );
-		Path lowerCurveOutline = new Path( lowerCurveShape.getElements() );
-		upperCurveOutline.setStroke( Color.ORANGE );
-		lowerCurveOutline.setStroke( Color.ORANGE );
-		setStrokeWidth( upperCurveOutline );
-		setStrokeWidth( lowerCurveOutline );
-		foilOutlineLayer.getChildren().add( upperCurveOutline );
-		foilOutlineLayer.getChildren().add( lowerCurveOutline );
+		//		// Foil outline
+		//		Path upperCurveOutline = new Path( upperCurveShape.getElements() );
+		//		Path lowerCurveOutline = new Path( lowerCurveShape.getElements() );
+		//		upperCurveOutline.setStroke( Color.ORANGE );
+		//		lowerCurveOutline.setStroke( Color.ORANGE );
+		//		setStrokeWidth( upperCurveOutline );
+		//		setStrokeWidth( lowerCurveOutline );
+		//		foilOutlineLayer.getChildren().add( upperCurveOutline );
+		//		foilOutlineLayer.getChildren().add( lowerCurveOutline );
+
+		CubicCurve c1 = new CubicCurve( 0, 0, 0, 0.1, 0.1, 0.2, 0.4, 0.2 );
+		CubicCurve c2 = new CubicCurve( 0, 0, 0, 0.04, 0.02, 0.2, 0.4, 0.2 );
+		CubicCurve c3 = new CubicCurve( 0, 0, 0, 0.19, 0.32, 0.2, 0.4, 0.2 );
+		CubicCurve c4 = new CubicCurve( 0, 0, 0, 0.15, 0.2, 0.2, 0.4, 0.2 );
+		c1.setStroke( Color.RED );
+		c2.setStroke( Color.ORANGE );
+		c3.setStroke( Color.MAGENTA );
+		c4.setStroke( Color.GREENYELLOW );
+		c1.setFill( null );
+		c2.setFill( null );
+		c3.setFill( null );
+		c4.setFill( null );
+		setStrokeWidth( c1 );
+		setStrokeWidth( c2 );
+		setStrokeWidth( c3 );
+		setStrokeWidth( c4 );
+		foilOutlineLayer.getChildren().addAll( c1, c2, c3, c4 );
 
 		// Thickness
 		Point2D thicknessUpper = airfoil.getThicknessUpper();

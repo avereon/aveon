@@ -1,5 +1,7 @@
 package com.avereon.geometry;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SegmentedPath2D {
@@ -12,6 +14,8 @@ public class SegmentedPath2D {
 
 	public final List<Point2D> points;
 
+	public final List<Line2D> segments;
+
 	public final int pointCount;
 
 	public final int segmentCount;
@@ -21,18 +25,29 @@ public class SegmentedPath2D {
 	public final double[] percent;
 
 	public SegmentedPath2D( List<Point2D> points ) {
-		this.points = points;
+		this.points = Collections.unmodifiableList( points );
 		this.pointCount = points.size();
 		this.segmentCount = pointCount - 1;
 
 		// Path length
 		length = Geometry2D.calcPathLength( points );
 
-		// Calculate path curve
+		// Analyze path curve
+		Point2D prior = null;
+		Point2D point;
+		List<Line2D> lines = new ArrayList<>();
 		percent = new double[ pointCount ];
 		for( int index = 0; index < pointCount; index++ ) {
 			percent[ index ] = Geometry2D.calcPathLength( points.subList( 0, index + 1 ) ) / length;
+			point = points.get( index );
+			if( index > 0 ) lines.add( new Line2D( prior, point ));
+			prior = point;
 		}
+		segments = Collections.unmodifiableList( lines );
+	}
+
+	public static SegmentedPath2D of() {
+		return new SegmentedPath2D( List.of() );
 	}
 
 	public static SegmentedPath2D of( List<Point2D> points ) {
@@ -41,6 +56,10 @@ public class SegmentedPath2D {
 
 	public final List<Point2D> getPoints() {
 		return points;
+	}
+
+	public final List<Line2D> getSegments() {
+		return segments;
 	}
 
 	public final double getLength() {

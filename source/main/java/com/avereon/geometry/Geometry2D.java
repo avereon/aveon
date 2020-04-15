@@ -206,18 +206,23 @@ public class Geometry2D {
 	 * @return The list of intersection points
 	 */
 	public static List<Point2D> findIntersections( List<Point2D> a, List<Point2D> b ) {
-		List<Line2D> aSegments = Point2D.toSegments( a );
-		List<Line2D> bSegments = Point2D.toSegments( b );
+		return findIntersections( SegmentedPath2D.of( a ), SegmentedPath2D.of( b ) );
+	}
 
+	/**
+	 * Find the intersections between two segmented paths.
+	 *
+	 * @param a A segmented path
+	 * @param b Another segmented path
+	 * @return The list of intersection points
+	 */
+	public static List<Point2D> findIntersections( SegmentedPath2D a, SegmentedPath2D b ) {
 		List<Point2D> intersections = new ArrayList<>();
-		for( Line2D aSegment : aSegments ) {
-			for( Line2D bSegment : bSegments ) {
+
+		for( Line2D aSegment : a.getSegments() ) {
+			for( Line2D bSegment : b.getSegments() ) {
 				Intersection2D intersection = aSegment.intersection( bSegment );
-				if( intersection.getType() == Intersection2D.Type.INTERSECTION ) {
-					intersections.addAll( intersection.getPoints() );
-				} else {
-					return List.of();
-				}
+				if( intersection.getType() == Intersection2D.Type.INTERSECTION ) intersections.addAll( intersection.getPoints() );
 			}
 		}
 
@@ -228,12 +233,12 @@ public class Geometry2D {
 	 * CAUTION: This method does not take into account the segment length and
 	 * might return unexpected results due to infinitely long segment lengths.
 	 *
-	 * @param points
 	 * @param curvePoints
+	 * @param fitPoints
 	 * @return
 	 */
-	public static List<Double> findPathSegmentDistances( List<Point2D> points, List<Point2D> curvePoints ) {
-		return points.stream().map( p -> findDistanceToNearestSegment( p, curvePoints ) ).collect( Collectors.toList() );
+	public static List<Double> findPathSegmentDistances( List<Point2D> curvePoints, List<Point2D> fitPoints ) {
+		return curvePoints.stream().map( p -> findDistanceToNearestSegment( p, fitPoints ) ).collect( Collectors.toList() );
 	}
 
 	/**
@@ -242,9 +247,9 @@ public class Geometry2D {
 	 * CAUTION: This method does not take into account the segment length and
 	 * might return unexpected results due to infinitely long segment lengths.
 	 *
-	 * @param anchor
-	 * @param path
-	 * @return
+	 * @param anchor The point from which to measure the distance
+	 * @param path The path to which to measure the distance
+	 * @return the distance to the nearest segment in the path
 	 */
 	public static double findDistanceToNearestSegment( Point2D anchor, List<Point2D> path ) {
 		double result = Double.MAX_VALUE;
@@ -261,15 +266,19 @@ public class Geometry2D {
 		return result;
 	}
 
-	public static List<Double> findPathOffsets( List<Point2D> points, List<Point2D> curvePoints ) {
-		return points.stream().map( p -> findShortestPathOffset( p, curvePoints ) ).collect( Collectors.toList() );
+	public static List<Double> findPathOffsets( SegmentedPath2D curve, SegmentedPath2D fit ) {
+		return findPathOffsets( curve.getPoints(), fit.getPoints() );
+	}
+
+	public static List<Double> findPathOffsets( List<Point2D> curve, List<Point2D> path ) {
+		return curve.stream().map( p -> findShortestPathOffset( p, path ) ).collect( Collectors.toList() );
 	}
 
 	/**
 	 * Find the shortest distance between a point and a path. This method checks
 	 * the distances for both the points and the path segments in the path. It
-	 * also takes into account the length of the segment and only checks lengths
-	 * perpendicular to the segment.
+	 * also takes into account the length of the segment and only checks distances
+	 * inside the bounds perpendicular to the segment.
 	 *
 	 * @param anchor The point from which to find the shortest distance
 	 * @param path The path to check
@@ -283,8 +292,6 @@ public class Geometry2D {
 			if( point != prior ) {
 				// Check the distance to the point first
 				distance = anchor.distance( point );
-				// FIXME This method should be used, but tests fail
-				//distance = getPointLineOffset( anchor, prior, point );
 				if( Math.abs( distance ) < Math.abs( result ) ) result = distance;
 				// Check the distance to the line segment next
 				distance = getPointLineBoundOffset( anchor, prior, point );
@@ -570,7 +577,7 @@ public class Geometry2D {
 	 * @return The cubic Bernstein polynomial coefficient
 	 */
 	public static double calcCubicBasisEffect( int index, double t ) {
-		if( index < 0 ) return t;
+		if( index < 0 ) return 1;
 
 		double s = 1 - t;
 		switch( index ) {

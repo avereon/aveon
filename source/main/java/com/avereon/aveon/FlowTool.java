@@ -97,11 +97,6 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 	}
 
 	@Override
-	protected void assetRefreshed() {
-		// The asset has been refreshed...
-	}
-
-	@Override
 	protected void display() {
 		pushAction( "runpause", runPauseAction );
 		pushAction( "reset", resetAction );

@@ -79,7 +79,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 	}
 
 	@Override
-	protected void assetReady( OpenAssetRequest request ) {
+	protected void open( OpenAssetRequest request ) {
 		Flow2D flow = getAssetModel();
 
 		// Load the initial state from the flow (asset model)

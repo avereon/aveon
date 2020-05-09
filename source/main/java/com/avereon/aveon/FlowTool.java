@@ -37,29 +37,29 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 	private Airfoil airfoil;
 
-	private Group gridLayer;
+	private final Group gridLayer;
 
-	private Group foilShapeLayer;
+	private final Group foilShapeLayer;
 
-	private Group referenceLayer;
+	private final Group referenceLayer;
 
-	private Group foilOutlineLayer;
+	private final Group foilOutlineLayer;
 
-	private Group foilInflectionPointsLayer;
+	private final Group foilInflectionPointsLayer;
 
 	private double scale = DEFAULT_SCALE;
 
 	private Paint gridPaint = Color.web( "#80808080" );
 
-	private Action runPauseAction;
+	private final Action runPauseAction;
 
-	private Action resetAction;
+	private final Action resetAction;
 
 	public FlowTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 
 		setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
-		setTitle( "Flow" );
+		setTitle( getProduct().rb().textOr( "asset", "flow2d-name", "Flow" ) );
 
 		gridLayer = new Group();
 		foilShapeLayer = new Group();
@@ -80,33 +80,29 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 	@Override
 	protected void open( OpenAssetRequest request ) {
-		Flow2D flow = getAssetModel();
-
 		// Load the initial state from the flow (asset model)
-		if( flow.getAirfoil() == null || !flow.getAirfoil().isAnalyzed() ) {
+		if( getFlow().getAirfoil() == null || !getFlow().getAirfoil().isAnalyzed() ) {
 			String airfoilUrl = getAsset().getSettings().get( "airfoil-url" );
 			if( airfoilUrl == null ) airfoilUrl = getSettings().get( AIRFOIL_URL );
 			loadAirfoilPoints( airfoilUrl );
 		}
 
 		// Register flow (asset model) event handlers...
-		flow.register( Flow2D.AIRFOIL, ( e ) -> flow.reset() );
+		getFlow().register( Flow2D.AIRFOIL, ( e ) -> getFlow().reset() );
 		//flow.register( Flow2D.PRESSURE_FIELD, ( e ) -> redrawPressureField() );
 		//flow.register( Flow2D.VELOCITY_FIELD, ( e ) -> redrawVelocityField() );
 		//flow.register( Flow2D.STREAM_FIELD, ( e ) -> redrawStreamField() );
 	}
 
 	@Override
-	protected void display() {
+	protected void activate() {
 		pushAction( "runpause", runPauseAction );
 		pushAction( "reset", resetAction );
-
 		pushToolActions( "toggle-grid", "toggle-airfoil", ActionUtil.SEPARATOR, "reset", "runpause" );
 
 		// Set the current action state
-		if( getAsset().isOpen() ) {
-			Flow2D flow = getAssetModel();
-			FlowSolver solver = flow.getFlowSolver();
+		if( getAsset().isLoaded() ) {
+			FlowSolver solver = getFlow().getFlowSolver();
 			runPauseAction.setState( solver != null && solver.isRunning() ? "pause" : "run" );
 		}
 	}
@@ -114,14 +110,12 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 	@Override
 	protected void conceal() {
 		pullToolActions();
-
 		pullAction( "runpause", runPauseAction );
 		pullAction( "reset", resetAction );
 	}
 
 	public void run() {
-		Flow2D flow = getAssetModel();
-		final FlowSolver solver = new SimpleFlowSolver( flow, getProgram().getTaskManager().getExecutor() );
+		final FlowSolver solver = new SimpleFlowSolver( getFlow(), getProgram().getTaskManager().getExecutor() );
 
 		Task<?> t = Task.of( "Start flow solver", solver );
 		t.register( TaskEvent.FINISH, ( e ) -> {
@@ -132,11 +126,15 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 	}
 
 	public void pause() {
-		((Flow2D)getAssetModel()).getFlowSolver().pause();
+		getFlow().getFlowSolver().pause();
 	}
 
 	public void reset() {
-		((Flow2D)getAssetModel()).getFlowSolver().reset();
+		getFlow().getFlowSolver().reset();
+	}
+
+	private Flow2D getFlow() {
+		return (Flow2D)getAssetModel();
 	}
 
 	private void scaleAndTranslate( Parent parent ) {

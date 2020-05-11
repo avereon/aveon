@@ -58,9 +58,6 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 	public FlowTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
 
-		setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
-		setTitle( getProduct().rb().textOr( "asset", "flow2d-name", "Flow" ) );
-
 		gridLayer = new Group();
 		foilShapeLayer = new Group();
 		referenceLayer = new Group();
@@ -76,6 +73,12 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 		runPauseAction = new RunPauseAction( getProgram(), this );
 		resetAction = new ResetAction( getProgram(), this );
+	}
+
+	@Override
+	protected void ready( OpenAssetRequest request ) {
+		setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
+		setTitle( getProduct().rb().textOr( "asset", "flow2d-name", "Flow" ) );
 	}
 
 	@Override

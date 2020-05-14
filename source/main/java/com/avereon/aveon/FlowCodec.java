@@ -11,6 +11,8 @@ import java.io.OutputStream;
 
 public class FlowCodec extends Codec {
 
+	private static final String MEDIA_TYPE = "application/vnd.avereon.aveon.flow";
+
 	private static final System.Logger log = Log.get();
 
 	private Product product;
@@ -18,11 +20,12 @@ public class FlowCodec extends Codec {
 	public FlowCodec( Product product ) {
 		this.product = product;
 		setDefaultExtension( "flow" );
+		addSupported( Pattern.MEDIATYPE, MEDIA_TYPE );
 	}
 
 	@Override
 	public String getKey() {
-		return "com.avereon.aveon.codec.flow";
+		return MEDIA_TYPE;
 	}
 
 	@Override

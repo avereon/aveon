@@ -9,13 +9,16 @@ import javafx.scene.control.TextInputDialog;
 
 public class FlowAssetType extends AssetType {
 
-	private static final String MEDIA_TYPE = "application/vnd.avereon.aveon.flow";
-
 	private static final System.Logger log = Log.get();
 
 	public FlowAssetType( ProgramProduct product ) {
 		super( product, "flow2d" );
 		setDefaultCodec( new FlowCodec( product ) );
+	}
+
+	@Override
+	public String getKey() {
+		return getDefaultCodec().getKey();
 	}
 
 	@Override

@@ -1,14 +1,16 @@
 package com.avereon.aveon;
 
-import com.avereon.venza.image.ProgramIcon;
+import com.avereon.venza.icon.RenderedIcon;
 
-public class FlowIcon extends ProgramIcon {
+public class FlowIcon extends RenderedIcon {
 
 	@Override
 	protected void render() {
 		double r = 5;
-		fillCenteredOval( g( 16 ), g( 16 ), g( r ), g( r ) );
-		drawCenteredOval( g( 16 ), g( 16 ), g( r ), g( r ) );
+		startPath();
+		addOval(  g( 16 ), g( 16 ), g( r ), g( r ) );
+		closePath();
+		fill();
 
 		double aa = 3;
 		double a = 9;
@@ -22,7 +24,7 @@ public class FlowIcon extends ProgramIcon {
 		getGraphicsContext2D().bezierCurveTo( g( a ), g( 20 ), g( 16 - b ), g( 25 ), g( 16 ), g( 25 ) );
 		getGraphicsContext2D().bezierCurveTo( g( 16 + b ), g( 25 ), g( 32 - a ), g( 20 ), g( 32 - aa ), g( 19 ) );
 
-		setDrawWidth( 2 * getIconDrawWidth() );
+		setDrawWidth( g(2) );
 		draw();
 	}
 

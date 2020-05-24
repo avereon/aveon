@@ -16,8 +16,8 @@ public class Aveon extends Mod {
 
 	@Override
 	public void startup() {
-		registerIcon( "aveon", FlowIcon.class );
-		registerIcon( "flow", FlowIcon.class );
+		registerIcon( "aveon", new FlowIcon() );
+		registerIcon( "flow", new FlowIcon() );
 
 		registerAction( this.rb(), "toggle-grid" );
 		registerAction( this.rb(), "toggle-airfoil" );
@@ -44,8 +44,8 @@ public class Aveon extends Mod {
 		unregisterAction( "toggle-airfoil" );
 		unregisterAction( "toggle-grid" );
 
-		unregisterIcon( "flow", FlowIcon.class );
-		unregisterIcon( "aveon", FlowIcon.class );
+		unregisterIcon( "flow", new FlowIcon() );
+		unregisterIcon( "aveon", new FlowIcon() );
 	}
 
 }

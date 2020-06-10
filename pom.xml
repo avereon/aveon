@@ -82,6 +82,7 @@
 										<image>
 											<class>com.avereon.aveon.FlowIcon</class>
 											<target>${images-folder}/product.png</target>
+											<theme>light</theme>
 										</image>
 									</images>
 								</configuration>

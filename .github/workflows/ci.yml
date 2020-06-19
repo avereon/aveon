@@ -89,7 +89,7 @@ jobs:
 
       - name: Build Assemblies
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P testui,platform-agnostic-assemblies
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,assemblies
 
       - name: Deploy Product Pack
         run: |

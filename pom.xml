@@ -63,7 +63,7 @@
 
 	<profiles>
 		<profile>
-			<id>platform-agnostic-assemblies</id>
+			<id>assemblies</id>
 			<build>
 				<plugins>
 					<plugin>

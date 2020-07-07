@@ -87,9 +87,9 @@ jobs:
           ssh -t ${{env.AVN_REPO_USERNAME}}@avereon.com "mkdir -p ${{env.JAVADOC_TARGET_PATH}};rm -rf ${{env.JAVADOC_TARGET_PATH}}/*;unzip -o ${{env.JAVADOC_DEPLOY_PATH}}/javadoc.jar -d ${{env.JAVADOC_TARGET_PATH}}"
           if [ $? -ne 0 ]; then exit 1; fi
 
-      - name: Build Assemblies
+      - name: Build Packs
         run: |
-          mvn ${{env.MAVEN_PARMS}} verify -P testui,assemblies
+          mvn ${{env.MAVEN_PARMS}} verify -P testui,packs
 
       - name: Deploy Product Pack
         run: |

@@ -63,7 +63,7 @@
 
 	<profiles>
 		<profile>
-			<id>assemblies</id>
+			<id>packs</id>
 			<build>
 				<plugins>
 					<plugin>

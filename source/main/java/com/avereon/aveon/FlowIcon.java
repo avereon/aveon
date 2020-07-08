@@ -8,7 +8,7 @@ public class FlowIcon extends RenderedIcon {
 	protected void render() {
 		double r = 5;
 		startPath();
-		addOval(  g( 16 ), g( 16 ), g( r ), g( r ) );
+		addOval( g( 16 ), g( 16 ), g( r ), g( r ) );
 		closePath();
 		fill();
 
@@ -24,8 +24,8 @@ public class FlowIcon extends RenderedIcon {
 		getGraphicsContext2D().bezierCurveTo( g( a ), g( 20 ), g( 16 - b ), g( 25 ), g( 16 ), g( 25 ) );
 		getGraphicsContext2D().bezierCurveTo( g( 16 + b ), g( 25 ), g( 32 - a ), g( 20 ), g( 32 - aa ), g( 19 ) );
 
-		setDrawWidth( g(2) );
-		draw();
+		setDrawWidth( g( 2 ) );
+		draw( getPrimaryPaint() );
 	}
 
 	public static void main( String[] args ) {

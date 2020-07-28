@@ -1,7 +1,7 @@
 module com.avereon.aveon {
 
 	requires com.avereon.xenon;
-	requires com.avereon.rossa;
+	requires com.avereon.zenna;
 	requires com.avereon.zerra;
 	requires com.avereon.zevra;
 	requires javafx.controls;

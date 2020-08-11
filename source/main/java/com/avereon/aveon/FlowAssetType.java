@@ -22,14 +22,14 @@ public class FlowAssetType extends AssetType {
 	}
 
 	@Override
-	public boolean assetInit( Program program, Asset asset ) {
+	public boolean assetOpen( Program program, Asset asset ) {
 		Flow2D flow = new Flow2D();
 		asset.setModel( flow );
 		return true;
 	}
 
 	@Override
-	public boolean assetUser( Program program, Asset asset ) {
+	public boolean assetNew( Program program, Asset asset ) {
 		String url = requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" );
 		asset.getSettings().set( FlowTool.AIRFOIL_URL, url );
 		return true;

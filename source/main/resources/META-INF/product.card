@@ -4,6 +4,7 @@
 	"version": "${project.version}",
 	"timestamp": "${project.timestamp}",
 	"packaging": "mod",
+	"packagingVersion": "2",
 	"icons": [ "${project.artifactId}", "https://avereon.com/download/latest/${project.artifactId}/product/icon" ],
 	"name": "${project.name}",
 	"provider": "${project.organization.name}",

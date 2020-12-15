@@ -1,8 +1,8 @@
 package com.avereon.aveon;
 
+import com.avereon.curve.math.Arithmetic;
 import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
-import com.avereon.math.Arithmetic;
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.util.Log;
 import com.avereon.xenon.Action;

@@ -42,6 +42,13 @@
 	</properties>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>com.avereon</groupId>
+			<artifactId>curve</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

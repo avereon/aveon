@@ -1,5 +1,6 @@
 module com.avereon.aveon {
 
+	requires com.avereon.curve;
 	requires com.avereon.xenon;
 	requires com.avereon.zenna;
 	requires com.avereon.zerra;

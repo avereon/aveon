@@ -3,7 +3,7 @@ name: Avereon Aveon Continuous
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
       - stable

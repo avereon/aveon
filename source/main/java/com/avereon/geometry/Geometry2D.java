@@ -181,13 +181,13 @@ public class Geometry2D {
 	}
 
 	/**
-	 * Determine if the three points are in counter-clockwise(-1), straight(0),
-	 * or clockwise(1) order.
+	 * Determine if the three points are in counter-clockwise(1), straight(0),
+	 * or clockwise(-1) order.
 	 *
 	 * @param a The anchor point/Point2D to test
 	 * @param b The direction point/Point2D to test
 	 * @param c The point/Point2D to compare
-	 * @return Minus one if CCW, zero if straight, and one if CW.
+	 * @return One if CCW, zero if straight, and minus one if CW.
 	 */
 	public static int getSpin( Point2D a, Point2D b, Point2D c ) {
 		Point2D ab = a.subtract( b );

@@ -3,6 +3,7 @@ package com.avereon.aveon;
 import com.avereon.curve.math.Arithmetic;
 import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
+import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.util.Log;
 import com.avereon.xenon.Action;
@@ -78,7 +79,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 	@Override
 	protected void ready( OpenAssetRequest request ) {
 		setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
-		setTitle( getProduct().rb().textOr( "asset", "flow2d-name", "Flow" ) );
+		setTitle( Rb.textOr( getProduct(), "asset", "flow2d-name", "Flow" ) );
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.product.Product;
+import com.avereon.product.Rb;
 import com.avereon.util.Log;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
@@ -30,7 +31,7 @@ public class FlowCodec extends Codec {
 
 	@Override
 	public String getName() {
-		return product.rb().text( "asset", "codec-flow-name" );
+		return Rb.text( "asset", "codec-flow-name" );
 	}
 
 	@Override

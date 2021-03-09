@@ -19,13 +19,13 @@ public class Aveon extends Mod {
 		registerIcon( "aveon", new FlowIcon() );
 		registerIcon( "flow", new FlowIcon() );
 
-		registerAction( this.rb(), "toggle-grid" );
-		registerAction( this.rb(), "toggle-airfoil" );
-//		registerAction( this.rb(), "toggle-reference-points" );
-//		registerAction( this.rb(), "toggle-reference-lines" );
-//		registerAction( this.rb(), "toggle-pressure-field" );
-//		registerAction( this.rb(), "toggle-velocity-field" );
-//		registerAction( this.rb(), "toggle-stream-field" );
+		registerAction( this, "toggle-grid" );
+		registerAction( this, "toggle-airfoil" );
+//		registerAction( this, "toggle-reference-points" );
+//		registerAction( this, "toggle-reference-lines" );
+//		registerAction( this, "toggle-pressure-field" );
+//		registerAction( this, "toggle-velocity-field" );
+//		registerAction( this, "toggle-stream-field" );
 
 		registerAssetType( flowAssetType );
 		registerTool( flowAssetType, new ToolRegistration( this, FlowTool.class ) );

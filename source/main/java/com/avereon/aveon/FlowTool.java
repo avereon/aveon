@@ -15,7 +15,7 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
-import com.avereon.xenon.util.ActionUtil;
+import com.avereon.xenon.ui.util.ToolBarFactory;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Group;
@@ -102,7 +102,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 	protected void activate() {
 		pushAction( "runpause", runPauseAction );
 		pushAction( "reset", resetAction );
-		pushToolActions( "toggle-grid", "toggle-airfoil", ActionUtil.SEPARATOR, "reset", "runpause" );
+		pushToolActions( "toggle-grid", "toggle-airfoil", ToolBarFactory.SEPARATOR, "reset", "runpause" );
 
 		// Set the current action state
 		if( getAsset().isLoaded() ) {

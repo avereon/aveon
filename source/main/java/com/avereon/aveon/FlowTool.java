@@ -6,7 +6,7 @@ import com.avereon.geometry.Point2D;
 import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.util.Log;
-import com.avereon.xenon.Action;
+import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.action.common.ResetAction;
@@ -51,9 +51,9 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 	private Paint gridPaint = Color.web( "#80808080" );
 
-	private final Action runPauseAction;
+	private final ProgramAction runPauseAction;
 
-	private final Action resetAction;
+	private final ProgramAction resetAction;
 
 	public FlowTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );

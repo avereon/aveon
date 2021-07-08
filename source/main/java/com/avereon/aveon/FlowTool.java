@@ -5,7 +5,6 @@ import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
 import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
-import com.avereon.util.Log;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
@@ -22,18 +21,20 @@ import javafx.scene.Parent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
+import lombok.CustomLog;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+@CustomLog
 public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 	static final String AIRFOIL_URL = "airfoil-url";
 
-	private static final System.Logger log = Log.get();
-
 	private static final double DEFAULT_SCALE = 0.8;
+
+	private final double scale = DEFAULT_SCALE;
 
 	private Airfoil airfoil;
 
@@ -47,9 +48,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 	private final Group foilInflectionPointsLayer;
 
-	private double scale = DEFAULT_SCALE;
-
-	private Paint gridPaint = Color.web( "#80808080" );
+	private final Paint gridPaint = Color.web( "#80808080" );
 
 	private final ProgramAction runPauseAction;
 
@@ -122,7 +121,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 		Task<?> t = Task.of( "Start flow solver", solver );
 		t.register( TaskEvent.FINISH, ( e ) -> {
-			log.log( Log.INFO, "Flow solver complete!" );
+			log.atInfo().log( "Flow solver complete!" );
 			runPauseAction.setState( "run" );
 		} );
 		getProgram().getTaskManager().submit( t );
@@ -304,7 +303,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 			Airfoil airfoil = new AirfoilStationPointCodec().loadStationPoints( new URL( url.trim() ).openStream() );
 			Platform.runLater( () -> setAirfoil( airfoil ) );
 		} catch( IOException exception ) {
-			log.log( Log.ERROR, "Unable to load airfoil data", exception );
+			log.atError( exception ).log( "Unable to load airfoil data" );
 		}
 	}
 

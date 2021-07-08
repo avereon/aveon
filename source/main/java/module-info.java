@@ -1,5 +1,9 @@
 module com.avereon.aveon {
 
+	// Compile-time only
+	requires static lombok;
+
+	// Both compile-time and run-time
 	requires com.avereon.curve;
 	requires com.avereon.xenon;
 	requires com.avereon.zenna;

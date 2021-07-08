@@ -3,7 +3,7 @@ package com.avereon.aveon;
 import com.avereon.data.Node;
 import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +18,7 @@ import java.util.List;
  *   <li>http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e176-il</li>
  * </ul>
  */
+@CustomLog
 public class Airfoil extends Node {
 
 	private static final String ID = "id";
@@ -35,8 +36,6 @@ public class Airfoil extends Node {
 	private static final String UPPER_POINTS = "upper-points";
 
 	private static final String LOWER_POINTS = "lower-points";
-
-	private static final System.Logger log = Log.get();
 
 	private double minY;
 

@@ -1,15 +1,14 @@
 package com.avereon.aveon;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.Program;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import javafx.scene.control.TextInputDialog;
+import lombok.CustomLog;
 
+@CustomLog
 public class FlowAssetType extends AssetType {
-
-	private static final System.Logger log = Log.get();
 
 	public FlowAssetType( ProgramProduct product ) {
 		super( product, "flow2d" );

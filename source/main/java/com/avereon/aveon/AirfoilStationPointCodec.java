@@ -1,10 +1,10 @@
 package com.avereon.aveon;
 
 import com.avereon.geometry.Point2D;
-import com.avereon.util.Log;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
+import lombok.CustomLog;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@CustomLog
 public class AirfoilStationPointCodec extends Codec {
-
-	private static final System.Logger log = Log.get();
 
 	@Override
 	public String getKey() {

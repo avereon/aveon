@@ -4,20 +4,19 @@ import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Geometry2D;
 import com.avereon.geometry.Point2D;
 import com.avereon.geometry.SegmentedPath2D;
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.IntStream;
 
+@CustomLog
 public class CubicBezierCurveFitter {
 
 	private static final int HEAD_WEIGHT_INDEX = 1;
 
 	private static final int TAIL_WEIGHT_INDEX = 2;
-
-	private static final System.Logger log = Log.get();
 
 	private static final NumberFormat iterationFormat = new DecimalFormat( "000" );
 

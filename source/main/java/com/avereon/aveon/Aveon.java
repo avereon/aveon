@@ -1,14 +1,13 @@
 package com.avereon.aveon;
 
-import com.avereon.util.Log;
 import com.avereon.xenon.Mod;
 import com.avereon.xenon.ToolRegistration;
+import lombok.CustomLog;
 
+@CustomLog
 public class Aveon extends Mod {
 
-	private static final System.Logger log = Log.get();
-
-	private FlowAssetType flowAssetType;
+	private final FlowAssetType flowAssetType;
 
 	public Aveon() {
 		flowAssetType = new FlowAssetType( this );

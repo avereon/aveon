@@ -1,7 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.skill.RunPauseResettable;
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
 import java.util.Set;
 import java.util.concurrent.CancellationException;
@@ -9,15 +9,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+@CustomLog
 public abstract class FlowSolver implements RunPauseResettable {
 
-	protected static final System.Logger log = Log.get();
+	private final Flow2D flow;
 
-	private Flow2D flow;
+	private final Set<Future<?>> tasks;
 
 	private ExecutorService executor;
-
-	private Set<Future<?>> tasks;
 
 	public FlowSolver( Flow2D flow, ExecutorService executor ) {
 		this.flow = flow;
@@ -53,9 +52,9 @@ public abstract class FlowSolver implements RunPauseResettable {
 			try {
 				t.get();
 			} catch( CancellationException exception ) {
-				if( !ignoreCancelled ) log.log( Log.WARN, exception );
+				if( !ignoreCancelled ) log.atWarn( exception ).log();
 			} catch( Exception exception ) {
-				log.log( Log.WARN, exception );
+				log.atWarn( exception ).log();
 			}
 		} );
 	}

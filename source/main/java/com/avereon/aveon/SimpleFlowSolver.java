@@ -1,9 +1,10 @@
 package com.avereon.aveon;
 
-import com.avereon.util.Log;
+import lombok.CustomLog;
 
 import java.util.concurrent.ExecutorService;
 
+@CustomLog
 public class SimpleFlowSolver extends FlowSolver {
 
 	public SimpleFlowSolver( Flow2D flow, ExecutorService executor ) {
@@ -12,7 +13,7 @@ public class SimpleFlowSolver extends FlowSolver {
 
 	@Override
 	public void run() {
-		log.log( Log.DEBUG, "Starting simple flow solver..." );
+		log.atDebug().log( "Starting simple flow solver..." );
 
 		// TODO Calculate the flow field
 
@@ -22,7 +23,7 @@ public class SimpleFlowSolver extends FlowSolver {
 
 		// TODO Calculate the surface shear (parasite drag)
 
-		log.log( Log.INFO, "Simple flow solver started." );
+		log.atInfo().log( "Simple flow solver started." );
 	}
 
 }

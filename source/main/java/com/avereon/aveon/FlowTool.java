@@ -84,7 +84,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 	protected void open( OpenAssetRequest request ) {
 		// Load the initial state from the flow (asset model)
 		if( getFlow().getAirfoil() == null || !getFlow().getAirfoil().isAnalyzed() ) {
-			String airfoilUrl = getAsset().getSettings().get( "airfoil-url" );
+			String airfoilUrl = getAssetSettings().get( "airfoil-url" );
 			if( airfoilUrl == null ) airfoilUrl = getSettings().get( AIRFOIL_URL );
 			loadAirfoilPoints( airfoilUrl );
 		}

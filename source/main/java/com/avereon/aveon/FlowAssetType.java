@@ -30,7 +30,7 @@ public class FlowAssetType extends AssetType {
 	@Override
 	public boolean assetNew( Program program, Asset asset ) {
 		String url = requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" );
-		asset.getSettings().set( FlowTool.AIRFOIL_URL, url );
+		program.getSettingsManager().getAssetSettings( asset ).set( FlowTool.AIRFOIL_URL, url );
 		return true;
 	}
 

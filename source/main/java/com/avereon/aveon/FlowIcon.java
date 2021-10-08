@@ -1,6 +1,6 @@
 package com.avereon.aveon;
 
-import com.avereon.zerra.image.RenderedIcon;
+import com.avereon.zarra.image.RenderedIcon;
 
 public class FlowIcon extends RenderedIcon {
 

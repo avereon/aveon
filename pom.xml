@@ -38,6 +38,8 @@
 	</pluginRepositories>
 
 	<properties>
+		<curve.version>[0.1,)</curve.version>
+		<cameo.version>2.9</cameo.version>
 		<images-folder>target/main/images</images-folder>
 	</properties>
 
@@ -46,7 +48,7 @@
 		<dependency>
 			<groupId>com.avereon</groupId>
 			<artifactId>curve</artifactId>
-			<version>0.1</version>
+			<version>${curve.version}</version>
 		</dependency>
 
 	</dependencies>
@@ -76,6 +78,7 @@
 					<plugin>
 						<groupId>com.avereon</groupId>
 						<artifactId>cameo</artifactId>
+						<version>${cameo.version}</version>
 						<executions>
 							<execution>
 								<id>render</id>

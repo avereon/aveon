@@ -38,13 +38,13 @@ public class Geometry2DTest {
 		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0, 0 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isCloseTo( -Math.sqrt( 0.5 ), error  );
 		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 1, 1 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isCloseTo( Math.sqrt( 0.5 ), error  );
 
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0, 2 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 2, 0 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0, 2 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isNaN();
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 2, 0 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isNaN();
 
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( -0.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, -0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, 1.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 1.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( -0.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isNaN();
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, -0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isNaN();
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, 1.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isNaN();
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 1.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isNaN();
 	}
 
 	@Test

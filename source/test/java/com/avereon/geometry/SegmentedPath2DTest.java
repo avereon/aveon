@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SegmentedPath2DTest {
 
@@ -19,21 +18,21 @@ public class SegmentedPath2DTest {
 
 	@Test
 	void testGetCount() {
-		assertThat( path.getPointCount(), is( 5 ) );
+		assertThat( path.getPointCount() ).isEqualTo( 5 );
 	}
 
 	@Test
 	void testGetLength() {
-		assertThat( path.getLength(), is( 10.0 ) );
+		assertThat( path.getLength() ).isEqualTo( 10.0 );
 	}
 
 	@Test
 	void testGetPercent() {
-		assertThat( path.getPercentDistance( 0 ), is( 0.0 ) );
-		assertThat( path.getPercentDistance( 1 ), is( 0.1 ) );
-		assertThat( path.getPercentDistance( 2 ), is( 0.3 ) );
-		assertThat( path.getPercentDistance( 3 ), is( 0.6 ) );
-		assertThat( path.getPercentDistance( 4 ), is( 1.0 ) );
+		assertThat( path.getPercentDistance( 0 ) ).isEqualTo( 0.0 );
+		assertThat( path.getPercentDistance( 1 ) ).isEqualTo( 0.1 );
+		assertThat( path.getPercentDistance( 2 ) ).isEqualTo( 0.3 );
+		assertThat( path.getPercentDistance( 3 ) ).isEqualTo( 0.6 );
+		assertThat( path.getPercentDistance( 4 ) ).isEqualTo( 1.0 );
 	}
 
 }

@@ -1,71 +1,72 @@
 package com.avereon.geometry;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class Geometry2DTest {
 
 	@Test
 	public void testGetAngleWithTwoPoints() {
-		assertThat( Geometry2D.getAngle( Point2D.ZERO, Point2D.ZERO ), is( Double.NaN ) );
+		assertThat( Geometry2D.getAngle( Point2D.ZERO, Point2D.ZERO )).isNaN();
 
-		assertThat( Geometry2D.getAngle( new Point2D( 1, 0 ), new Point2D( 1, 0 ) ), is( 0.0 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( 0, 1 ) ), is( 0.0 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( -1, 0 ), new Point2D( -1, 0 ) ), is( 0.0 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( 0, -1 ), new Point2D( 0, -1 ) ), is( 0.0 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 1, 0 ), new Point2D( 1, 0 ) )).isEqualTo( 0.0  );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( 0, 1 ) )).isEqualTo( 0.0  );
+		assertThat( Geometry2D.getAngle( new Point2D( -1, 0 ), new Point2D( -1, 0 ) )).isEqualTo( 0.0  );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, -1 ), new Point2D( 0, -1 ) )).isEqualTo( 0.0  );
 
-		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( 1, 0 ) ), is( Math.PI / 2 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( -1, 0 ) ), is( Math.PI / 2 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( 0, -1 ), new Point2D( 1, 0 ) ), is( Math.PI / 2 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( 0, -1 ), new Point2D( -1, 0 ) ), is( Math.PI / 2 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( 1, 0 ), new Point2D( 0, 1 ) ), is( Math.PI / 2 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( 1, 0 ), new Point2D( 0, -1 ) ), is( Math.PI / 2 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( -1, 0 ), new Point2D( 0, 1 ) ), is( Math.PI / 2 ) );
-		assertThat( Geometry2D.getAngle( new Point2D( -1, 0 ), new Point2D( 0, -1 ) ), is( Math.PI / 2 ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( 1, 0 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( -1, 0 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, -1 ), new Point2D( 1, 0 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, -1 ), new Point2D( -1, 0 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( Geometry2D.getAngle( new Point2D( 1, 0 ), new Point2D( 0, 1 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( Geometry2D.getAngle( new Point2D( 1, 0 ), new Point2D( 0, -1 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( Geometry2D.getAngle( new Point2D( -1, 0 ), new Point2D( 0, 1 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( Geometry2D.getAngle( new Point2D( -1, 0 ), new Point2D( 0, -1 ) )).isEqualTo( Math.PI / 2 );
 
-		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( 0, -1 ) ), is( Math.PI ) );
+		assertThat( Geometry2D.getAngle( new Point2D( 0, 1 ), new Point2D( 0, -1 ) )).isEqualTo( Math.PI );
 	}
 
 	@Test
 	public void testGetPointLineBoundDistance() {
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0, 0 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), closeTo( -Math.sqrt( 0.5 ), 1e-15 ) );
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 1, 1 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), closeTo( Math.sqrt( 0.5 ), 1e-15 ) );
+		Offset<Double> error = Offset.offset( 1e-15 );
 
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0, 2 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 2, 0 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0, 0 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isCloseTo( -Math.sqrt( 0.5 ), error  );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 1, 1 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isCloseTo( Math.sqrt( 0.5 ), error  );
 
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( -0.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, -0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, 1.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
-		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 1.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) ), is( Double.NaN ) );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0, 2 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 2, 0 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
+
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( -0.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, -0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 0.5, 1.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
+		assertThat( Geometry2D.getPointLineBoundOffset( Point2D.of( 1.5, 0.5 ), Point2D.of( 0, 1 ), Point2D.of( 1, 0 ) )).isEqualTo( Double.NaN );
 	}
 
 	@Test
 	public void testGetPointLineDistance() {
-		assertThat( Geometry2D.getPointLineDistance( new Point2D( -0.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
-		assertThat( Geometry2D.getPointLineDistance( new Point2D( 0.0, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
-		assertThat( Geometry2D.getPointLineDistance( new Point2D( 0.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
-		assertThat( Geometry2D.getPointLineDistance( new Point2D( 1.0, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
-		assertThat( Geometry2D.getPointLineDistance( new Point2D( 1.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) ), is( 1.0 ) );
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( -0.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) )).isEqualTo( 1.0 );
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( 0.0, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) )).isEqualTo( 1.0 );
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( 0.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) )).isEqualTo( 1.0 );
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( 1.0, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) )).isEqualTo( 1.0 );
+		assertThat( Geometry2D.getPointLineDistance( new Point2D( 1.5, 1.0 ), new Point2D( 0, 0 ), new Point2D( 1, 0 ) )).isEqualTo( 1.0 );
 	}
 
 	@Test
 	void testGetSpin() {
-		assertThat( Geometry2D.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, 0.5 ) ), is( 1 ) );
-		assertThat( Geometry2D.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, 0.0 ) ), is( 0 ) );
-		assertThat( Geometry2D.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, -0.5 ) ), is( -1 ) );
+		assertThat( Geometry2D.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, 0.5 ) )).isEqualTo( 1 );
+		assertThat( Geometry2D.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, 0.0 ) )).isEqualTo( 0 );
+		assertThat( Geometry2D.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, -0.5 ) )).isEqualTo( -1 );
 	}
 
 	@Test
 	void testFindNearestSegment() {
 		List<Point2D> points = List.of( new Point2D( 0, 0 ), Point2D.of( 1, 1 ), Point2D.of( 2, 1 ), Point2D.of( 3, 0 ) );
-		assertThat( Geometry2D.findDistanceToNearestSegment( Point2D.of( 1.5, 0 ), points ), is( 1.0 ) );
+		assertThat( Geometry2D.findDistanceToNearestSegment( Point2D.of( 1.5, 0 ), points )).isEqualTo( 1.0 );
 	}
 
 	@Test
@@ -79,7 +80,7 @@ public class Geometry2DTest {
 
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
 
-		assertThat( polygons.size(), is( 0 ) );
+		assertThat( polygons.size()).isEqualTo( 0 );
 	}
 
 	@Test
@@ -90,12 +91,12 @@ public class Geometry2DTest {
 
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
 
-		assertThat( polygons.get( 0 ).size(), is( 3 ) );
-		assertThat( polygons.get( 1 ).size(), is( 3 ) );
-		assertThat( polygons.get( 2 ).size(), is( 3 ) );
-		assertThat( polygons.get( 3 ).size(), is( 3 ) );
+		assertThat( polygons.get( 0 ).size()).isEqualTo( 3 );
+		assertThat( polygons.get( 1 ).size()).isEqualTo( 3 );
+		assertThat( polygons.get( 2 ).size()).isEqualTo( 3 );
+		assertThat( polygons.get( 3 ).size()).isEqualTo( 3 );
 
-		assertThat( polygons.size(), is( 4 ) );
+		assertThat( polygons.size()).isEqualTo( 4 );
 	}
 
 	@Test
@@ -116,14 +117,14 @@ public class Geometry2DTest {
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
 
 		int index = 0;
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 1, 1 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 0, 1 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( -1, 0 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( -1, -1 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 0, -1 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 1, 0 ) ) );
-		assertThat( index, is( 6 ) );
-		assertThat( polygons.size(), is( 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 1, 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 0, 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( -1, 0 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( -1, -1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 0, -1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 1, 0 ) );
+		assertThat( index).isEqualTo( 6 );
+		assertThat( polygons.size()).isEqualTo( 1 );
 	}
 
 	@Test
@@ -142,12 +143,12 @@ public class Geometry2DTest {
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
 
 		int index = 0;
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 1.5, 1.5 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2, 1 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 3, 1.5 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2, 2 ) ) );
-		assertThat( index, is( 4 ) );
-		assertThat( polygons.size(), is( 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 1.5, 1.5 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2, 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 3, 1.5 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2, 2 ) );
+		assertThat( index).isEqualTo( 4 );
+		assertThat( polygons.size()).isEqualTo( 1 );
 	}
 
 	@Test
@@ -166,12 +167,12 @@ public class Geometry2DTest {
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
 
 		int index = 0;
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 1, 1.5 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2, 1 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2.5, 1.5 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2, 2 ) ) );
-		assertThat( index, is( 4 ) );
-		assertThat( polygons.size(), is( 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 1, 1.5 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2, 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2.5, 1.5 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2, 2 ) );
+		assertThat( index).isEqualTo( 4 );
+		assertThat( polygons.size()).isEqualTo( 1 );
 	}
 
 	@Test
@@ -190,12 +191,12 @@ public class Geometry2DTest {
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
 
 		int index = 0;
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 1.5, 1.5 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2, 1 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2.5, 1.5 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2, 2 ) ) );
-		assertThat( index, is( 4 ) );
-		assertThat( polygons.size(), is( 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 1.5, 1.5 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2, 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2.5, 1.5 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2, 2 ) );
+		assertThat( index).isEqualTo( 4 );
+		assertThat( polygons.size()).isEqualTo( 1 );
 	}
 
 	@Test
@@ -218,27 +219,27 @@ public class Geometry2DTest {
 		List<List<Point2D>> polygons = Geometry2D.findPolygons( a, b );
 
 		int index = 0;
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 1.5, 1.5 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2, 1 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2.5, 1.5 ) ) );
-		assertThat( polygons.get( 0 ).get( index++ ), is( new Point2D( 2, 2 ) ) );
-		assertThat( index, is( 4 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 1.5, 1.5 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2, 1 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2.5, 1.5 ) );
+		assertThat( polygons.get( 0 ).get( index++ )).isEqualTo( new Point2D( 2, 2 ) );
+		assertThat( index).isEqualTo( 4 );
 
 		index = 0;
-		assertThat( polygons.get( 1 ).get( index++ ), is( new Point2D( 3.5, 1.5 ) ) );
-		assertThat( polygons.get( 1 ).get( index++ ), is( new Point2D( 3, 2 ) ) );
-		assertThat( polygons.get( 1 ).get( index++ ), is( new Point2D( 2.5, 1.5 ) ) );
-		assertThat( polygons.get( 1 ).get( index++ ), is( new Point2D( 3, 1 ) ) );
-		assertThat( index, is( 4 ) );
+		assertThat( polygons.get( 1 ).get( index++ )).isEqualTo( new Point2D( 3.5, 1.5 ) );
+		assertThat( polygons.get( 1 ).get( index++ )).isEqualTo( new Point2D( 3, 2 ) );
+		assertThat( polygons.get( 1 ).get( index++ )).isEqualTo( new Point2D( 2.5, 1.5 ) );
+		assertThat( polygons.get( 1 ).get( index++ )).isEqualTo( new Point2D( 3, 1 ) );
+		assertThat( index).isEqualTo( 4 );
 
 		index = 0;
-		assertThat( polygons.get( 2 ).get( index++ ), is( new Point2D( 3.5, 1.5 ) ) );
-		assertThat( polygons.get( 2 ).get( index++ ), is( new Point2D( 4, 1 ) ) );
-		assertThat( polygons.get( 2 ).get( index++ ), is( new Point2D( 4.5, 1.5 ) ) );
-		assertThat( polygons.get( 2 ).get( index++ ), is( new Point2D( 4, 2 ) ) );
-		assertThat( index, is( 4 ) );
+		assertThat( polygons.get( 2 ).get( index++ )).isEqualTo( new Point2D( 3.5, 1.5 ) );
+		assertThat( polygons.get( 2 ).get( index++ )).isEqualTo( new Point2D( 4, 1 ) );
+		assertThat( polygons.get( 2 ).get( index++ )).isEqualTo( new Point2D( 4.5, 1.5 ) );
+		assertThat( polygons.get( 2 ).get( index++ )).isEqualTo( new Point2D( 4, 2 ) );
+		assertThat( index).isEqualTo( 4 );
 
-		assertThat( polygons.size(), is( 3 ) );
+		assertThat( polygons.size()).isEqualTo( 3 );
 	}
 
 	@Test
@@ -259,24 +260,24 @@ public class Geometry2DTest {
 		List<Point2D> polygon = Geometry2D.toCcwPolygon( a, b );
 
 		int index = 0;
-		assertThat( polygon.get( index++ ), is( new Point2D( 1, 1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 0, 1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( -1, 0 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( -1, -1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 0, -1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 1, 0 ) ) );
-		assertThat( index, is( 6 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 1, 1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 0, 1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( -1, 0 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( -1, -1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 0, -1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 1, 0 ) );
+		assertThat( index).isEqualTo( 6 );
 
 		polygon = Geometry2D.toCcwPolygon( b, a );
 
 		index = 0;
-		assertThat( polygon.get( index++ ), is( new Point2D( -1, -1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 0, -1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 1, 0 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 1, 1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 0, 1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( -1, 0 ) ) );
-		assertThat( index, is( 6 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( -1, -1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 0, -1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 1, 0 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 1, 1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 0, 1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( -1, 0 ) );
+		assertThat( index).isEqualTo( 6 );
 	}
 
 	@Test
@@ -294,24 +295,24 @@ public class Geometry2DTest {
 		List<Point2D> polygon = Geometry2D.toCcwPolygon( a, b );
 
 		int index = 0;
-		assertThat( polygon.get( index++ ), is( new Point2D( 1, 1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 2, 1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 1.5, 1.5 ) ) );
-		assertThat( index, is( 3 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 1, 1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 2, 1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 1.5, 1.5 ) );
+		assertThat( index).isEqualTo( 3 );
 
 		polygon = Geometry2D.toCcwPolygon( b, a );
 
 		index = 0;
-		assertThat( polygon.get( index++ ), is( new Point2D( 2, 1 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 1.5, 1.5 ) ) );
-		assertThat( polygon.get( index++ ), is( new Point2D( 1, 1 ) ) );
-		assertThat( index, is( 3 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 2, 1 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 1.5, 1.5 ) );
+		assertThat( polygon.get( index++ )).isEqualTo( new Point2D( 1, 1 ) );
+		assertThat( index).isEqualTo( 3 );
 	}
 
 	@Test
 	void testCalcPathLength() {
 		Cubic2D c = new Cubic2D( 0, 0, 0, 0.5, 0.5, 1, 1, 1 );
-		assertThat( Geometry2D.calcPathLength( c.toPoints( 8 ) ), is( 1.5463566920835916 ) );
+		assertThat( Geometry2D.calcPathLength( c.toPoints( 8 ) )).isEqualTo( 1.5463566920835916 );
 	}
 
 	@Test
@@ -325,7 +326,7 @@ public class Geometry2DTest {
 		p.add( new Point2D( 0, -1 ) );
 		p.add( new Point2D( 1, 0 ) );
 
-		assertThat( Geometry2D.calcPolygonArea( p ), is( 3.0 ) );
+		assertThat( Geometry2D.calcPolygonArea( p )).isEqualTo( 3.0 );
 	}
 
 	@Test
@@ -339,59 +340,59 @@ public class Geometry2DTest {
 		p.add( new Point2D( 0, -1 ) );
 		p.add( new Point2D( 1, 0 ) );
 
-		assertThat( Geometry2D.getBounds( p ), is( new Bounds2D( -1, -1, 1, 1 ) ) );
+		assertThat( Geometry2D.getBounds( p )).isEqualTo( new Bounds2D( -1, -1, 1, 1 ) );
 	}
 
 	@Test
 	void testCalcQuadBasisEffect() {
-		double error = 1e-15;
+		Offset<Double> error = Offset.offset( 1e-15 );
 
-		assertThat( Geometry2D.calcQuadBasisEffect( 0, 0 ), is( 1.0 ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 0, 1.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 0, 0.5 ), is( 0.25 ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 0, 2.0 / 3.0 ), closeTo( 1.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 0, 1 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 0 )).isEqualTo( 1.0 );
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 1.0 / 3.0 )).isCloseTo( 4.0 / 9.0, error );
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 0.5 )).isEqualTo( 0.25 );
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 2.0 / 3.0 )).isCloseTo( 1.0 / 9.0, error );
+		assertThat( Geometry2D.calcQuadBasisEffect( 0, 1 )).isEqualTo( 0.0 );
 
-		assertThat( Geometry2D.calcQuadBasisEffect( 1, 0 ), is( 0.0 ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 1, 1.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 1, 0.5 ), is( 0.5 ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 1, 2.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 1, 1 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 0 )).isEqualTo( 0.0 );
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 1.0 / 3.0 )).isCloseTo( 4.0 / 9.0, error );
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 0.5 )).isEqualTo( 0.5 );
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 2.0 / 3.0 )).isCloseTo( 4.0 / 9.0, error );
+		assertThat( Geometry2D.calcQuadBasisEffect( 1, 1 )).isEqualTo( 0.0 );
 
-		assertThat( Geometry2D.calcQuadBasisEffect( 2, 0 ), is( 0.0 ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 2, 1.0 / 3.0 ), closeTo( 1.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 2, 0.5 ), is( 0.25 ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 2, 2.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcQuadBasisEffect( 2, 1 ), is( 1.0 ) );
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 0 )).isEqualTo( 0.0 );
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 1.0 / 3.0 )).isCloseTo( 1.0 / 9.0, error );
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 0.5 )).isEqualTo( 0.25 );
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 2.0 / 3.0 )).isCloseTo( 4.0 / 9.0, error );
+		assertThat( Geometry2D.calcQuadBasisEffect( 2, 1 )).isEqualTo( 1.0 );
 	}
 
 	@Test
 	void testCalcCubicBasisEffect() {
-		double error = 1e-15;
+		Offset<Double> error = Offset.offset( 1e-15 );
 
-		assertThat( Geometry2D.calcCubicBasisEffect( 0, 0 ), is( 1.0 ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 0, 1.0 / 3.0 ), closeTo( 8.0 / 27.0, error ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 0, 0.5 ), is( 1.0 / 8.0 ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 0, 2.0 / 3.0 ), closeTo( 1.0 / 27.0, error ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 0, 1 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 0 )).isEqualTo( 1.0 );
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 1.0 / 3.0 )).isCloseTo( 8.0 / 27.0, error );
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 0.5 )).isEqualTo( 1.0 / 8.0 );
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 2.0 / 3.0 )).isCloseTo( 1.0 / 27.0, error );
+		assertThat( Geometry2D.calcCubicBasisEffect( 0, 1 )).isEqualTo( 0.0 );
 
-		assertThat( Geometry2D.calcCubicBasisEffect( 1, 0 ), is( 0.0 ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 1, 1.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 1, 0.5 ), is( 3.0 / 8.0 ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 1, 2.0 / 3.0 ), closeTo( 2.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 1, 1 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 0 )).isEqualTo( 0.0 );
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 1.0 / 3.0 )).isCloseTo( 4.0 / 9.0, error );
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 0.5 )).isEqualTo( 3.0 / 8.0 );
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 2.0 / 3.0 )).isCloseTo( 2.0 / 9.0, error );
+		assertThat( Geometry2D.calcCubicBasisEffect( 1, 1 )).isEqualTo( 0.0 );
 
-		assertThat( Geometry2D.calcCubicBasisEffect( 2, 0 ), is( 0.0 ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 2, 1.0 / 3.0 ), closeTo( 2.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 2, 0.5 ), is( 3.0 / 8.0 ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 2, 2.0 / 3.0 ), closeTo( 4.0 / 9.0, error ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 2, 1 ), is( 0.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 0 )).isEqualTo( 0.0 );
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 1.0 / 3.0 )).isCloseTo( 2.0 / 9.0, error );
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 0.5 )).isEqualTo( 3.0 / 8.0 );
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 2.0 / 3.0 )).isCloseTo( 4.0 / 9.0, error );
+		assertThat( Geometry2D.calcCubicBasisEffect( 2, 1 )).isEqualTo( 0.0 );
 
-		assertThat( Geometry2D.calcCubicBasisEffect( 3, 0 ), is( 0.0 ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 3, 1.0 / 3.0 ), closeTo( 1.0 / 27.0, error ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 3, 0.5 ), is( 1.0 / 8.0 ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 3, 2.0 / 3.0 ), closeTo( 8.0 / 27.0, error ) );
-		assertThat( Geometry2D.calcCubicBasisEffect( 3, 1 ), is( 1.0 ) );
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 0 )).isEqualTo( 0.0 );
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 1.0 / 3.0 )).isCloseTo( 1.0 / 27.0, error );
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 0.5 )).isEqualTo( 1.0 / 8.0 );
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 2.0 / 3.0 )).isCloseTo( 8.0 / 27.0, error );
+		assertThat( Geometry2D.calcCubicBasisEffect( 3, 1 )).isEqualTo( 1.0 );
 	}
 
 }

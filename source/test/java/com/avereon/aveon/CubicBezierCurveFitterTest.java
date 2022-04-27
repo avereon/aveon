@@ -6,6 +6,8 @@ import com.avereon.geometry.Point2D;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,12 +32,12 @@ class CubicBezierCurveFitterTest {
 		//assertThat( Math.abs( curve.b.y / 0.1 - 1 )).isCloseTo( 0, 0.0001 ) );
 		//assertThat( Math.abs( curve.c.x / 0.2 - 1 )).isCloseTo( 0, 0.0001 ) );
 
-//		assertThat( curve.a).isEqualTo( new Point2D( 0.0, 0.0 ) ) );
-//		assertThat( curve.b.x).isEqualTo( 0.0 ) );
-//		assertThat( curve.b.y).isCloseTo( 0.1, 0.01 ) );
-//		assertThat( curve.c.x).isCloseTo( 0.2, 0.02 ) );
-//		assertThat( curve.c.y).isEqualTo( 0.2 ) );
-//		assertThat( curve.d).isEqualTo( new Point2D( 0.4, 0.2 ) ) );
+		//		assertThat( curve.a).isEqualTo( new Point2D( 0.0, 0.0 ) ) );
+		//		assertThat( curve.b.x).isEqualTo( 0.0 ) );
+		//		assertThat( curve.b.y).isCloseTo( 0.1, 0.01 ) );
+		//		assertThat( curve.c.x).isCloseTo( 0.2, 0.02 ) );
+		//		assertThat( curve.c.y).isEqualTo( 0.2 ) );
+		//		assertThat( curve.d).isEqualTo( new Point2D( 0.4, 0.2 ) ) );
 
 		//		assertThat( fitter.calcError( curve ), lessThan( 1e-15 ) );
 	}
@@ -45,17 +47,17 @@ class CubicBezierCurveFitterTest {
 		List<Point2D> a = List.of( new Point2D( 0, 0 ), new Point2D( 1, 0.5 ), new Point2D( 2, 0.5 ), new Point2D( 3, 0 ) );
 		List<Point2D> b = List.of( new Point2D( 0, 0 ), new Point2D( 1, 1 ), new Point2D( 2, 1.0 ), new Point2D( 3, 0 ) );
 		CubicBezierCurveFitter fitterA = new CubicBezierCurveFitter( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
-		assertThat( fitterA.calcErrorByDistance( b )).isCloseTo( 0.0, tolerance  );
+		assertThat( fitterA.calcErrorByDistance( b ) ).isCloseTo( 0.0, tolerance );
 		CubicBezierCurveFitter fitterB = new CubicBezierCurveFitter( "TEST", b, CubicBezierCurveFitter.Hint.LEADING );
-		assertThat( fitterB.calcErrorByDistance( a )).isCloseTo( Math.sqrt( 0.5 ), tolerance );
+		assertThat( fitterB.calcErrorByDistance( a ) ).isCloseTo( Math.sqrt( 0.5 ), tolerance );
 
 		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.1, 0.2, 0.2, 0.4, 0.2 );
 		List<Point2D> c = goal.toPoints( 8 );
 		List<Point2D> d = goal.toPoints( 12 );
 		CubicBezierCurveFitter fitterC = new CubicBezierCurveFitter( "TEST", c, CubicBezierCurveFitter.Hint.LEADING );
-		assertThat( fitterC.calcErrorByDistance( d )).isEqualTo( 0.00921630634219396  );
+		assertThat( fitterC.calcErrorByDistance( d ) ).isEqualTo( 0.00921630634219396 );
 		CubicBezierCurveFitter fitterD = new CubicBezierCurveFitter( "TEST", d, CubicBezierCurveFitter.Hint.LEADING );
-		assertThat( fitterD.calcErrorByDistance( c )).isEqualTo( 0.002291233644431911  );
+		assertThat( fitterD.calcErrorByDistance( c ) ).isEqualTo( 0.002291233644431911 );
 	}
 
 	@Test
@@ -72,7 +74,7 @@ class CubicBezierCurveFitterTest {
 		double aWeight2 = Geometry2D.calcCubicBasisEffect( 1, 2.0 / 3.0 );
 		double aError = aDistance1 * aWeight1 + aDistance2 * aWeight2;
 		// The error should be negative comparing a to b
-		assertThat( fitter.calcErrorByOffset( a, b, 1 )).isEqualTo( -aError  );
+		assertThat( fitter.calcErrorByOffset( a, b, 1 ) ).isEqualTo( -aError );
 
 		// This test intentionally used just point distance
 		double bDistance1 = Point2D.of( 1, 1 ).distance( Point2D.of( 1, 0.5 ) );
@@ -81,7 +83,7 @@ class CubicBezierCurveFitterTest {
 		double bWeight2 = Geometry2D.calcCubicBasisEffect( 1, 2.0 / 3.0 );
 		double bError = bDistance1 * bWeight1 + bDistance2 * bWeight2;
 		// The error should be positive comparing b to a
-		assertThat( fitter.calcErrorByOffset( b, a, 1 )).isEqualTo( bError  );
+		assertThat( fitter.calcErrorByOffset( b, a, 1 ) ).isEqualTo( bError );
 	}
 
 	@Test
@@ -96,8 +98,9 @@ class CubicBezierCurveFitterTest {
 		double aWeight1 = Geometry2D.calcCubicBasisEffect( 2, 1.0 / 3.0 );
 		double aWeight2 = Geometry2D.calcCubicBasisEffect( 2, 2.0 / 3.0 );
 		double aError = aDistance1 * aWeight1 + aDistance2 * aWeight2;
+
 		// The error should be negative comparing a to b
-		assertThat( fitter.calcErrorByOffset( a, b, 2 )).isEqualTo( -aError - 0.00000000000000003  );
+		assertThat( fitter.calcErrorByOffset( a, b, 2 ) ).isEqualTo( BigDecimal.valueOf( -aError ).setScale( 16, RoundingMode.HALF_UP ).doubleValue() );
 
 		// This test intentionally used just point distance
 		double bDistance1 = Point2D.of( 1, 1 ).distance( Point2D.of( 1, 0.5 ) );
@@ -106,7 +109,7 @@ class CubicBezierCurveFitterTest {
 		double bWeight2 = Geometry2D.calcCubicBasisEffect( 2, 2.0 / 3.0 );
 		double bError = bDistance1 * bWeight1 + bDistance2 * bWeight2;
 		// The error should be positive comparing b to a
-		assertThat( fitter.calcErrorByOffset( b, a, 2 )).isEqualTo( bError  );
+		assertThat( fitter.calcErrorByOffset( b, a, 2 ) ).isEqualTo( bError );
 	}
 
 }

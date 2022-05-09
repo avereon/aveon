@@ -44,7 +44,6 @@ public class Polynomial {
 	 * monomial to which it belongs.
 	 *
 	 * @param coefficients The list of coefficients
-	 * @author mvsoder
 	 */
 	public Polynomial( double... coefficients ) {
 		if( coefficients == null ) throw new NullPointerException( "Coefficients array cannot be null." );

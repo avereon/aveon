@@ -1,6 +1,5 @@
 package com.avereon.aveon;
 
-import com.avereon.product.Product;
 import com.avereon.product.Rb;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
@@ -15,10 +14,7 @@ public class FlowCodec extends Codec {
 
 	private static final String MEDIA_TYPE = "application/vnd.avereon.aveon.flow";
 
-	private Product product;
-
-	public FlowCodec( Product product ) {
-		this.product = product;
+	public FlowCodec() {
 		setDefaultExtension( "flow" );
 		addSupported( Pattern.MEDIATYPE, MEDIA_TYPE );
 	}

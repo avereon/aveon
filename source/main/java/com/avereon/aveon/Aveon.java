@@ -7,9 +7,12 @@ import lombok.CustomLog;
 @CustomLog
 public class Aveon extends Mod {
 
+	private final AirfoilAssetType airfoilAssetType;
+
 	private final FlowAssetType flowAssetType;
 
 	public Aveon() {
+		airfoilAssetType = new AirfoilAssetType( this );
 		flowAssetType = new FlowAssetType( this );
 	}
 
@@ -26,6 +29,9 @@ public class Aveon extends Mod {
 //		registerAction( this, "toggle-velocity-field" );
 //		registerAction( this, "toggle-stream-field" );
 
+		registerAssetType( airfoilAssetType );
+		registerTool( airfoilAssetType, new ToolRegistration( this, AirfoilTool.class ) );
+
 		registerAssetType( flowAssetType );
 		registerTool( flowAssetType, new ToolRegistration( this, FlowTool.class ) );
 	}
@@ -34,6 +40,9 @@ public class Aveon extends Mod {
 	public void shutdown() {
 		unregisterTool( flowAssetType, FlowTool.class );
 		unregisterAssetType( flowAssetType );
+
+		unregisterTool( airfoilAssetType, AirfoilTool.class );
+		unregisterAssetType( airfoilAssetType );
 
 //		unregisterAction( "toggle-stream-field" );
 //		unregisterAction( "toggle-velocity-field" );

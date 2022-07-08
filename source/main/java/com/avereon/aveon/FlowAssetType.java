@@ -12,7 +12,7 @@ public class FlowAssetType extends AssetType {
 
 	public FlowAssetType( ProgramProduct product ) {
 		super( product, "flow2d" );
-		setDefaultCodec( new FlowCodec( product ) );
+		setDefaultCodec( new FlowCodec() );
 	}
 
 	@Override

@@ -5,6 +5,7 @@ module com.avereon.aveon {
 
 	// Both compile-time and run-time
 	requires com.avereon.curve;
+	requires com.avereon.marea;
 	requires com.avereon.xenon;
 	requires com.avereon.zenna;
 	requires com.avereon.zarra;

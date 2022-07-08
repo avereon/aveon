@@ -1,8 +1,10 @@
 package com.avereon.aveon;
 
+import com.avereon.geometry.Point2D;
 import com.avereon.marea.Pen;
 import com.avereon.marea.Renderer2d;
 import com.avereon.marea.fx.FxRenderer2d;
+import com.avereon.marea.geom.Ellipse;
 import com.avereon.marea.geom.Path;
 import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
@@ -38,12 +40,14 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		double dpi = screen.getDpi();
 		this.renderer = new FxRenderer2d( 960, 540 );
 		this.renderer.setDpi( dpi, dpi );
-		this.renderer.setZoom( 5, 5 );
+		this.renderer.setZoom( 10, 10 );
 		this.renderer.setViewpoint( 0.5, 0.1 );
 		((FxRenderer2d)this.renderer).widthProperty().bind( this.widthProperty() );
 		((FxRenderer2d)this.renderer).heightProperty().bind( this.heightProperty() );
+		((FxRenderer2d)this.renderer).widthProperty().addListener( ( p, o, n ) -> repaint() );
+		((FxRenderer2d)this.renderer).heightProperty().addListener( ( p, o, n ) -> repaint() );
 
-		getChildren().add( new BorderPane((Node)renderer ));
+		getChildren().add( new BorderPane( (Node)renderer ) );
 
 		runPauseAction = new RunPauseAction( getProgram(), this );
 		resetAction = new ResetAction( getProgram(), this );
@@ -61,15 +65,26 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 	@Override
 	protected void open( OpenAssetRequest request ) {
-		// TODO Load/reload the airfoil from the asset model
-		this.renderer.clear();
+		repaint();
+	}
 
-		if( getAsset().isLoaded() ) {
-			Path airfoil = new Path( 1, 0 );
-			((Airfoil)getAssetModel()).getLowerStationPoints().forEach( p -> airfoil.line( p.getX(), p.getY() ) );
-			((Airfoil)getAssetModel()).getUpperStationPoints().forEach( p -> airfoil.line( p.getX(), p.getY() ) );
-			renderer.draw( airfoil, new Pen( Color.CYAN, 0.01 ) );
-		}
+	private void repaint() {
+		this.renderer.clear();
+		if( !getAsset().isLoaded() ) return;
+
+		Airfoil airfoil = ((Airfoil)getAssetModel());
+
+		Path airfoilLines = new Path( 1, 0 );
+		airfoil.getStationPoints().forEach( p -> airfoilLines.line( p.getX(), p.getY() ) );
+		renderer.draw( airfoilLines, new Pen( Color.CYAN, 0.001 ) );
+
+		airfoil.getUpperInflections().forEach( this::dot );
+		airfoil.getLowerInflections().forEach( this::dot );
+	}
+
+	private void dot( Point2D point ) {
+		double r = 0.005;
+		renderer.fill( new Ellipse( point.x, point.y, r, r ), new Pen( Color.YELLOW, 0.001 ) );
 	}
 
 	@Override

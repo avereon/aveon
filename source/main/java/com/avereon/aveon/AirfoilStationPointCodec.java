@@ -59,9 +59,7 @@ public class AirfoilStationPointCodec extends Codec {
 		Point2D point = loadStationPoint( result.get( 1 ) );
 		boolean lednicer = point.getX() > 1;
 
-		Airfoil foil = lednicer ? loadLednicer( result ) : loadSelig( result );
-
-		return foil;
+		return lednicer ? loadLednicer( result ) : loadSelig( result );
 	}
 
 	Airfoil loadLednicer( List<String> lines ) {

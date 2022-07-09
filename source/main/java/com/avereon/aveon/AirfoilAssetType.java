@@ -7,10 +7,12 @@ import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
 import javafx.scene.control.TextInputDialog;
+import lombok.CustomLog;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
+@CustomLog
 public class AirfoilAssetType extends AssetType {
 
 	public AirfoilAssetType( ProgramProduct product ) {

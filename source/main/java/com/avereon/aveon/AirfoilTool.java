@@ -72,7 +72,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		this.renderer.clear();
 		if( !getAsset().isLoaded() ) return;
 
-		Airfoil airfoil = ((Airfoil)getAssetModel());
+		Airfoil airfoil = getAssetModel();
 
 		Path airfoilLines = new Path( 1, 0 );
 		airfoil.getStationPoints().forEach( p -> airfoilLines.line( p.getX(), p.getY() ) );

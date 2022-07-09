@@ -18,6 +18,7 @@ public class Aveon extends Mod {
 
 	@Override
 	public void startup() {
+		registerIcon( "airfoil", new FlowIcon() );
 		registerIcon( "aveon", new FlowIcon() );
 		registerIcon( "flow", new FlowIcon() );
 
@@ -54,6 +55,7 @@ public class Aveon extends Mod {
 
 		unregisterIcon( "flow", new FlowIcon() );
 		unregisterIcon( "aveon", new FlowIcon() );
+		unregisterIcon( "airfoil", new FlowIcon() );
 	}
 
 }

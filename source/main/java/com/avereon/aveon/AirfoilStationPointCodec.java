@@ -2,11 +2,13 @@ package com.avereon.aveon;
 
 import com.avereon.geometry.Point2D;
 import com.avereon.util.TextUtil;
+import com.avereon.util.UriUtil;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.Codec;
 import lombok.CustomLog;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +40,11 @@ public class AirfoilStationPointCodec extends Codec {
 	@Override
 	public void load( Asset asset, InputStream input ) throws IOException {
 		asset.setModel( loadStationPoints( input ) );
+
+		URI uri = asset.getUri();
+		if( uri.toString().startsWith( "http://airfoiltools.com/airfoil/lednicerdatfile" ) ) {
+			asset.setName( UriUtil.parseQuery( uri.getQuery() ).get( "airfoil" ) );
+		}
 	}
 
 	@Override

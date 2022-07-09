@@ -161,15 +161,23 @@ public class Airfoil extends Node {
 	public void analyzePoints() {
 		// Min Y
 		double minY = Double.MAX_VALUE;
+		double lowerThicknessStation = Double.NaN;
 		for( Point2D point : getLowerStationPoints() ) {
-			if( point.getY() < minY ) minY = point.getY();
+			if( point.y < minY ) {
+				minY = point.y;
+				lowerThicknessStation = point.x;
+			}
 		}
 		this.minY = minY;
 
 		// Max Y
 		double maxY = Double.MIN_VALUE;
+		double upperThicknessStation = Double.NaN;
 		for( Point2D point : getUpperStationPoints() ) {
-			if( point.getY() > maxY ) maxY = point.getY();
+			if( point.y > maxY ) {
+				maxY = point.y;
+				upperThicknessStation = point.x;
+			}
 		}
 		this.maxY = maxY;
 
@@ -178,10 +186,11 @@ public class Airfoil extends Node {
 		lowerPointGroups = getStationPointGroups( getLowerStationPoints() );
 
 		// Inflections
-		//		upperInflections = Collections.unmodifiableList( findInflectionsY( getUpperStationPoints() ) );
-		//		lowerInflections = Collections.unmodifiableList( findInflectionsY( getLowerStationPoints() ) );
 		upperInflections = Collections.unmodifiableList( findInflections( upperPointGroups ) );
 		lowerInflections = Collections.unmodifiableList( findInflections( lowerPointGroups ) );
+
+		thicknessUpper = new Point2D( upperThicknessStation,maxY);
+		thicknessLower = new Point2D( lowerThicknessStation,minY);
 	}
 
 	public void analyzeCurves() {
@@ -211,7 +220,7 @@ public class Airfoil extends Node {
 		//		if( maxCamber.getX() == 0 ) maxCamber = new Point2D( getThicknessMoment(), 0 );
 	}
 
-	private void fitCurves() {
+	void fitCurves() {
 		// TODO Determine upper curves
 		int upperCount = upperPointGroups.size();
 		List<Cubic2D> upperCurves = new ArrayList<>();

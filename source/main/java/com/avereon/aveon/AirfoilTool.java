@@ -5,6 +5,7 @@ import com.avereon.marea.Pen;
 import com.avereon.marea.Renderer2d;
 import com.avereon.marea.fx.FxRenderer2d;
 import com.avereon.marea.geom.Ellipse;
+import com.avereon.marea.geom.Line;
 import com.avereon.marea.geom.Path;
 import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
@@ -15,6 +16,8 @@ import com.avereon.xenon.action.common.ResetAction;
 import com.avereon.xenon.action.common.RunPauseAction;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.OpenAssetRequest;
+import com.avereon.xenon.task.Task;
+import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
@@ -25,16 +28,18 @@ import lombok.CustomLog;
 @CustomLog
 public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
-	static final String AIRFOIL_URL = "airfoil-url";
-
 	private final ProgramAction runPauseAction;
 
 	private final ProgramAction resetAction;
 
 	private final Renderer2d renderer;
 
+	private AirfoilPathSolver solver;
+
 	public AirfoilTool( ProgramProduct product, Asset asset ) {
 		super( product, asset );
+		setGraphic( getProgram().getIconLibrary().getIcon( "airfoil" ) );
+		setTitle( Rb.textOr( getProduct(), "asset", "airfoil2d-name", "Flow" ) );
 
 		Screen screen = Screen.getPrimary();
 		double dpi = screen.getDpi();
@@ -53,14 +58,20 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		resetAction = new ResetAction( getProgram(), this );
 	}
 
+	public Airfoil getAirfoil() {
+		return getAssetModel();
+	}
+
 	@Override
 	protected void ready( OpenAssetRequest request ) throws ToolException {
 		super.ready( request );
-		setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
-		setTitle( Rb.textOr( getProduct(), "asset", "airfoil2d-name", "Flow" ) );
+		//setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
+		setTitle( request.getAsset().getName() );
+
+		this.solver = new AirfoilPathSolver( getAirfoil() );
 
 		// Register airfoil (asset model) event handlers...
-		//getAirfoil().register( Flow2D.AIRFOIL, ( e ) -> getAirfoil().getPathSolver().reset() );
+		//getAirfoil().register( Flow2D.AIRFOIL, ( e ) -> this.solver.reset() );
 	}
 
 	@Override
@@ -74,16 +85,27 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 		Airfoil airfoil = getAssetModel();
 
+		// Airfoil chord
+		renderer.draw( new Line( 0, 0, 1, 0 ), new Pen( Color.GREEN, 0.001 ) );
+
+		// Airfoil surface
 		Path airfoilLines = new Path( 1, 0 );
 		airfoil.getStationPoints().forEach( p -> airfoilLines.line( p.getX(), p.getY() ) );
-		renderer.draw( airfoilLines, new Pen( Color.CYAN, 0.001 ) );
+		renderer.draw( airfoilLines, new Pen( Color.RED, 0.001 ) );
 
+		// Airfoil inflection points
 		airfoil.getUpperInflections().forEach( this::dot );
 		airfoil.getLowerInflections().forEach( this::dot );
+
+		// Airfoil thickness stations
+		Point2D tu = airfoil.getThicknessUpper();
+		renderer.draw( new Line( tu.x, tu.y, tu.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
+		Point2D tl = airfoil.getThicknessLower();
+		renderer.draw( new Line( tl.x, tl.y, tl.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
 	}
 
 	private void dot( Point2D point ) {
-		double r = 0.005;
+		double r = 0.002;
 		renderer.fill( new Ellipse( point.x, point.y, r, r ), new Pen( Color.YELLOW, 0.001 ) );
 	}
 
@@ -95,7 +117,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 		// Set the current action state
 		if( getAsset().isLoaded() ) {
-			//AirfoilPathSolver solver = getAirfoil().getPathSolver();
+			//AirfoilPathSolver solver = this.solver;
 			//runPauseAction.setState( solver != null && solver.isRunning() ? "pause" : "run" );
 		}
 	}
@@ -108,26 +130,20 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 	}
 
 	public void run() {
-		//		final FlowSolver solver = new SimpleFlowSolver( getAirfoil(), getProgram().getTaskManager().getExecutor() );
-		//
-		//		Task<?> t = Task.of( "Start flow solver", solver );
-		//		t.register( TaskEvent.FINISH, ( e ) -> {
-		//			log.atInfo().log( "Flow solver complete!" );
-		//			runPauseAction.setState( "run" );
-		//		} );
-		//		getProgram().getTaskManager().submit( t );
+		Task<?> t = Task.of( "Airfoil path solver", solver );
+		t.register( TaskEvent.FINISH, ( e ) -> {
+			log.atInfo().log( "Airfoil path solver complete." );
+			runPauseAction.setState( "run" );
+		} );
+		getProgram().getTaskManager().submit( t );
 	}
 
 	public void pause() {
-		//getAirfoil().getPathSolver().pause();
+		this.solver.pause();
 	}
 
 	public void reset() {
-		//getAirfoil().getPathSolver().reset();
-	}
-
-	private Airfoil getAirfoil() {
-		return getAssetModel();
+		this.solver.reset();
 	}
 
 }

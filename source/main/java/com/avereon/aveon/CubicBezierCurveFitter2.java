@@ -42,24 +42,22 @@ public class CubicBezierCurveFitter2 implements CubicBezierCurveFitter {
 		// Get the error, scaled by the path length
 		System.out.printf( "initial error=%f%n", calcError( curve ) );
 
-		int segments = 10;
 		double span;
 		double bt = 0.5;
 		double ct = 0.5;
 		double bAnchor;
 		double cAnchor;
+		int segments = 10;
 		for( int exp = 0; exp < 10; exp++ ) {
-			span = 3 / Math.pow( segments, exp );
+			// NOTE Span is normally 1, but may be set differently for testing
+			span = 1 / Math.pow( segments, exp );
 			bAnchor = bt - 0.5 * span;
 			cAnchor = ct - 0.5 * span;
 			bt = findClosestInterpOnHead( curve, bAnchor, bAnchor + span, segments );
+			//curve = new Cubic2D( bounds.a, bounds.a.interpolate( bounds.b, bt ), bounds.d.interpolate( bounds.c, ct ), bounds.d );
 			ct = findClosestInterpOnTail( curve, cAnchor, cAnchor + span, segments );
-			System.out.printf( "bAnchor=%f cAnchor=%f bt=%f ct=%f%n", bAnchor, cAnchor, bt, ct );
-
 			curve = new Cubic2D( bounds.a, bounds.a.interpolate( bounds.b, bt ), bounds.d.interpolate( bounds.c, ct ), bounds.d );
-
-//			bAnchor = bt - 0.5 / Math.pow( segments, exp + 1 );
-//			cAnchor = ct - 0.5 / Math.pow( segments, exp + 1 );
+			System.out.printf( "bAnchor=%f cAnchor=%f bt=%f ct=%f%n", bAnchor, cAnchor, bt, ct );
 		}
 	}
 
@@ -136,7 +134,7 @@ public class CubicBezierCurveFitter2 implements CubicBezierCurveFitter {
 	}
 
 	public double calcError( Cubic2D curve ) {
-		return calcErrorByDistance( curve.toPoints( 1000 ) ) / path.getLength();
+		return calcErrorByDistance( curve.toPoints( 47 ) ) / path.getLength();
 
 		// NOTE Using calcErrorByArea will end up giving "shallow" results because
 		// it is trying to reduce the area between the paths, not trying to match

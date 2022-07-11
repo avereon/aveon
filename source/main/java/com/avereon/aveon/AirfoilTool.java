@@ -106,9 +106,17 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 		airfoil.getUpperCurves().forEach( c -> {
 			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
+			dot( Point2D.of( c.ax, c.ay ));
+			dot( Point2D.of( c.bx, c.by ));
+			dot( Point2D.of( c.cx, c.cy ));
+			dot( Point2D.of( c.dx, c.dy ));
 		} );
 		airfoil.getLowerCurves().forEach( c -> {
 			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
+			dot( Point2D.of( c.ax, c.ay ));
+			dot( Point2D.of( c.bx, c.by ));
+			dot( Point2D.of( c.cx, c.cy ));
+			dot( Point2D.of( c.dx, c.dy ));
 		} );
 	}
 

@@ -11,21 +11,21 @@ public class Cubic2D extends Shape {
 
 	// TODO Change the names of the variables to ax, ay, bx, by, cx, cy, dx, dy
 
-	public final double x1;
+	public final double ax;
 
-	public final double y1;
+	public final double ay;
 
-	public final double ctrlx1;
+	public final double bx;
 
-	public final double ctrly1;
+	public final double by;
 
-	public final double ctrlx2;
+	public final double cx;
 
-	public final double ctrly2;
+	public final double cy;
 
-	public final double x2;
+	public final double dx;
 
-	public final double y2;
+	public final double dy;
 
 	public final Point2D a;
 
@@ -40,29 +40,29 @@ public class Cubic2D extends Shape {
 	/**
 	 * Create a new {@code Cubic2D} curve.
 	 *
-	 * @param x1 the X coordinate of the first control point
-	 * @param y1 the Y coordinate of the first control point
-	 * @param ctrlx1 the X coordinate of the second control point
-	 * @param ctrly1 the Y coordinate of the second control point
-	 * @param ctrlx2 the X coordinate of the third control point
-	 * @param ctrly2 the Y coordinate of the third control point
-	 * @param x2 the X coordinate of the last control point
-	 * @param y2 the Y coordinate of the last control point
+	 * @param ax the X coordinate of the first control point
+	 * @param ay the Y coordinate of the first control point
+	 * @param bx the X coordinate of the second control point
+	 * @param by the Y coordinate of the second control point
+	 * @param cx the X coordinate of the third control point
+	 * @param cy the Y coordinate of the third control point
+	 * @param dx the X coordinate of the last control point
+	 * @param dy the Y coordinate of the last control point
 	 */
-	public Cubic2D( double x1, double y1, double ctrlx1, double ctrly1, double ctrlx2, double ctrly2, double x2, double y2 ) {
-		this.x1 = x1;
-		this.y1 = y1;
-		this.ctrlx1 = ctrlx1;
-		this.ctrly1 = ctrly1;
-		this.ctrlx2 = ctrlx2;
-		this.ctrly2 = ctrly2;
-		this.x2 = x2;
-		this.y2 = y2;
+	public Cubic2D( double ax, double ay, double bx, double by, double cx, double cy, double dx, double dy ) {
+		this.ax = ax;
+		this.ay = ay;
+		this.bx = bx;
+		this.by = by;
+		this.cx = cx;
+		this.cy = cy;
+		this.dx = dx;
+		this.dy = dy;
 
-		this.a = new Point2D( x1, y1 );
-		this.b = new Point2D( ctrlx1, ctrly1 );
-		this.c = new Point2D( ctrlx2, ctrly2 );
-		this.d = new Point2D( x2, y2 );
+		this.a = new Point2D( ax, ay );
+		this.b = new Point2D( bx, by );
+		this.c = new Point2D( cx, cy );
+		this.d = new Point2D( dx, dy );
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class Cubic2D extends Shape {
 	}
 
 	public Cubic2D( Cubic2D curve ) {
-		this( curve.x1, curve.y1, curve.ctrlx1, curve.ctrly1, curve.ctrlx2, curve.ctrly2, curve.x2, curve.y2 );
+		this( curve.ax, curve.ay, curve.bx, curve.by, curve.cx, curve.cy, curve.dx, curve.dy );
 	}
 
 	/**
@@ -87,10 +87,10 @@ public class Cubic2D extends Shape {
 	 * @return the bounding box of the curve
 	 */
 	public Bounds2D getBounds() {
-		double left = Math.min( Math.min( x1, x2 ), Math.min( ctrlx1, ctrlx2 ) );
-		double top = Math.min( Math.min( y1, y2 ), Math.min( ctrly1, ctrly2 ) );
-		double right = Math.max( Math.max( x1, x2 ), Math.max( ctrlx1, ctrlx2 ) );
-		double bottom = Math.max( Math.max( y1, y2 ), Math.max( ctrly1, ctrly2 ) );
+		double left = Math.min( Math.min( ax, dx ), Math.min( bx, cx ) );
+		double top = Math.min( Math.min( ay, dy ), Math.min( by, cy ) );
+		double right = Math.max( Math.max( ax, dx ), Math.max( bx, cx ) );
+		double bottom = Math.max( Math.max( ay, dy ), Math.max( by, cy ) );
 		return new Bounds2D( left, top, right, bottom );
 	}
 
@@ -116,8 +116,8 @@ public class Cubic2D extends Shape {
 	 */
 	public Point2D evalDt( double t ) {
 		double u = 1 - t;
-		double x = 3 * ((ctrlx1 - x1) * u * u + 2 * (ctrlx2 - ctrlx1) * u * t + (x2 - ctrlx2) * t * t);
-		double y = 3 * ((ctrly1 - y1) * u * u + 2 * (ctrly2 - ctrly1) * u * t + (y2 - ctrly2) * t * t);
+		double x = 3 * ((bx - ax) * u * u + 2 * (cx - bx) * u * t + (dx - cx) * t * t);
+		double y = 3 * ((by - ay) * u * u + 2 * (cy - by) * u * t + (dy - cy) * t * t);
 		return new Point2D( x, y );
 	}
 
@@ -167,7 +167,7 @@ public class Cubic2D extends Shape {
 	 * @return the square of the flatness of this curve
 	 */
 	public double getFlatnessSq() {
-		return getFlatnessSq( x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2 );
+		return getFlatnessSq( ax, ay, bx, by, cx, cy, dx, dy );
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class Cubic2D extends Shape {
 	 * @return the flatness of this curve.
 	 */
 	public float getFlatness() {
-		return getFlatness( x1, y1, ctrlx1, ctrly1, ctrlx2, ctrly2, x2, y2 );
+		return getFlatness( ax, ay, bx, by, cx, cy, dx, dy );
 	}
 
 	/**
@@ -192,14 +192,14 @@ public class Cubic2D extends Shape {
 		double npx = calcX( t );
 		double npy = calcY( t );
 
-		double x1 = this.x1;
-		double y1 = this.y1;
-		double c1x = this.ctrlx1;
-		double c1y = this.ctrly1;
-		double c2x = this.ctrlx2;
-		double c2y = this.ctrly2;
-		double x2 = this.x2;
-		double y2 = this.y2;
+		double x1 = this.ax;
+		double y1 = this.ay;
+		double c1x = this.bx;
+		double c1y = this.by;
+		double c2x = this.cx;
+		double c2y = this.cy;
+		double x2 = this.dx;
+		double y2 = this.dy;
 		double u = 1 - t;
 		double hx = u * c1x + t * c2x;
 		double hy = u * c1y + t * c2y;
@@ -226,14 +226,14 @@ public class Cubic2D extends Shape {
 	 * @param src the curve to be subdivided
 	 */
 	public static Cubic2D[] subdivide( Cubic2D src ) {
-		double x1 = src.x1;
-		double y1 = src.y1;
-		double ctrlx1 = src.ctrlx1;
-		double ctrly1 = src.ctrly1;
-		double ctrlx2 = src.ctrlx2;
-		double ctrly2 = src.ctrly2;
-		double x2 = src.x2;
-		double y2 = src.y2;
+		double x1 = src.ax;
+		double y1 = src.ay;
+		double ctrlx1 = src.bx;
+		double ctrly1 = src.by;
+		double ctrlx2 = src.cx;
+		double ctrly2 = src.cy;
+		double x2 = src.dx;
+		double y2 = src.dy;
 		double centerx = 0.5 * (ctrlx1 + ctrlx2);
 		double centery = 0.5 * (ctrly1 + ctrly2);
 		ctrlx1 = 0.5 * (x1 + ctrlx1);
@@ -300,12 +300,12 @@ public class Cubic2D extends Shape {
 
 	private double calcX( final double t ) {
 		final double u = 1 - t;
-		return (u * u * u * x1 + 3 * (t * u * u * ctrlx1 + t * t * u * ctrlx2) + t * t * t * x2);
+		return (u * u * u * ax + 3 * (t * u * u * bx + t * t * u * cx) + t * t * t * dx);
 	}
 
 	private double calcY( final double t ) {
 		final double u = 1 - t;
-		return (u * u * u * y1 + 3 * (t * u * u * ctrly1 + t * t * u * ctrly2) + t * t * t * y2);
+		return (u * u * u * ay + 3 * (t * u * u * by + t * t * u * cy) + t * t * t * dy);
 	}
 
 	/**
@@ -316,7 +316,7 @@ public class Cubic2D extends Shape {
 		if( object == this ) return true;
 		if( !(object instanceof Cubic2D) ) return false;
 		Cubic2D that = (Cubic2D)object;
-		return this.x1 == that.x1 && this.y1 == that.y1 && this.ctrlx1 == that.ctrlx1 && this.ctrly1 == that.ctrly1 && this.ctrlx2 == that.ctrlx2 && this.ctrly2 == that.ctrly2 && this.x2 == that.x2 && this.y2 == that.y2;
+		return this.ax == that.ax && this.ay == that.ay && this.bx == that.bx && this.by == that.by && this.cx == that.cx && this.cy == that.cy && this.dx == that.dx && this.dy == that.dy;
 	}
 
 	/**
@@ -326,14 +326,14 @@ public class Cubic2D extends Shape {
 	public int hashCode() {
 		if( hash == 0 ) {
 			long bits = 11L;
-			bits = 73L * bits + Double.doubleToLongBits( x1 );
-			bits = 73L * bits + Double.doubleToLongBits( y1 );
-			bits = 73L * bits + Double.doubleToLongBits( ctrlx1 );
-			bits = 73L * bits + Double.doubleToLongBits( ctrly1 );
-			bits = 73L * bits + Double.doubleToLongBits( ctrlx2 );
-			bits = 73L * bits + Double.doubleToLongBits( ctrly2 );
-			bits = 73L * bits + Double.doubleToLongBits( x2 );
-			bits = 73L * bits + Double.doubleToLongBits( y2 );
+			bits = 73L * bits + Double.doubleToLongBits( ax );
+			bits = 73L * bits + Double.doubleToLongBits( ay );
+			bits = 73L * bits + Double.doubleToLongBits( bx );
+			bits = 73L * bits + Double.doubleToLongBits( by );
+			bits = 73L * bits + Double.doubleToLongBits( cx );
+			bits = 73L * bits + Double.doubleToLongBits( cy );
+			bits = 73L * bits + Double.doubleToLongBits( dx );
+			bits = 73L * bits + Double.doubleToLongBits( dy );
 			hash = (int)(bits ^ (bits >> 32));
 		}
 		return hash;
@@ -344,7 +344,7 @@ public class Cubic2D extends Shape {
 	 */
 	@Override
 	public String toString() {
-		return "Cubic2D[x1=" + x1 + ",y1=" + y1 + ",ctrlx1=" + ctrlx1 + ",ctrly1=" + ctrly1 + ",ctrlx2=" + ctrlx2 + ",ctrly2=" + ctrly2 + ",x2=" + x2 + ",y2=" + y2 + "]";
+		return "Cubic2D[ax=" + ax + ",ay=" + ay + ",bx=" + bx + ",by=" + by + ",cx=" + cx + ",cy=" + cy + ",dx=" + dx + ",dy=" + dy + "]";
 	}
 
 }

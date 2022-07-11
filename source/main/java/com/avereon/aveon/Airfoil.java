@@ -37,12 +37,16 @@ public class Airfoil extends Node {
 
 	private static final String LOWER_POINTS = "lower-points";
 
-	private double minY;
-
+	// The highest point on the upper surface
 	private double maxY;
 
+	// The lowest point on the lower surface
+	private double minY;
+
+	// The thickness at maxY
 	private Point2D thicknessUpper = Point2D.ZERO;
 
+	// The thickness at minY
 	private Point2D thicknessLower = Point2D.ZERO;
 
 	private List<Point2D> camber = List.of();
@@ -106,12 +110,22 @@ public class Airfoil extends Node {
 		return points;
 	}
 
+	public Airfoil setUpperCurves(List<Cubic2D> upper) {
+		setValue( UPPER_CURVES, upper);
+		return this;
+	}
+
 	public List<Cubic2D> getUpperCurves() {
-		return getValue( UPPER_CURVES );
+		return getValue( UPPER_CURVES, List.of() );
+	}
+
+	public Airfoil setLowerCurves(List<Cubic2D> lower) {
+		setValue( LOWER_CURVES, lower);
+		return this;
 	}
 
 	public List<Cubic2D> getLowerCurves() {
-		return getValue( LOWER_CURVES );
+		return getValue( LOWER_CURVES, List.of() );
 	}
 
 	public double getMinY() {
@@ -152,6 +166,14 @@ public class Airfoil extends Node {
 
 	public List<Point2D> getLowerInflections() {
 		return lowerInflections;
+	}
+
+	public List<List<Point2D>> getUpperPointGroups() {
+		return upperPointGroups;
+	}
+
+	public List<List<Point2D>> getLowerPointGroups() {
+		return lowerPointGroups;
 	}
 
 	public boolean isAnalyzed() {
@@ -224,21 +246,21 @@ public class Airfoil extends Node {
 		// TODO Determine upper curves
 		int upperCount = upperPointGroups.size();
 		List<Cubic2D> upperCurves = new ArrayList<>();
-		upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
+		upperCurves.add( new CubicBezierCurveFitter1( getName(), upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
 		for( int index = 1; index < upperCount - 1; index++ ) {
-			upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
+			upperCurves.add( new CubicBezierCurveFitter1( getName(), upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
 		}
-		upperCurves.add( new CubicBezierCurveFitter( getName(), upperPointGroups.get( upperCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
+		upperCurves.add( new CubicBezierCurveFitter1( getName(), upperPointGroups.get( upperCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
 		setValue( UPPER_CURVES, upperCurves );
 
 		// TODO Determine lower curves
 		int lowerCount = lowerPointGroups.size();
 		List<Cubic2D> lowerCurves = new ArrayList<>();
-		lowerCurves.add( new CubicBezierCurveFitter( getName(), lowerPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
+		lowerCurves.add( new CubicBezierCurveFitter1( getName(), lowerPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
 		for( int index = 1; index < lowerCount - 1; index++ ) {
-			lowerCurves.add( new CubicBezierCurveFitter( getName(), lowerPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
+			lowerCurves.add( new CubicBezierCurveFitter1( getName(), lowerPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
 		}
-		lowerCurves.add( new CubicBezierCurveFitter( getName(), lowerPointGroups.get( lowerCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
+		lowerCurves.add( new CubicBezierCurveFitter1( getName(), lowerPointGroups.get( lowerCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
 		setValue( LOWER_CURVES, lowerCurves );
 	}
 
@@ -277,7 +299,7 @@ public class Airfoil extends Node {
 		return inflections;
 	}
 
-	List<List<Point2D>> getStationPointGroups( List<Point2D> points ) {
+	private List<List<Point2D>> getStationPointGroups( List<Point2D> points ) {
 		List<List<Point2D>> groups = new ArrayList<>();
 
 		int index = 1;

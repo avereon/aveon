@@ -4,6 +4,7 @@ import com.avereon.geometry.Point2D;
 import com.avereon.marea.Pen;
 import com.avereon.marea.Renderer2d;
 import com.avereon.marea.fx.FxRenderer2d;
+import com.avereon.marea.geom.Curve;
 import com.avereon.marea.geom.Ellipse;
 import com.avereon.marea.geom.Line;
 import com.avereon.marea.geom.Path;
@@ -91,7 +92,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		// Airfoil surface
 		Path airfoilLines = new Path( 1, 0 );
 		airfoil.getStationPoints().forEach( p -> airfoilLines.line( p.getX(), p.getY() ) );
-		renderer.draw( airfoilLines, new Pen( Color.RED, 0.001 ) );
+		renderer.draw( airfoilLines, new Pen( Color.YELLOW, 0.001 ) );
 
 		// Airfoil inflection points
 		airfoil.getUpperInflections().forEach( this::dot );
@@ -102,6 +103,13 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		renderer.draw( new Line( tu.x, tu.y, tu.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
 		Point2D tl = airfoil.getThicknessLower();
 		renderer.draw( new Line( tl.x, tl.y, tl.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
+
+		airfoil.getUpperCurves().forEach( c -> {
+			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
+		} );
+		airfoil.getLowerCurves().forEach( c -> {
+			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
+		} );
 	}
 
 	private void dot( Point2D point ) {
@@ -134,6 +142,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		t.register( TaskEvent.FINISH, ( e ) -> {
 			log.atInfo().log( "Airfoil path solver complete." );
 			runPauseAction.setState( "run" );
+			repaint();
 		} );
 		getProgram().getTaskManager().submit( t );
 	}

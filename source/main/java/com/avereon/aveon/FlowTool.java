@@ -166,9 +166,9 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 	private Path generatePath( List<Cubic2D> curves ) {
 		Path path = new Path();
 		Cubic2D g = curves.get( 0 );
-		path.getElements().add( new MoveTo( g.x1, g.y1 ) );
+		path.getElements().add( new MoveTo( g.ax, g.ay ) );
 		for( Cubic2D c : curves ) {
-			path.getElements().add( new CubicCurveTo( c.ctrlx1, c.ctrly1, c.ctrlx2, c.ctrly2, c.x2, c.y2 ) );
+			path.getElements().add( new CubicCurveTo( c.bx, c.by, c.cx, c.cy, c.dx, c.dy ) );
 		}
 		return path;
 	}

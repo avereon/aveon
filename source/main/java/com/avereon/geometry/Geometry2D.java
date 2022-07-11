@@ -238,7 +238,7 @@ public class Geometry2D {
 	 * @return
 	 */
 	public static List<Double> findPathSegmentDistances( List<Point2D> curvePoints, List<Point2D> fitPoints ) {
-		return curvePoints.stream().map( p -> findDistanceToNearestSegment( p, fitPoints ) ).collect( Collectors.toList() );
+		return fitPoints.stream().map( p -> findDistanceToNearestSegment( p, curvePoints ) ).collect( Collectors.toList() );
 	}
 
 	/**
@@ -349,6 +349,18 @@ public class Geometry2D {
 		List<List<Point2D>> polygons = findPolygons( a, b );
 		if( polygons.size() == 0 ) return List.of();
 		return polygons.stream().map( Geometry2D::calcPolygonArea ).collect( Collectors.toList() );
+	}
+
+	/**
+	 * Calculate the total area of closed sections between two paths. If there are
+	 * no closed areas between the paths then zero is returned.
+	 *
+	 * @param a The first path
+	 * @param b The second path
+	 * @return the total area of closed sections between two paths
+	 */
+	public static double findArea( List<Point2D> a, List<Point2D> b ) {
+		return Geometry2D.findAreas( a, b ).stream().mapToDouble( Double::doubleValue ).sum();
 	}
 
 	/**

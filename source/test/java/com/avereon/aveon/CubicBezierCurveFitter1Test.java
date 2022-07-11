@@ -6,13 +6,11 @@ import com.avereon.geometry.Point2D;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CubicBezierCurveFitterTest {
+class CubicBezierCurveFitter1Test {
 
 	private Offset<Double> tolerance = Offset.offset( 1e-15 );
 
@@ -23,7 +21,7 @@ class CubicBezierCurveFitterTest {
 		// These points will be the station points to fit
 		List<Point2D> stationPoints = goal.toPoints( 8 );
 
-		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", stationPoints, CubicBezierCurveFitter.Hint.LEADING );
+		CubicBezierCurveFitter1 fitter = new CubicBezierCurveFitter1( "TEST", stationPoints, CubicBezierCurveFitter.Hint.LEADING );
 		Cubic2D curve = fitter.generate();
 
 		//		System.err.println( "result: " + curve.b.y + " " + curve.c.x );
@@ -46,17 +44,17 @@ class CubicBezierCurveFitterTest {
 	void testCalcErrorByDistance() {
 		List<Point2D> a = List.of( new Point2D( 0, 0 ), new Point2D( 1, 0.5 ), new Point2D( 2, 0.5 ), new Point2D( 3, 0 ) );
 		List<Point2D> b = List.of( new Point2D( 0, 0 ), new Point2D( 1, 1 ), new Point2D( 2, 1.0 ), new Point2D( 3, 0 ) );
-		CubicBezierCurveFitter fitterA = new CubicBezierCurveFitter( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
+		CubicBezierCurveFitter1 fitterA = new CubicBezierCurveFitter1( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
 		assertThat( fitterA.calcErrorByDistance( b ) ).isCloseTo( 0.0, tolerance );
-		CubicBezierCurveFitter fitterB = new CubicBezierCurveFitter( "TEST", b, CubicBezierCurveFitter.Hint.LEADING );
+		CubicBezierCurveFitter1 fitterB = new CubicBezierCurveFitter1( "TEST", b, CubicBezierCurveFitter.Hint.LEADING );
 		assertThat( fitterB.calcErrorByDistance( a ) ).isCloseTo( Math.sqrt( 0.5 ), tolerance );
 
 		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.1, 0.2, 0.2, 0.4, 0.2 );
 		List<Point2D> c = goal.toPoints( 8 );
 		List<Point2D> d = goal.toPoints( 12 );
-		CubicBezierCurveFitter fitterC = new CubicBezierCurveFitter( "TEST", c, CubicBezierCurveFitter.Hint.LEADING );
+		CubicBezierCurveFitter1 fitterC = new CubicBezierCurveFitter1( "TEST", c, CubicBezierCurveFitter.Hint.LEADING );
 		assertThat( fitterC.calcErrorByDistance( d ) ).isEqualTo( 0.00921630634219396 );
-		CubicBezierCurveFitter fitterD = new CubicBezierCurveFitter( "TEST", d, CubicBezierCurveFitter.Hint.LEADING );
+		CubicBezierCurveFitter1 fitterD = new CubicBezierCurveFitter1( "TEST", d, CubicBezierCurveFitter.Hint.LEADING );
 		assertThat( fitterD.calcErrorByDistance( c ) ).isEqualTo( 0.002291233644431911 );
 	}
 
@@ -65,7 +63,7 @@ class CubicBezierCurveFitterTest {
 		List<Point2D> a = List.of( new Point2D( 0, 0 ), new Point2D( 1, 0.5 ), new Point2D( 2, 0.5 ), new Point2D( 3, 0 ) );
 		List<Point2D> b = List.of( new Point2D( 0, 0 ), new Point2D( 1, 1 ), new Point2D( 2, 1 ), new Point2D( 3, 0 ) );
 
-		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
+		CubicBezierCurveFitter1 fitter = new CubicBezierCurveFitter1( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
 
 		// This test intentionally uses getPointLineDistance instead of getPointLineOffset
 		double aDistance1 = Geometry2D.getPointLineDistance( Point2D.of( 1, 0.5 ), Point2D.of( 0, 0 ), Point2D.of( 1, 1 ) );
@@ -90,7 +88,7 @@ class CubicBezierCurveFitterTest {
 	void testCalcErrorByOffsetForTail() {
 		List<Point2D> a = List.of( new Point2D( 0, 0 ), new Point2D( 1, 0.5 ), new Point2D( 2, 0.5 ), new Point2D( 3, 0 ) );
 		List<Point2D> b = List.of( new Point2D( 0, 0 ), new Point2D( 1, 1 ), new Point2D( 2, 1 ), new Point2D( 3, 0 ) );
-		CubicBezierCurveFitter fitter = new CubicBezierCurveFitter( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
+		CubicBezierCurveFitter1 fitter = new CubicBezierCurveFitter1( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
 
 		// This test intentionally uses getPointLineDistance instead of getPointLineOffset
 		double aDistance1 = Geometry2D.getPointLineDistance( Point2D.of( 1, 0.5 ), Point2D.of( 0, 0 ), Point2D.of( 1, 1 ) );

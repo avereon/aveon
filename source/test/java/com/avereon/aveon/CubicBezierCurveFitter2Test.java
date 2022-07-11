@@ -35,7 +35,7 @@ public class CubicBezierCurveFitter2Test {
 		//		assertThat( curve.c.y).isEqualTo( 0.2 ) );
 		//		assertThat( curve.d).isEqualTo( new Point2D( 0.4, 0.2 ) ) );
 
-		assertThat( fitter.calcError( curve ) ).isLessThan( 1e-4 );
+		assertThat( fitter.calcError( curve ) ).isLessThan( 1e-3 );
 	}
 
 	@Test

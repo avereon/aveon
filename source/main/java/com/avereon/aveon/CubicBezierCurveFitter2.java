@@ -54,7 +54,7 @@ public class CubicBezierCurveFitter2 implements CubicBezierCurveFitter {
 			bAnchor = bt - 0.5 * span;
 			cAnchor = ct - 0.5 * span;
 			bt = findClosestInterpOnHead( curve, bAnchor, bAnchor + span, segments );
-			//curve = new Cubic2D( bounds.a, bounds.a.interpolate( bounds.b, bt ), bounds.d.interpolate( bounds.c, ct ), bounds.d );
+			curve = new Cubic2D( bounds.a, bounds.a.interpolate( bounds.b, bt ), bounds.d.interpolate( bounds.c, ct ), bounds.d );
 			ct = findClosestInterpOnTail( curve, cAnchor, cAnchor + span, segments );
 			curve = new Cubic2D( bounds.a, bounds.a.interpolate( bounds.b, bt ), bounds.d.interpolate( bounds.c, ct ), bounds.d );
 			System.out.printf( "bAnchor=%f cAnchor=%f bt=%f ct=%f%n", bAnchor, cAnchor, bt, ct );

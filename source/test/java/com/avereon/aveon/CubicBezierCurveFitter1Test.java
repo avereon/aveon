@@ -45,17 +45,17 @@ class CubicBezierCurveFitter1Test {
 		List<Point2D> a = List.of( new Point2D( 0, 0 ), new Point2D( 1, 0.5 ), new Point2D( 2, 0.5 ), new Point2D( 3, 0 ) );
 		List<Point2D> b = List.of( new Point2D( 0, 0 ), new Point2D( 1, 1 ), new Point2D( 2, 1.0 ), new Point2D( 3, 0 ) );
 		CubicBezierCurveFitter1 fitterA = new CubicBezierCurveFitter1( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
-		assertThat( fitterA.calcErrorByDistance( b ) ).isCloseTo( 0.0, tolerance );
+		assertThat( fitterA.calcErrorByDistance( b ) ).isCloseTo( Math.sqrt( 0.5 ), tolerance );
 		CubicBezierCurveFitter1 fitterB = new CubicBezierCurveFitter1( "TEST", b, CubicBezierCurveFitter.Hint.LEADING );
-		assertThat( fitterB.calcErrorByDistance( a ) ).isCloseTo( Math.sqrt( 0.5 ), tolerance );
+		assertThat( fitterB.calcErrorByDistance( a ) ).isCloseTo( 0.0, tolerance );
 
 		Cubic2D goal = new Cubic2D( 0, 0, 0, 0.1, 0.2, 0.2, 0.4, 0.2 );
 		List<Point2D> c = goal.toPoints( 8 );
 		List<Point2D> d = goal.toPoints( 12 );
 		CubicBezierCurveFitter1 fitterC = new CubicBezierCurveFitter1( "TEST", c, CubicBezierCurveFitter.Hint.LEADING );
-		assertThat( fitterC.calcErrorByDistance( d ) ).isEqualTo( 0.00921630634219396 );
+		assertThat( fitterC.calcErrorByDistance( d ) ).isEqualTo( 0.002291233644431911 );
 		CubicBezierCurveFitter1 fitterD = new CubicBezierCurveFitter1( "TEST", d, CubicBezierCurveFitter.Hint.LEADING );
-		assertThat( fitterD.calcErrorByDistance( c ) ).isEqualTo( 0.002291233644431911 );
+		assertThat( fitterD.calcErrorByDistance( c ) ).isEqualTo( 0.00921630634219396 );
 	}
 
 	@Test

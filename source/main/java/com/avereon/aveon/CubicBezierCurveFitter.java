@@ -9,11 +9,12 @@ public interface CubicBezierCurveFitter {
 	enum Hint {
 		LEADING,
 		MIDDLE,
-		TRAILING;
+		TRAILING
 	}
 
 	Cubic2D generate();
 
+	double calcError( Cubic2D curve );
 	default Cubic2D getInitial( SegmentedPath2D path, double t, Hint hint ) {
 		Point2D p = path.points.get( 0 );
 		Point2D q = path.points.get( path.pointCount - 2 );

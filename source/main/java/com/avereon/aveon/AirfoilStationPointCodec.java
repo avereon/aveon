@@ -50,7 +50,7 @@ public class AirfoilStationPointCodec extends Codec {
 	@Override
 	public void save( Asset asset, OutputStream output ) throws IOException {}
 
-	Airfoil loadStationPoints( InputStream input ) throws IOException {
+	public static Airfoil loadStationPoints( InputStream input ) throws IOException {
 		// Load the data into lines skipping any blank lines
 		BufferedReader reader = new BufferedReader( new InputStreamReader( input, StandardCharsets.UTF_8 ) );
 		List<String> result = new ArrayList<>();
@@ -69,7 +69,7 @@ public class AirfoilStationPointCodec extends Codec {
 		return lednicer ? loadLednicer( result ) : loadSelig( result );
 	}
 
-	Airfoil loadLednicer( List<String> lines ) {
+	static Airfoil loadLednicer( List<String> lines ) {
 		String name = lines.get( 0 ).trim();
 		Point2D counts = loadStationPoint( lines.get( 1 ) );
 		int upperCount = (int)counts.getX();
@@ -79,7 +79,7 @@ public class AirfoilStationPointCodec extends Codec {
 		return createAirfoilFromStationPoints( name, upper, lower );
 	}
 
-	Airfoil loadSelig( List<String> lines ) {
+	static Airfoil loadSelig( List<String> lines ) {
 		String name = lines.get( 0 ).trim();
 		List<Point2D> upper = loadStationPoints( lines, 1, -1 );
 		Collections.reverse( upper );
@@ -87,7 +87,7 @@ public class AirfoilStationPointCodec extends Codec {
 		return createAirfoilFromStationPoints( name, upper, lower );
 	}
 
-	private Airfoil createAirfoilFromStationPoints( String name, List<Point2D> upper, List<Point2D> lower ) {
+	private static Airfoil createAirfoilFromStationPoints( String name, List<Point2D> upper, List<Point2D> lower ) {
 		Airfoil airfoil = new Airfoil();
 		airfoil.setName( name );
 		airfoil.setUpperStationPoints( upper );
@@ -96,7 +96,7 @@ public class AirfoilStationPointCodec extends Codec {
 		return airfoil;
 	}
 
-	private List<Point2D> loadStationPoints( List<String> lines, int start, int count ) {
+	private static List<Point2D> loadStationPoints( List<String> lines, int start, int count ) {
 		List<Point2D> points = new ArrayList<>();
 
 		double x = 1;
@@ -104,8 +104,13 @@ public class AirfoilStationPointCodec extends Codec {
 		int extent = start + count;
 		while( index < lines.size() && (count < 0 || index < extent) ) {
 			Point2D point = loadStationPoint( lines.get( index ) );
+
+			// If the points started at the TE and have now wrapped the LE...break
 			if( start == 1 && point.getX() > x ) break;
-			points.add( point );
+
+			// Avoid repeat points
+			if( points.size() == 0 || !points.get(points.size()-1).equals( point ) ) points.add( point );
+
 			x = point.getX();
 			index++;
 		}
@@ -113,7 +118,7 @@ public class AirfoilStationPointCodec extends Codec {
 		return points;
 	}
 
-	Point2D loadStationPoint( String line ) {
+	static Point2D loadStationPoint( String line ) {
 		double tolerance = 0.001;
 		String[] values = line.trim().split( "\\s+" );
 		double x = Double.parseDouble( values[ 0 ] );

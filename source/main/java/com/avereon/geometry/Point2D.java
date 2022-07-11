@@ -317,8 +317,7 @@ public class Point2D {
 	@Override
 	public boolean equals( Object object ) {
 		if( object == this ) return true;
-		if( !(object instanceof Point2D) ) return false;
-		Point2D that = (Point2D)object;
+		if( !(object instanceof Point2D that) ) return false;
 		return this.x == that.x && this.y == that.y;
 	}
 

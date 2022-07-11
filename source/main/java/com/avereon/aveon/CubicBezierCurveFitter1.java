@@ -518,7 +518,7 @@ public class CubicBezierCurveFitter1 implements CubicBezierCurveFitter {
 		return path;
 	}
 
-	double calcError( Cubic2D curve ) {
+	public double calcError( Cubic2D curve ) {
 		return calcErrorByDistance( curvePoints( curve ) ) / scale;
 	}
 

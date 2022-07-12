@@ -25,8 +25,8 @@ public class CubicBezierCurveFitter2Test {
 		//		System.err.println( "result: " + curve.b.y + " " + curve.c.x );
 
 		// By percent
-		assertThat( Math.abs( curve.b.y / 0.1 - 1 ) ).isCloseTo( 0, Offset.offset( 0.01 ) );
-		assertThat( Math.abs( curve.c.x / 0.2 - 1 ) ).isCloseTo( 0, Offset.offset( 0.01 ) );
+		assertThat( Math.abs( curve.b.y / 0.1 - 1 ) ).isCloseTo( 0, Offset.offset( 0.015 ) );
+		assertThat( Math.abs( curve.c.x / 0.2 - 1 ) ).isCloseTo( 0, Offset.offset( 0.015 ) );
 
 		//		assertThat( curve.a).isEqualTo( new Point2D( 0.0, 0.0 ) ) );
 		//		assertThat( curve.b.x).isEqualTo( 0.0 ) );

@@ -44,19 +44,19 @@ public class CubicBezierCurveFitter2 implements CubicBezierCurveFitter {
 		double cAnchor;
 		int segments = 10;
 
-		for( int exp = 0; exp < 10; exp++ ) {
+		for( int exp = 0; exp < 5; exp++ ) {
 			span = 1 / Math.pow( segments, exp );
 			bAnchor = bt - 0.5 * span;
 			cAnchor = ct - 0.5 * span;
 
-			for( int j = 0; j < 5; j++ ) {
+			for( int j = 0; j < 10; j++ ) {
 				bt = findClosestInterpOnHead( curve, bAnchor, bAnchor + span, segments );
-				curve = new Cubic2D( bounds.a, bounds.a.interpolate( bounds.b, bt ), bounds.d.interpolate( bounds.c, ct ), bounds.d );
+				//curve = new Cubic2D( bounds.a, bounds.a.interpolate( bounds.b, bt ), bounds.d.interpolate( bounds.c, ct ), bounds.d );
 				ct = findClosestInterpOnTail( curve, cAnchor, cAnchor + span, segments );
 				curve = new Cubic2D( bounds.a, bounds.a.interpolate( bounds.b, bt ), bounds.d.interpolate( bounds.c, ct ), bounds.d );
 			}
 
-			System.out.printf( "bAnchor=%f cAnchor=%f bt=%f ct=%f%n", bAnchor, cAnchor, bt, ct );
+			//System.out.printf( "bAnchor=%f cAnchor=%f bt=%f ct=%f%n", bAnchor, cAnchor, bt, ct );
 		}
 	}
 
@@ -85,7 +85,7 @@ public class CubicBezierCurveFitter2 implements CubicBezierCurveFitter {
 			point = bounds.a.interpolate( bounds.b, t );
 			testCurve = new Cubic2D( bounds.a, point, curve.c, curve.d );
 			error = calcError( testCurve );
-			System.out.printf( "i=%d c=%f error=%f p=%s curve=%s %n", i, t, error, point, testCurve );
+			//System.out.printf( "i=%d c=%f error=%f p=%s curve=%s %n", i, t, error, point, testCurve );
 
 			if( error < lowestError ) {
 				lowestError = error;
@@ -121,7 +121,7 @@ public class CubicBezierCurveFitter2 implements CubicBezierCurveFitter {
 			point = bounds.d.interpolate( bounds.c, t );
 			testCurve = new Cubic2D( curve.a, curve.b, point, bounds.d );
 			error = calcError( testCurve );
-			System.out.printf( "i=%d c=%f error=%f p=%s testcurve=%s %n", i, t, error, point, testCurve );
+			//System.out.printf( "i=%d c=%f error=%f p=%s testcurve=%s %n", i, t, error, point, testCurve );
 
 			if( error < lowestError ) {
 				lowestError = error;
@@ -140,7 +140,7 @@ public class CubicBezierCurveFitter2 implements CubicBezierCurveFitter {
 		// it is trying to reduce the area between the paths, not trying to match
 		// up with the path points. It would be more appropriate to match up with
 		// the path points.
-		return errorD * errorD + errorA;
+		return errorA;
 	}
 
 	/**

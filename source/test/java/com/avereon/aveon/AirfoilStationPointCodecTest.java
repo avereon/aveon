@@ -56,14 +56,14 @@ public class AirfoilStationPointCodecTest {
 
 		assertThat( foil.getName() ).isEqualTo( "TEST AIRFOIL" );
 		int index = 0;
-		assertThat( foil.getUpperStationPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
-		assertThat( foil.getUpperStationPoints().get( index++ ) ).isEqualTo( new Point2D( 0.36, 0.091627 ) );
-		assertThat( foil.getUpperStationPoints().get( index++ ) ).isEqualTo( new Point2D( 1, 0.000599 ) );
+		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
+		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.36, 0.091627 ) );
+		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 1, 0.000599 ) );
 		assertThat( index ).isEqualTo( 3 );
 		index = 0;
-		assertThat( foil.getLowerStationPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
-		assertThat( foil.getLowerStationPoints().get( index++ ) ).isEqualTo( new Point2D( 0.160000, -0.030255 ) );
-		assertThat( foil.getLowerStationPoints().get( index++ ) ).isEqualTo( new Point2D( 1, -0.000599 ) );
+		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
+		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.160000, -0.030255 ) );
+		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 1, -0.000599 ) );
 		assertThat( index ).isEqualTo( 3 );
 	}
 
@@ -82,14 +82,14 @@ public class AirfoilStationPointCodecTest {
 
 		assertThat( foil.getName() ).isEqualTo( "TEST AIRFOIL" );
 		int index = 0;
-		assertThat( foil.getUpperStationPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
-		assertThat( foil.getUpperStationPoints().get( index++ ) ).isEqualTo( new Point2D( 0.36, 0.091627 ) );
-		assertThat( foil.getUpperStationPoints().get( index++ ) ).isEqualTo( new Point2D( 1, 0.000599 ) );
+		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
+		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.36, 0.091627 ) );
+		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 1, 0.000599 ) );
 		assertThat( index ).isEqualTo( 3 );
 		index = 0;
-		assertThat( foil.getLowerStationPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
-		assertThat( foil.getLowerStationPoints().get( index++ ) ).isEqualTo( new Point2D( 0.160000, -0.030255 ) );
-		assertThat( foil.getLowerStationPoints().get( index++ ) ).isEqualTo( new Point2D( 1, -0.000599 ) );
+		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
+		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.160000, -0.030255 ) );
+		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 1, -0.000599 ) );
 		assertThat( index ).isEqualTo( 3 );
 	}
 

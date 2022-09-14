@@ -1,7 +1,6 @@
 package com.avereon.aveon;
 
 import com.avereon.curve.math.Arithmetic;
-import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
 import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
@@ -163,26 +162,24 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		return path;
 	}
 
-	private Path generatePath( List<Cubic2D> curves ) {
-		Path path = new Path();
-		Cubic2D g = curves.get( 0 );
-		path.getElements().add( new MoveTo( g.ax, g.ay ) );
-		for( Cubic2D c : curves ) {
-			path.getElements().add( new CubicCurveTo( c.bx, c.by, c.cx, c.cy, c.dx, c.dy ) );
-		}
-		return path;
-	}
+//	private Path generatePath( List<Cubic2D> curves ) {
+//		Path path = new Path();
+//		Cubic2D g = curves.get( 0 );
+//		path.getElements().add( new MoveTo( g.ax, g.ay ) );
+//		for( Cubic2D c : curves ) {
+//			path.getElements().add( new CubicCurveTo( c.bx, c.by, c.cx, c.cy, c.dx, c.dy ) );
+//		}
+//		return path;
+//	}
 
 	private void setAirfoil( Airfoil airfoil ) {
 		this.airfoil = airfoil;
 		if( airfoil == null ) return;
 
-		airfoil.analyzeCurves();
-
 		generateGrid();
 
 		// Foil shape
-		Path stationPointShape = generatePath( airfoil.getStationPoints(), true );
+		Path stationPointShape = generatePath( airfoil.getDefinitionPoints(), true );
 		stationPointShape.setFill( Color.web( "#00000080" ) );
 		foilShapeLayer.getChildren().clear();
 		foilShapeLayer.getChildren().add( stationPointShape );
@@ -196,8 +193,8 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		foilOutlineLayer.getChildren().add( stationPointOutline );
 
 		// Foil shape
-		Path upperCurveShape = generatePath( airfoil.getUpperCurves() );
-		Path lowerCurveShape = generatePath( airfoil.getLowerCurves() );
+		//Path upperCurveShape = generatePath( airfoil.getUpperPoints() );
+		//Path lowerCurveShape = generatePath( airfoil.getLowerPoints() );
 
 		//		// Foil outline
 		//		Path upperCurveOutline = new Path( upperCurveShape.getElements() );
@@ -228,8 +225,8 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		foilOutlineLayer.getChildren().addAll( c1, c2, c3, c4 );
 
 		// Thickness
-		Point2D thicknessUpper = airfoil.getThicknessUpper();
-		Point2D thicknessLower = airfoil.getThicknessLower();
+		Point2D thicknessUpper = airfoil.getUpperThickness();
+		Point2D thicknessLower = airfoil.getLowerThickness();
 		Line thickness = new Line( thicknessUpper.getX(), thicknessUpper.getY(), thicknessLower.getX(), thicknessLower.getY() );
 		thickness.setStroke( Color.MAGENTA );
 		setStrokeWidth( thickness );
@@ -300,7 +297,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		if( url == null ) return;
 		try {
 			getSettings().set( AIRFOIL_URL, url );
-			Airfoil airfoil = new AirfoilStationPointCodec().loadStationPoints( new URL( url.trim() ).openStream() );
+			Airfoil airfoil = AirfoilStationPointCodec.loadStationPoints( new URL( url.trim() ).openStream() );
 			Platform.runLater( () -> setAirfoil( airfoil ) );
 		} catch( IOException exception ) {
 			log.atError( exception ).log( "Unable to load airfoil data" );

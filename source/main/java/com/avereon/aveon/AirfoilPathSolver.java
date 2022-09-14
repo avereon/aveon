@@ -1,6 +1,5 @@
 package com.avereon.aveon;
 
-import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
 import com.avereon.skill.RunPauseResettable;
 import lombok.CustomLog;
@@ -54,28 +53,28 @@ public class AirfoilPathSolver implements RunPauseResettable {
 
 		List<List<Point2D>> upperPointGroups = airfoil.getUpperPointGroups();
 		int upperCount = upperPointGroups.size();
-		List<Cubic2D> upperCurves = new ArrayList<>();
+		List<Point2D> upperCurves = new ArrayList<>();
 
 		List<List<Point2D>> lowerPointGroups = airfoil.getLowerPointGroups();
 		int lowerCount = lowerPointGroups.size();
-		List<Cubic2D> lowerCurves = new ArrayList<>();
+		List<Point2D> lowerCurves = new ArrayList<>();
 
 		// TODO Determine upper curves
-		upperCurves.add( new CubicBezierCurveFitter2( name, upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
-		for( int index = 1; index < upperCount - 1; index++ ) {
-			upperCurves.add( new CubicBezierCurveFitter2( name, upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
-		}
-		upperCurves.add( new CubicBezierCurveFitter2( name, upperPointGroups.get( upperCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
+//		upperCurves.add( new CubicBezierCurveFitter2( name, upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
+//		for( int index = 1; index < upperCount - 1; index++ ) {
+//			upperCurves.add( new CubicBezierCurveFitter2( name, upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
+//		}
+//		upperCurves.add( new CubicBezierCurveFitter2( name, upperPointGroups.get( upperCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
 
 		// TODO Determine lower curves
-		lowerCurves.add( new CubicBezierCurveFitter2( name, lowerPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
-		for( int index = 1; index < lowerCount - 1; index++ ) {
-			lowerCurves.add( new CubicBezierCurveFitter2( name, lowerPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
-		}
-		lowerCurves.add( new CubicBezierCurveFitter2( name, lowerPointGroups.get( lowerCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
+//		lowerCurves.add( new CubicBezierCurveFitter2( name, lowerPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
+//		for( int index = 1; index < lowerCount - 1; index++ ) {
+//			lowerCurves.add( new CubicBezierCurveFitter2( name, lowerPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
+//		}
+//		lowerCurves.add( new CubicBezierCurveFitter2( name, lowerPointGroups.get( lowerCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
 
-		airfoil.setUpperCurves( upperCurves );
-		airfoil.setLowerCurves( lowerCurves );
+		//airfoil.setUpperPoints( upperCurves );
+		//airfoil.setLowerPoints( lowerCurves );
 	}
 
 	List<Point2D> findInflections( List<List<Point2D>> groups ) {

@@ -90,9 +90,7 @@ public class AirfoilStationPointCodec extends Codec {
 	private static Airfoil createAirfoilFromStationPoints( String name, List<Point2D> upper, List<Point2D> lower ) {
 		Airfoil airfoil = new Airfoil();
 		airfoil.setName( name );
-		airfoil.setUpperStationPoints( upper );
-		airfoil.setLowerStationPoints( lower );
-		airfoil.analyzePoints();
+		airfoil.setDefinitionPoints( upper, lower );
 		return airfoil;
 	}
 

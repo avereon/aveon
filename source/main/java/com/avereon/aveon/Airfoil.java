@@ -1,13 +1,13 @@
 package com.avereon.aveon;
 
 import com.avereon.data.Node;
-import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
 import lombok.CustomLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * Some examples:
@@ -25,17 +25,35 @@ public class Airfoil extends Node {
 
 	private static final String NAME = "name";
 
-	//	private static final String UPPER = "upper";
-	//
-	//	private static final String LOWER = "lower";
+	/**
+	 * The points used to define the airfoil before it is analyzed.
+	 */
+	private static final String UPPER_DEFINITION_POINTS = "upper-definition-points";
 
-	private static final String UPPER_CURVES = "upper-curves";
+	/**
+	 * The points used to define the airfoil before it is analyzed.
+	 */
+	private static final String LOWER_DEFINITION_POINTS = "lower-definition-points";
 
-	private static final String LOWER_CURVES = "lower-curves";
+	/**
+	 * The points used to define the airfoil after it is analyzed and to be used for calculations.
+	 */
+	private static final String UPPER_ANALYSIS_POINTS = "upper-analysis-points";
 
-	private static final String UPPER_POINTS = "upper-points";
+	/**
+	 * The points used to define the airfoil after it is analyzed and to be used for calculations.
+	 */
+	private static final String LOWER_ANALYSIS_POINTS = "lower-analysis-points";
 
-	private static final String LOWER_POINTS = "lower-points";
+	/**
+	 * The points used to define the airfoil after it is analyzed and to be used for panels.
+	 */
+	private static final String UPPER_PANEL_POINTS = "upper-construction-points";
+
+	/**
+	 * The points used to define the airfoil after it is analyzed and to be used for panels.
+	 */
+	private static final String LOWER_PANEL_POINTS = "lower-construction-points";
 
 	// The highest point on the upper surface
 	private double maxY;
@@ -44,9 +62,15 @@ public class Airfoil extends Node {
 	private double minY;
 
 	// The thickness at maxY
-	private Point2D thicknessUpper = Point2D.ZERO;
+	private Point2D upperThickness = Point2D.ZERO;
 
 	// The thickness at minY
+	private Point2D lowerThickness = Point2D.ZERO;
+
+	private Point2D maxThickness = Point2D.ZERO;
+
+	private Point2D thicknessUpper = Point2D.ZERO;
+
 	private Point2D thicknessLower = Point2D.ZERO;
 
 	private List<Point2D> camber = List.of();
@@ -84,48 +108,53 @@ public class Airfoil extends Node {
 		return this;
 	}
 
-	public List<Point2D> getUpperStationPoints() {
-		return getValue( UPPER_POINTS );
+	public List<Point2D> getUpperDefinitionPoints() {
+		return getValue( UPPER_DEFINITION_POINTS );
 	}
 
-	public Airfoil setUpperStationPoints( List<Point2D> coords ) {
-		setValue( UPPER_POINTS, coords );
+	private Airfoil setUpperDefinitionPoints( List<Point2D> coords ) {
+		setValue( UPPER_DEFINITION_POINTS, coords );
 		return this;
 	}
 
-	public List<Point2D> getLowerStationPoints() {
-		return getValue( LOWER_POINTS );
+	public List<Point2D> getLowerDefinitionPoints() {
+		return getValue( LOWER_DEFINITION_POINTS );
 	}
 
-	public Airfoil setLowerStationPoints( List<Point2D> coords ) {
-		setValue( LOWER_POINTS, coords );
+	private Airfoil setLowerDefinitionPoints( List<Point2D> coords ) {
+		setValue( LOWER_DEFINITION_POINTS, coords );
 		return this;
 	}
 
-	public List<Point2D> getStationPoints() {
-		List<Point2D> points = new ArrayList<>( getLowerStationPoints() );
+	public List<Point2D> getDefinitionPoints() {
+		List<Point2D> points = new ArrayList<>( getLowerDefinitionPoints() );
 		points.remove( 0 );
 		Collections.reverse( points );
-		points.addAll( getUpperStationPoints() );
+		points.addAll( getUpperDefinitionPoints() );
 		return points;
 	}
 
-	public Airfoil setUpperCurves(List<Cubic2D> upper) {
-		setValue( UPPER_CURVES, upper);
+	public Airfoil setDefinitionPoints( List<Point2D> upper, List<Point2D> lower ) {
+		setUpperDefinitionPoints( upper );
+		setLowerDefinitionPoints( lower );
+		analyze();
 		return this;
 	}
 
-	public List<Cubic2D> getUpperCurves() {
-		return getValue( UPPER_CURVES, List.of() );
+	private List<Point2D> getUpperAnalysisPoints() {
+		return getValue( UPPER_ANALYSIS_POINTS, List.of() );
 	}
 
-	public Airfoil setLowerCurves(List<Cubic2D> lower) {
-		setValue( LOWER_CURVES, lower);
-		return this;
+	private List<Point2D> getLowerAnalysisPoints() {
+		return getValue( LOWER_ANALYSIS_POINTS, List.of() );
 	}
 
-	public List<Cubic2D> getLowerCurves() {
-		return getValue( LOWER_CURVES, List.of() );
+	public List<Point2D> getUpperPoints() {
+		return getValue( UPPER_PANEL_POINTS, List.of() );
+	}
+
+	public List<Point2D> getLowerPoints() {
+		return getValue( LOWER_PANEL_POINTS, List.of() );
 	}
 
 	public double getMinY() {
@@ -136,12 +165,13 @@ public class Airfoil extends Node {
 		return maxY;
 	}
 
+
 	public double getThickness() {
-		return thicknessLower.distance( thicknessUpper );
+		return maxThickness.getY();
 	}
 
-	public double getThicknessMoment() {
-		return thicknessLower.getX();
+	public double getThicknessStation() {
+		return maxThickness.getX();
 	}
 
 	public Point2D getThicknessUpper() {
@@ -150,6 +180,14 @@ public class Airfoil extends Node {
 
 	public Point2D getThicknessLower() {
 		return thicknessLower;
+	}
+
+	public Point2D getUpperThickness() {
+		return upperThickness;
+	}
+
+	public Point2D getLowerThickness() {
+		return lowerThickness;
 	}
 
 	public List<Point2D> getCamber() {
@@ -177,14 +215,14 @@ public class Airfoil extends Node {
 	}
 
 	public boolean isAnalyzed() {
-		return getUpperCurves() != null && getLowerCurves() != null;
+		return getUpperPoints() != null && getLowerPoints() != null;
 	}
 
-	public void analyzePoints() {
+	public void analyze() {
 		// Min Y
 		double minY = Double.MAX_VALUE;
 		double lowerThicknessStation = Double.NaN;
-		for( Point2D point : getLowerStationPoints() ) {
+		for( Point2D point : getLowerDefinitionPoints() ) {
 			if( point.y < minY ) {
 				minY = point.y;
 				lowerThicknessStation = point.x;
@@ -195,7 +233,7 @@ public class Airfoil extends Node {
 		// Max Y
 		double maxY = Double.MIN_VALUE;
 		double upperThicknessStation = Double.NaN;
-		for( Point2D point : getUpperStationPoints() ) {
+		for( Point2D point : getUpperDefinitionPoints() ) {
 			if( point.y > maxY ) {
 				maxY = point.y;
 				upperThicknessStation = point.x;
@@ -204,73 +242,125 @@ public class Airfoil extends Node {
 		this.maxY = maxY;
 
 		// Point groups
-		upperPointGroups = getStationPointGroups( getUpperStationPoints() );
-		lowerPointGroups = getStationPointGroups( getLowerStationPoints() );
+		upperPointGroups = getStationPointGroups( getUpperDefinitionPoints() );
+		lowerPointGroups = getStationPointGroups( getLowerDefinitionPoints() );
 
 		// Inflections
 		upperInflections = Collections.unmodifiableList( findInflections( upperPointGroups ) );
 		lowerInflections = Collections.unmodifiableList( findInflections( lowerPointGroups ) );
 
-		thicknessUpper = new Point2D( upperThicknessStation,maxY);
-		thicknessLower = new Point2D( lowerThicknessStation,minY);
-	}
+		upperThickness = new Point2D( upperThicknessStation, maxY );
+		lowerThickness = new Point2D( lowerThicknessStation, minY );
 
-	public void analyzeCurves() {
-		fitCurves();
+		// Build analysis points from the definition points
+		fitPoints( 1000, UPPER_ANALYSIS_POINTS, LOWER_ANALYSIS_POINTS, Airfoil::linearSpacing );
 
-		//		int count = getLower().size();
-		//		List<Point2D> camber = new ArrayList<>();
-		//		for( int index = 0; index < count; index++ ) {
-		//			Point2D upper = getUpper().get( index );
-		//			Point2D lower = getLower().get( index );
-		//
-		//			// FIXME Camber should be calculated after the b-spline is derived
-		//			// Camber
-		//			Point2D camberPoint = upper.midpoint( lower );
-		//			camber.add( camberPoint );
-		//			if( camberPoint.getY() > maxCamber.getY() ) maxCamber = camberPoint;
-		//
-		//			// FIXME Thickness should be calculated after the b-spline is derived
-		//			// Thickness
-		//			double thickness = upper.distance( lower );
-		//			if( thickness > getThickness() ) {
-		//				thicknessUpper = upper;
-		//				thicknessLower = lower;
-		//			}
-		//		}
-		//		this.camber = Collections.unmodifiableList( camber );
+		// Build panel points from the definition points
+		int panelCount = 60;
+		fitPoints( panelCount + 1, UPPER_PANEL_POINTS, LOWER_PANEL_POINTS, Airfoil::cosineSpacing );
+
+		List<Point2D> uppers = getValue( UPPER_ANALYSIS_POINTS, List.of() );
+		List<Point2D> lowers = getValue( LOWER_ANALYSIS_POINTS, List.of() );
+		int count = lowers.size();
+		List<Point2D> camber = new ArrayList<>();
+		for( int index = 0; index < count; index++ ) {
+			Point2D upper = uppers.get( index );
+			Point2D lower = lowers.get( index );
+
+			// FIXME Camber should be calculated after the b-spline is derived
+			// Camber is the midpoint between the upper and lower surfaces at each station; find the max-Y value
+			// Camber
+			Point2D camberPoint = upper.midpoint( lower );
+			camber.add( camberPoint );
+			if( camberPoint.getY() > maxCamber.getY() ) maxCamber = camberPoint;
+
+			// FIXME Thickness should be calculated after the b-spline is derived
+			// Thickness is measured at each station; find the max thickness
+			// Thickness
+			double thickness = upper.distance( lower );
+			if( thickness > getThickness() ) {
+				thicknessUpper = upper;
+				thicknessLower = lower;
+				maxThickness = Point2D.of( upper.getX(), thickness );
+			}
+		}
+		this.camber = Collections.unmodifiableList( camber );
 		//		if( maxCamber.getX() == 0 ) maxCamber = new Point2D( getThicknessMoment(), 0 );
 	}
 
-	void fitCurves() {
-		// TODO Determine upper curves
-		int upperCount = upperPointGroups.size();
-		List<Cubic2D> upperCurves = new ArrayList<>();
-		upperCurves.add( new CubicBezierCurveFitter1( getName(), upperPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
-		for( int index = 1; index < upperCount - 1; index++ ) {
-			upperCurves.add( new CubicBezierCurveFitter1( getName(), upperPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
-		}
-		upperCurves.add( new CubicBezierCurveFitter1( getName(), upperPointGroups.get( upperCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
-		setValue( UPPER_CURVES, upperCurves );
+	void fitPoints( int stationCount, String upperKey, String lowerKey, BiFunction<Double, Double, Double> spacing ) {
+		List<Point2D> upperPoints = new ArrayList<>();
+		List<Point2D> lowerPoints = new ArrayList<>();
 
-		// TODO Determine lower curves
-		int lowerCount = lowerPointGroups.size();
-		List<Cubic2D> lowerCurves = new ArrayList<>();
-		lowerCurves.add( new CubicBezierCurveFitter1( getName(), lowerPointGroups.get( 0 ), CubicBezierCurveFitter.Hint.LEADING ).generate() );
-		for( int index = 1; index < lowerCount - 1; index++ ) {
-			lowerCurves.add( new CubicBezierCurveFitter1( getName(), lowerPointGroups.get( index ), CubicBezierCurveFitter.Hint.MIDDLE ).generate() );
+		upperPoints.add( Point2D.of( 0, 0 ) );
+		lowerPoints.add( Point2D.of( 0, 0 ) );
+		for( int index = 1; index < stationCount; index++ ) {
+			double analysisStation = spacing.apply( (double)stationCount, (double)index );
+			upperPoints.add( findStationPoint( getUpperDefinitionPoints(), analysisStation ) );
+			lowerPoints.add( findStationPoint( getLowerDefinitionPoints(), analysisStation ) );
 		}
-		lowerCurves.add( new CubicBezierCurveFitter1( getName(), lowerPointGroups.get( lowerCount - 1 ), CubicBezierCurveFitter.Hint.TRAILING ).generate() );
-		setValue( LOWER_CURVES, lowerCurves );
+		upperPoints.add( Point2D.of( 1, 0 ) );
+		lowerPoints.add( Point2D.of( 1, 0 ) );
+
+		setValue( upperKey, upperPoints );
+		setValue( lowerKey, lowerPoints );
+	}
+
+	private static double linearSpacing( double stationCount, double index ) {
+		return index / stationCount;
+	}
+
+	private static double cosineSpacing( double stationCount, double index ) {
+		double alpha = Math.PI * linearSpacing( stationCount, index );
+		return 1.0 - (0.5 * Math.cos( alpha ) + 0.5);
+	}
+
+	private Point2D findStationPoint( List<Point2D> definitionPoints, double station ) {
+		// NOTE A minimum of three points is required for this to work
+
+		// Find the points to use for the Lagrange polynomial
+		Point2D a = null;
+		Point2D b = null;
+		Point2D c = null;
+		int index = 0;
+		int count = definitionPoints.size() - 1;
+		while( index < count && a == null ) {
+			if( station > definitionPoints.get( index ).getX() && station < definitionPoints.get( index + 1 ).getX() ) {
+				if( index == 0 ) {
+					a = definitionPoints.get( index );
+					b = definitionPoints.get( index + 1 );
+					c = definitionPoints.get( index + 2 );
+				} else {
+					a = definitionPoints.get( index - 1 );
+					b = definitionPoints.get( index );
+					c = definitionPoints.get( index + 1 );
+				}
+			}
+			index++;
+		}
+
+		// Find the point for the station using a Lagrange polynomial
+		return Point2D.of( station, lagrange( a, b, c, station ) );
+	}
+
+	private double lagrange( Point2D a, Point2D b, Point2D c, double x ) {
+		double x0 = a.getX();
+		double y0 = a.getY();
+		double x1 = b.getX();
+		double y1 = b.getY();
+		double x2 = c.getX();
+		double y2 = c.getY();
+
+		double t0 = y0 * ((x - x1) / (x0 - x1)) * ((x - x2) / (x0 - x2));
+		double t1 = y1 * ((x - x0) / (x1 - x0)) * ((x - x2) / (x1 - x2));
+		double t2 = y2 * ((x - x0) / (x2 - x0)) * ((x - x1) / (x2 - x1));
+
+		return t0 + t1 + t2;
 	}
 
 	List<Point2D> findInflections( List<List<Point2D>> groups ) {
 		List<Point2D> inflections = new ArrayList<>();
-
-		int count = groups.size();
-		for( int index = 0; index < count; index++ ) {
-			inflections.add( groups.get( index ).get( 0 ) );
-		}
+		groups.forEach( g -> inflections.add( g.get( 0 ) ) );
 
 		List<Point2D> last = groups.get( groups.size() - 1 );
 		inflections.add( last.get( last.size() - 1 ) );

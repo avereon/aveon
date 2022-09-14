@@ -4,7 +4,6 @@ import com.avereon.geometry.Point2D;
 import com.avereon.marea.Pen;
 import com.avereon.marea.Renderer2d;
 import com.avereon.marea.fx.FxRenderer2d;
-import com.avereon.marea.geom.Curve;
 import com.avereon.marea.geom.Ellipse;
 import com.avereon.marea.geom.Line;
 import com.avereon.marea.geom.Path;
@@ -91,7 +90,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 		// Airfoil surface
 		Path airfoilLines = new Path( 1, 0 );
-		airfoil.getStationPoints().forEach( p -> airfoilLines.line( p.getX(), p.getY() ) );
+		airfoil.getDefinitionPoints().forEach( p -> airfoilLines.line( p.getX(), p.getY() ) );
 		renderer.draw( airfoilLines, new Pen( Color.YELLOW, 0.001 ) );
 
 		// Airfoil inflection points
@@ -100,24 +99,31 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 		// Airfoil thickness stations
 		Point2D tu = airfoil.getThicknessUpper();
-		renderer.draw( new Line( tu.x, tu.y, tu.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
 		Point2D tl = airfoil.getThicknessLower();
-		renderer.draw( new Line( tl.x, tl.y, tl.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
+		renderer.draw( new Line( tu.x, tu.y, tl.x, tl.y ), new Pen( Color.GREEN, 0.001 ) );
+		Point2D ut = airfoil.getUpperThickness();
+		renderer.draw( new Line( ut.x, ut.y, ut.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
+		Point2D lt = airfoil.getLowerThickness();
+		renderer.draw( new Line( lt.x, lt.y, lt.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
 
-		airfoil.getUpperCurves().forEach( c -> {
-			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
-			dot( Point2D.of( c.ax, c.ay ));
-			dot( Point2D.of( c.bx, c.by ));
-			dot( Point2D.of( c.cx, c.cy ));
-			dot( Point2D.of( c.dx, c.dy ));
-		} );
-		airfoil.getLowerCurves().forEach( c -> {
-			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
-			dot( Point2D.of( c.ax, c.ay ));
-			dot( Point2D.of( c.bx, c.by ));
-			dot( Point2D.of( c.cx, c.cy ));
-			dot( Point2D.of( c.dx, c.dy ));
-		} );
+		// Airfoil panel points
+		airfoil.getUpperPoints().forEach( this::dot );
+		airfoil.getLowerPoints().forEach( this::dot );
+
+		//		airfoil.getUpperPoints().forEach( c -> {
+		//			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
+		//			dot( Point2D.of( c.ax, c.ay ));
+		//			dot( Point2D.of( c.bx, c.by ));
+		//			dot( Point2D.of( c.cx, c.cy ));
+		//			dot( Point2D.of( c.dx, c.dy ));
+		//		} );
+		//		airfoil.getLowerPoints().forEach( c -> {
+		//			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
+		//			dot( Point2D.of( c.ax, c.ay ));
+		//			dot( Point2D.of( c.bx, c.by ));
+		//			dot( Point2D.of( c.cx, c.cy ));
+		//			dot( Point2D.of( c.dx, c.dy ));
+		//		} );
 	}
 
 	private void dot( Point2D point ) {

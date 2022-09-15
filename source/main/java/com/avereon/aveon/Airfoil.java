@@ -267,16 +267,14 @@ public class Airfoil extends Node {
 			Point2D upper = uppers.get( index );
 			Point2D lower = lowers.get( index );
 
-			// FIXME Camber should be calculated after the b-spline is derived
-			// Camber is the midpoint between the upper and lower surfaces at each station; find the max-Y value
-			// Camber
+			// Find the max camber
+			// Camber is the midpoint between the upper and lower surfaces at each station
 			Point2D camberPoint = upper.midpoint( lower );
 			camber.add( camberPoint );
 			if( camberPoint.getY() > maxCamber.getY() ) maxCamber = camberPoint;
 
-			// FIXME Thickness should be calculated after the b-spline is derived
-			// Thickness is measured at each station; find the max thickness
-			// Thickness
+			// Find the max thickness
+			// Thickness is measured at each station
 			double thickness = upper.distance( lower );
 			if( thickness > getThickness() ) {
 				thicknessUpper = upper;

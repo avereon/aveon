@@ -97,6 +97,11 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		airfoil.getUpperInflections().forEach( this::dot );
 		airfoil.getLowerInflections().forEach( this::dot );
 
+		// Camber path
+		Path camberLines = new Path( 0, 0 );
+		airfoil.getCamber().forEach( p -> camberLines.line( p.getX(), p.getY() ) );
+		renderer.draw( camberLines, new Pen( Color.GRAY, 0.001 ) );
+
 		// Airfoil thickness stations
 		Point2D tu = airfoil.getThicknessUpper();
 		Point2D tl = airfoil.getThicknessLower();

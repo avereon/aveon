@@ -298,16 +298,6 @@ public class Cubic2D extends Shape {
 		return List.of( a, d );
 	}
 
-	private double calcX( final double t ) {
-		final double u = 1 - t;
-		return (u * u * u * ax + 3 * (t * u * u * bx + t * t * u * cx) + t * t * t * dx);
-	}
-
-	private double calcY( final double t ) {
-		final double u = 1 - t;
-		return (u * u * u * ay + 3 * (t * u * u * by + t * t * u * cy) + t * t * t * dy);
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -345,6 +335,16 @@ public class Cubic2D extends Shape {
 	@Override
 	public String toString() {
 		return "Cubic2D[ax=" + ax + ",ay=" + ay + ",bx=" + bx + ",by=" + by + ",cx=" + cx + ",cy=" + cy + ",dx=" + dx + ",dy=" + dy + "]";
+	}
+
+	private double calcX( final double t ) {
+		final double u = 1 - t;
+		return (u * u * u * ax + 3 * (t * u * u * bx + t * t * u * cx) + t * t * t * dx);
+	}
+
+	private double calcY( final double t ) {
+		final double u = 1 - t;
+		return (u * u * u * ay + 3 * (t * u * u * by + t * t * u * cy) + t * t * t * dy);
 	}
 
 }

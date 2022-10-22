@@ -87,6 +87,13 @@ public class AirfoilStationPointCodec extends Codec {
 		return createAirfoilFromStationPoints( name, upper, lower );
 	}
 
+	/**
+	 * Create an airfoil from station point data.
+	 * @param name The name of the airfoil
+	 * @param upper The upper points from leading edge to trailing edge
+	 * @param lower The lower points from leading edge to trailing edge
+	 * @return The airfoil
+	 */
 	private static Airfoil createAirfoilFromStationPoints( String name, List<Point2D> upper, List<Point2D> lower ) {
 		Airfoil airfoil = new Airfoil();
 		airfoil.setName( name );

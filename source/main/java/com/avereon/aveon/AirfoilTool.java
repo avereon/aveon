@@ -22,6 +22,7 @@ import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.stage.Screen;
 import lombok.CustomLog;
 
@@ -112,8 +113,8 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		renderer.draw( new Line( lt.x, lt.y, lt.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
 
 		// Airfoil panel points
-		airfoil.getUpperPoints().forEach( this::dot );
-		airfoil.getLowerPoints().forEach( this::dot );
+		airfoil.getUpperPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
+		airfoil.getLowerPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
 
 		//		airfoil.getUpperPoints().forEach( c -> {
 		//			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
@@ -132,8 +133,15 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 	}
 
 	private void dot( Point2D point ) {
-		double r = 0.002;
-		renderer.fill( new Ellipse( point.x, point.y, r, r ), new Pen( Color.YELLOW, 0.001 ) );
+		dot( point, Color.YELLOW );
+	}
+
+	private void dot( Point2D point, Paint paint ) {
+		dot( point, paint, 0.002 );
+	}
+
+	private void dot( Point2D point, Paint paint, double size ) {
+		renderer.fill( new Ellipse( point.x, point.y, size, size ), new Pen( paint, 0.0 ) );
 	}
 
 	@Override

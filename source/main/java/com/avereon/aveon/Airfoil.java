@@ -1,6 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.data.Node;
+import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
 import lombok.CustomLog;
 
@@ -8,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
+
+import org.tinyspline.BSpline;
 
 /**
  * Some examples:
@@ -126,6 +129,12 @@ public class Airfoil extends Node {
 		return this;
 	}
 
+	/**
+	 * Get the airfoil definition points starting from the trailing edge, going
+	 * across the lower surface to the leading edge, then across the upper surface
+	 * to the trailing edge again. The first and last point should be equal.
+	 * @return The list of definition points for the airfoil
+	 */
 	public List<Point2D> getDefinitionPoints() {
 		List<Point2D> points = new ArrayList<>( getLowerDefinitionPoints() );
 		points.remove( 0 );
@@ -134,6 +143,12 @@ public class Airfoil extends Node {
 		return points;
 	}
 
+	/**
+	 * Set the airfoil definition points.
+	 * @param upper The upper points from leading edge to trailing edge
+	 * @param lower The lower points from leading edge to trailing edge
+	 * @return This airfoil
+	 */
 	public Airfoil setDefinitionPoints( List<Point2D> upper, List<Point2D> lower ) {
 		setUpperDefinitionPoints( upper );
 		setLowerDefinitionPoints( lower );
@@ -257,6 +272,11 @@ public class Airfoil extends Node {
 
 		// Build panel points from the definition points
 		int panelCount = 60;
+
+		// NEXT
+		List<Cubic2D> surface = fitSurface( getDefinitionPoints() );
+		// Split the list of surface cubics into upper and lower groups
+		// Use the cubics to determine the panel points
 		fitPoints( panelCount + 1, UPPER_PANEL_POINTS, LOWER_PANEL_POINTS, Airfoil::cosineSpacing );
 
 		List<Point2D> uppers = getValue( UPPER_ANALYSIS_POINTS, List.of() );
@@ -284,6 +304,13 @@ public class Airfoil extends Node {
 		}
 		this.camber = Collections.unmodifiableList( camber );
 		//		if( maxCamber.getX() == 0 ) maxCamber = new Point2D( getThicknessMoment(), 0 );
+	}
+
+	List<Cubic2D> fitSurface( List<Point2D> surface ) {
+		// Points go across the bottom then across the top
+
+		BSpline s = new BSpline(1);
+		return List.of();
 	}
 
 	void fitPoints( int stationCount, String upperKey, String lowerKey, BiFunction<Double, Double, Double> spacing ) {

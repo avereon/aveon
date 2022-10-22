@@ -58,6 +58,12 @@
 			<version>${marea.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.tinyspline</groupId>
+			<artifactId>tinyspline</artifactId>
+			<version>0.5.0-1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

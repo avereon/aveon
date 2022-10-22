@@ -32,6 +32,11 @@ public class Point2D {
 
 	public Point2D( Point2D p ) {
 		this( p.x, p.y );
+		this.hash = p.hash;
+	}
+
+	public static Point2D of( double[] p ) {
+		return new Point2D( p[ 0 ], p[ 1 ] );
 	}
 
 	public static Point2D of( double x, double y ) {

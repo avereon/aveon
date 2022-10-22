@@ -1,16 +1,18 @@
 package com.avereon.aveon;
 
+import com.avereon.curve.math.Geometry;
+import com.avereon.curve.math.Intersection;
+import com.avereon.curve.math.Intersection2D;
+import com.avereon.curve.math.Point;
 import com.avereon.data.Node;
 import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
 import lombok.CustomLog;
-import org.tinyspline.BSpline;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Stream;
 
 /**
  * Some examples:
@@ -47,6 +49,16 @@ public class Airfoil extends Node {
 	 * The points used to define the airfoil after it is analyzed and to be used for calculations.
 	 */
 	private static final String LOWER_ANALYSIS_POINTS = "lower-analysis-points";
+
+	/**
+	 * The points used to define the airfoil after it is analyzed and to be used for panels.
+	 */
+	private static final String UPPER_PANEL_CURVES = "upper-construction-curves";
+
+	/**
+	 * The points used to define the airfoil after it is analyzed and to be used for panels.
+	 */
+	private static final String LOWER_PANEL_CURVES = "lower-construction-curves";
 
 	/**
 	 * The points used to define the airfoil after it is analyzed and to be used for panels.
@@ -116,6 +128,8 @@ public class Airfoil extends Node {
 	}
 
 	private Airfoil setUpperDefinitionPoints( List<Point2D> coords ) {
+		//		coords.set( 0, new Point2D( 0, 0 ) );
+		//		coords.set( coords.size() - 1, new Point2D( 1, 0 ) );
 		setValue( UPPER_DEFINITION_POINTS, coords );
 		return this;
 	}
@@ -125,6 +139,8 @@ public class Airfoil extends Node {
 	}
 
 	private Airfoil setLowerDefinitionPoints( List<Point2D> coords ) {
+		//		coords.set( 0, new Point2D( 0, 0 ) );
+		//		coords.set( coords.size() - 1, new Point2D( 1, 0 ) );
 		setValue( LOWER_DEFINITION_POINTS, coords );
 		return this;
 	}
@@ -268,17 +284,15 @@ public class Airfoil extends Node {
 		upperThickness = new Point2D( upperThicknessStation, maxY );
 		lowerThickness = new Point2D( lowerThicknessStation, minY );
 
-		// Build analysis points from the definition points
+		// Generate cubic curve surfaces
+		fitSurface( getDefinitionPoints() );
+
+		// Generate analysis points
 		fitPoints( 1000, UPPER_ANALYSIS_POINTS, LOWER_ANALYSIS_POINTS, Airfoil::linearSpacing );
 
-		// Build panel points from the definition points
+		// Generate panel points
 		int panelCount = 60;
-
-		// NEXT Generate cubic curve surfaces
-		List<Cubic2D> surface = fitSurface( getDefinitionPoints() );
-		// TODO Split the list of surface cubics into upper and lower groups
-		// TODO Use the cubics to determine the panel points
-		//fitPoints( panelCount + 1, UPPER_PANEL_POINTS, LOWER_PANEL_POINTS, Airfoil::cosineSpacing );
+		fitPoints( panelCount + 1, UPPER_PANEL_POINTS, LOWER_PANEL_POINTS, Airfoil::cosineSpacing );
 
 		List<Point2D> uppers = getValue( UPPER_ANALYSIS_POINTS, List.of() );
 		List<Point2D> lowers = getValue( LOWER_ANALYSIS_POINTS, List.of() );
@@ -310,57 +324,49 @@ public class Airfoil extends Node {
 	List<Cubic2D> fitSurface( List<Point2D> surface ) {
 		// Points go across the bottom then across the top
 
-		List<Double> points = surface.stream().flatMap( p -> Stream.of( p.getX(), p.getY() ) ).toList();
-		BSpline spline = BSpline.interpolateCubicNatural( points, 2 );
-		//log.atWarn().log( "Spline degree={0} points={1}", spline.getDegree(), spline.getNumControlPoints() );
-
-		//DeBoorNet bisect = spline.bisect( 0, 0 );
-		//log.atWarn().log( "Value knot={0}", bisect.getKnot() );
-		//log.atWarn().log("Bezier degree={0}",bezier.getDegree());
-
-		List<Double> controlPoints = spline.getControlPoints();
-		int size = (int)(spline.getOrder() * spline.getDimension());
-		int surfaceCount = controlPoints.size() / size;
-		List<Cubic2D> panelCurves = new ArrayList<>( surfaceCount );
-		for( int index = 0; index < surfaceCount; index++ ) {
-			int offset = index * size;
-			panelCurves.add( new Cubic2D(
-				controlPoints.get( offset ),
-				controlPoints.get( offset + 1 ),
-				controlPoints.get( offset + 2 ),
-				controlPoints.get( offset + 3 ),
-				controlPoints.get( offset + 4 ),
-				controlPoints.get( offset + 5 ),
-				controlPoints.get( offset + 6 ),
-				controlPoints.get( offset + 7 )
-			) );
+		// Prepare the points for interpolation
+		int count = surface.size();
+		double[][] points = new double[ count ][ 2 ];
+		for( int index = 0; index < count; index++ ) {
+			Point2D p = surface.get( index );
+			points[ index ][ 0 ] = p.getX();
+			points[ index ][ 1 ] = p.getY();
 		}
 
-		List<Point2D> lowerPanelPoints = new ArrayList<>();
-		List<Point2D> upperPanelPoints = new ArrayList<>();
+		// Interpolate to cubic bezier curves
+		double[][][] curves = Geometry.interpolateCubicNatural( points );
+
+		// Convert curves from array to objects
+		int surfaceCount = curves.length;
+		List<Cubic2D> panelCurves = new ArrayList<>( surfaceCount );
+		for( double[][] curve : curves ) {
+			panelCurves.add( new Cubic2D( curve[ 0 ][ 0 ], curve[ 0 ][ 1 ], curve[ 1 ][ 0 ], curve[ 1 ][ 1 ], curve[ 2 ][ 0 ], curve[ 2 ][ 1 ], curve[ 3 ][ 0 ], curve[ 3 ][ 1 ] ) );
+		}
+
+		// Split the surface curves into upper and lower curve lists
 		boolean isUpperSurface = false;
-		lowerPanelPoints.add( Point2D.of( 1, 0 ) );
-		upperPanelPoints.add( Point2D.of( 0, 0 ) );
+		List<Cubic2D> lowerPanelCurves = new ArrayList<>();
+		List<Cubic2D> upperPanelCurves = new ArrayList<>();
 		for( Cubic2D s : panelCurves ) {
+			Point2D p1 = Point2D.of( s.ax, s.ay );
 			Point2D p2 = Point2D.of( s.bx, s.by );
 			Point2D p3 = Point2D.of( s.cx, s.cy );
 			Point2D p4 = Point2D.of( s.dx, s.dy );
 			if( isUpperSurface ) {
-				upperPanelPoints.add( p2 );
-				upperPanelPoints.add( p3 );
-				upperPanelPoints.add( p4 );
+				upperPanelCurves.add( new Cubic2D( p1, p2, p3, p4 ) );
 			} else {
-				lowerPanelPoints.add( p2 );
-				lowerPanelPoints.add( p3 );
-				lowerPanelPoints.add( p4 );
+				lowerPanelCurves.add( new Cubic2D( p4, p3, p2, p1 ) );
 			}
-			if( p4.x == 0.0 && p4.y == 0.0 ) isUpperSurface = true;
-		}
-		Collections.reverse( lowerPanelPoints );
-		setValue( UPPER_PANEL_POINTS, upperPanelPoints );
-		setValue( LOWER_PANEL_POINTS, lowerPanelPoints );
 
-		// NEXT TODO Find intersections along the upper and lower surfaces
+			if( Geometry.distance( Point.of( p4.x, p4.y ) ) < 1e-12 ) {
+				//log.atWarn().log( "Should be close: {0},{1}", p4.x, p4.y );
+				isUpperSurface = true;
+			}
+		}
+		if( !isUpperSurface ) log.atWarn().log( "Did not switch to upper surface" );
+		Collections.reverse( lowerPanelCurves );
+		setValue( UPPER_PANEL_CURVES, upperPanelCurves );
+		setValue( LOWER_PANEL_CURVES, lowerPanelCurves );
 
 		return panelCurves;
 	}
@@ -372,9 +378,9 @@ public class Airfoil extends Node {
 		upperPoints.add( Point2D.of( 0, 0 ) );
 		lowerPoints.add( Point2D.of( 0, 0 ) );
 		for( int index = 1; index < stationCount; index++ ) {
-			double analysisStation = spacing.apply( (double)stationCount, (double)index );
-			upperPoints.add( findStationPoint( getUpperDefinitionPoints(), analysisStation ) );
-			lowerPoints.add( findStationPoint( getLowerDefinitionPoints(), analysisStation ) );
+			double station = spacing.apply( (double)stationCount, (double)index );
+			upperPoints.add( findStationPoint( getValue( UPPER_PANEL_CURVES ), station ) );
+			lowerPoints.add( findStationPoint( getValue( LOWER_PANEL_CURVES ), station ) );
 		}
 		upperPoints.add( Point2D.of( 1, 0 ) );
 		lowerPoints.add( Point2D.of( 1, 0 ) );
@@ -392,32 +398,26 @@ public class Airfoil extends Node {
 		return 1.0 - (0.5 * Math.cos( alpha ) + 0.5);
 	}
 
-	private Point2D findStationPoint( List<Point2D> definitionPoints, double station ) {
-		// NOTE A minimum of three points is required for this to work
-
-		// Find the points to use for the Lagrange polynomial
-		Point2D a = null;
-		Point2D b = null;
-		Point2D c = null;
-		int index = 0;
-		int count = definitionPoints.size() - 1;
-		while( index < count && a == null ) {
-			if( station > definitionPoints.get( index ).getX() && station < definitionPoints.get( index + 1 ).getX() ) {
-				if( index == 0 ) {
-					a = definitionPoints.get( index );
-					b = definitionPoints.get( index + 1 );
-					c = definitionPoints.get( index + 2 );
-				} else {
-					a = definitionPoints.get( index - 1 );
-					b = definitionPoints.get( index );
-					c = definitionPoints.get( index + 1 );
-				}
+	private Point2D findStationPoint( List<Cubic2D> panelCurves, double station ) {
+		// Compute the intersection of a line at the station and a definition curve
+		for( Cubic2D curve : panelCurves ) {
+			if( station < curve.ax || station > curve.dx ) continue;
+			double[] p1 = Point.of( station, 1.0 );
+			double[] p2 = Point.of( station, -1.0 );
+			double[] a = Point.of( curve.ax, curve.ay );
+			double[] b = Point.of( curve.bx, curve.by );
+			double[] c = Point.of( curve.cx, curve.cy );
+			double[] d = Point.of( curve.dx, curve.dy );
+			Intersection2D intersection = Intersection2D.intersectLineBezier3( p1, p2, a, b, c, d );
+			if( intersection.getType() == Intersection.Type.INTERSECTION ) {
+				return Point2D.of( intersection.getPoints()[ 0 ] );
 			}
-			index++;
 		}
 
-		// Find the point for the station using a Lagrange polynomial
-		return Point2D.of( station, lagrange( a, b, c, station ) );
+		//log.atWarn().log( "No intersection found at " + station );
+
+		// Add the point for the station
+		return Point2D.ZERO;
 	}
 
 	private double lagrange( Point2D a, Point2D b, Point2D c, double x ) {

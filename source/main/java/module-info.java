@@ -12,7 +12,6 @@ module com.avereon.aveon {
 	requires com.avereon.zevra;
 	requires javafx.controls;
 	requires javafx.graphics;
-	requires tinyspline;
 
 	opens com.avereon.aveon.bundles;
 

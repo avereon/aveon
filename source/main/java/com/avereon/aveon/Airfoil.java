@@ -4,13 +4,13 @@ import com.avereon.data.Node;
 import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
 import lombok.CustomLog;
+import org.tinyspline.BSpline;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
-
-import org.tinyspline.BSpline;
+import java.util.stream.Stream;
 
 /**
  * Some examples:
@@ -133,6 +133,7 @@ public class Airfoil extends Node {
 	 * Get the airfoil definition points starting from the trailing edge, going
 	 * across the lower surface to the leading edge, then across the upper surface
 	 * to the trailing edge again. The first and last point should be equal.
+	 *
 	 * @return The list of definition points for the airfoil
 	 */
 	public List<Point2D> getDefinitionPoints() {
@@ -145,6 +146,7 @@ public class Airfoil extends Node {
 
 	/**
 	 * Set the airfoil definition points.
+	 *
 	 * @param upper The upper points from leading edge to trailing edge
 	 * @param lower The lower points from leading edge to trailing edge
 	 * @return This airfoil
@@ -179,7 +181,6 @@ public class Airfoil extends Node {
 	public double getMaxY() {
 		return maxY;
 	}
-
 
 	public double getThickness() {
 		return maxThickness.getY();
@@ -273,11 +274,11 @@ public class Airfoil extends Node {
 		// Build panel points from the definition points
 		int panelCount = 60;
 
-		// NEXT
+		// NEXT Generate cubic curve surfaces
 		List<Cubic2D> surface = fitSurface( getDefinitionPoints() );
-		// Split the list of surface cubics into upper and lower groups
-		// Use the cubics to determine the panel points
-		fitPoints( panelCount + 1, UPPER_PANEL_POINTS, LOWER_PANEL_POINTS, Airfoil::cosineSpacing );
+		// TODO Split the list of surface cubics into upper and lower groups
+		// TODO Use the cubics to determine the panel points
+		//fitPoints( panelCount + 1, UPPER_PANEL_POINTS, LOWER_PANEL_POINTS, Airfoil::cosineSpacing );
 
 		List<Point2D> uppers = getValue( UPPER_ANALYSIS_POINTS, List.of() );
 		List<Point2D> lowers = getValue( LOWER_ANALYSIS_POINTS, List.of() );
@@ -309,8 +310,59 @@ public class Airfoil extends Node {
 	List<Cubic2D> fitSurface( List<Point2D> surface ) {
 		// Points go across the bottom then across the top
 
-		BSpline s = new BSpline(1);
-		return List.of();
+		List<Double> points = surface.stream().flatMap( p -> Stream.of( p.getX(), p.getY() ) ).toList();
+		BSpline spline = BSpline.interpolateCubicNatural( points, 2 );
+		//log.atWarn().log( "Spline degree={0} points={1}", spline.getDegree(), spline.getNumControlPoints() );
+
+		//DeBoorNet bisect = spline.bisect( 0, 0 );
+		//log.atWarn().log( "Value knot={0}", bisect.getKnot() );
+		//log.atWarn().log("Bezier degree={0}",bezier.getDegree());
+
+		List<Double> controlPoints = spline.getControlPoints();
+		int size = (int)(spline.getOrder() * spline.getDimension());
+		int surfaceCount = controlPoints.size() / size;
+		List<Cubic2D> panelCurves = new ArrayList<>( surfaceCount );
+		for( int index = 0; index < surfaceCount; index++ ) {
+			int offset = index * size;
+			panelCurves.add( new Cubic2D(
+				controlPoints.get( offset ),
+				controlPoints.get( offset + 1 ),
+				controlPoints.get( offset + 2 ),
+				controlPoints.get( offset + 3 ),
+				controlPoints.get( offset + 4 ),
+				controlPoints.get( offset + 5 ),
+				controlPoints.get( offset + 6 ),
+				controlPoints.get( offset + 7 )
+			) );
+		}
+
+		List<Point2D> lowerPanelPoints = new ArrayList<>();
+		List<Point2D> upperPanelPoints = new ArrayList<>();
+		boolean isUpperSurface = false;
+		lowerPanelPoints.add( Point2D.of( 1, 0 ) );
+		upperPanelPoints.add( Point2D.of( 0, 0 ) );
+		for( Cubic2D s : panelCurves ) {
+			Point2D p2 = Point2D.of( s.bx, s.by );
+			Point2D p3 = Point2D.of( s.cx, s.cy );
+			Point2D p4 = Point2D.of( s.dx, s.dy );
+			if( isUpperSurface ) {
+				upperPanelPoints.add( p2 );
+				upperPanelPoints.add( p3 );
+				upperPanelPoints.add( p4 );
+			} else {
+				lowerPanelPoints.add( p2 );
+				lowerPanelPoints.add( p3 );
+				lowerPanelPoints.add( p4 );
+			}
+			if( p4.x == 0.0 && p4.y == 0.0 ) isUpperSurface = true;
+		}
+		Collections.reverse( lowerPanelPoints );
+		setValue( UPPER_PANEL_POINTS, upperPanelPoints );
+		setValue( LOWER_PANEL_POINTS, lowerPanelPoints );
+
+		// NEXT TODO Find intersections along the upper and lower surfaces
+
+		return panelCurves;
 	}
 
 	void fitPoints( int stationCount, String upperKey, String lowerKey, BiFunction<Double, Double, Double> spacing ) {

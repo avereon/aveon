@@ -2,6 +2,7 @@ package com.avereon.geometry;
 
 import java.util.*;
 
+@Deprecated
 public class Intersection2D {
 
 	public enum Type {

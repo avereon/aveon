@@ -1,9 +1,6 @@
 package com.avereon.aveon;
 
-import com.avereon.curve.math.Geometry;
-import com.avereon.curve.math.Intersection;
-import com.avereon.curve.math.Intersection2D;
-import com.avereon.curve.math.Point;
+import com.avereon.curve.math.*;
 import com.avereon.data.Node;
 import com.avereon.geometry.Cubic2D;
 import com.avereon.geometry.Point2D;
@@ -128,9 +125,7 @@ public class Airfoil extends Node {
 	}
 
 	private Airfoil setUpperDefinitionPoints( List<Point2D> coords ) {
-		//		coords.set( 0, new Point2D( 0, 0 ) );
-		//		coords.set( coords.size() - 1, new Point2D( 1, 0 ) );
-		setValue( UPPER_DEFINITION_POINTS, coords );
+		setValue( UPPER_DEFINITION_POINTS, cleanup( coords ) );
 		return this;
 	}
 
@@ -139,10 +134,34 @@ public class Airfoil extends Node {
 	}
 
 	private Airfoil setLowerDefinitionPoints( List<Point2D> coords ) {
-		//		coords.set( 0, new Point2D( 0, 0 ) );
-		//		coords.set( coords.size() - 1, new Point2D( 1, 0 ) );
-		setValue( LOWER_DEFINITION_POINTS, coords );
+		setValue( LOWER_DEFINITION_POINTS, cleanup( coords ) );
 		return this;
+	}
+
+	private List<Point2D> cleanup( List<Point2D> points ) {
+		Point2D first = points.get( 0 );
+		Point2D last = points.get( points.size() - 1 );
+
+		double angle = Geometry.getAngle( last.toArray(), Point.of( 1, 0 ) );
+		double length = Geometry.distance( first.toArray(), last.toArray() );
+
+		// Move to the origin
+		Transform move = Transform.translation( -first.x, -first.y, 0 );
+
+		// Rotate the trailing edge
+		Transform rotate = move.combine( Transform.rotation( Point.of( 0, 0, 1 ), -angle ) );
+
+		// Scale to unit chord
+		Transform scale = rotate.combine( Transform.scale( 1.0 / length, 1, 1 ) );
+
+		List<Point2D> cleanup = new ArrayList<>( points.stream().map( p -> {
+			double[] t = scale.apply( Point.of( p.x, p.y ) );
+			return Point2D.of( t[ 0 ], t[ 1 ] );
+		} ).toList() );
+
+		cleanup.set( 0, new Point2D( 0, 0 ) );
+		cleanup.set( cleanup.size() - 1, new Point2D( 1, 0 ) );
+		return cleanup;
 	}
 
 	/**

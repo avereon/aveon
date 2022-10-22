@@ -89,6 +89,7 @@ public class AirfoilStationPointCodec extends Codec {
 
 	/**
 	 * Create an airfoil from station point data.
+	 *
 	 * @param name The name of the airfoil
 	 * @param upper The upper points from leading edge to trailing edge
 	 * @param lower The lower points from leading edge to trailing edge
@@ -114,7 +115,7 @@ public class AirfoilStationPointCodec extends Codec {
 			if( start == 1 && point.getX() > x ) break;
 
 			// Avoid repeat points
-			if( points.size() == 0 || !points.get(points.size()-1).equals( point ) ) points.add( point );
+			if( points.size() == 0 || !points.get( points.size() - 1 ).equals( point ) ) points.add( point );
 
 			x = point.getX();
 			index++;
@@ -124,14 +125,9 @@ public class AirfoilStationPointCodec extends Codec {
 	}
 
 	static Point2D loadStationPoint( String line ) {
-		double tolerance = 0.001;
 		String[] values = line.trim().split( "\\s+" );
 		double x = Double.parseDouble( values[ 0 ] );
 		double y = Double.parseDouble( values[ 1 ] );
-
-		if( Math.abs( x ) < tolerance ) x = 0.0;
-		if( x == 0.0 ) y = 0.0;
-
 		return new Point2D( x, y );
 	}
 

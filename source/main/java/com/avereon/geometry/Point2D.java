@@ -316,6 +316,10 @@ public class Point2D {
 		return segments;
 	}
 
+	public double[] toArray() {
+		return new double[]{ x, y, 0 };
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

@@ -94,6 +94,8 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		airfoil.getDefinitionPoints().forEach( p -> airfoilLines.line( p.getX(), p.getY() ) );
 		renderer.draw( airfoilLines, new Pen( Color.YELLOW, 0.001 ) );
 
+		airfoil.getDefinitionPoints().forEach( p -> dot( p, Color.RED ));
+
 		// Airfoil inflection points
 		airfoil.getUpperInflections().forEach( this::dot );
 		airfoil.getLowerInflections().forEach( this::dot );

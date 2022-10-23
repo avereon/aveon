@@ -17,8 +17,8 @@ public class AirfoilStationPointCodecTest {
 		assertThat( airfoil ).isNotNull();
 		assertThat( airfoil.getName() ).isEqualTo( "CLARK Y AIRFOIL" );
 
-		assertThat( airfoil.getMaxY() ).isEqualTo( 0.091842623484703 );
-		assertThat( airfoil.getMinY() ).isEqualTo( -0.030350834537851857 );
+		assertThat( airfoil.getMaxY() ).isEqualTo( 0.09141134363944663 );
+		assertThat( airfoil.getMinY() ).isEqualTo( -0.03015915460662681 );
 	}
 
 	@Test
@@ -26,8 +26,8 @@ public class AirfoilStationPointCodecTest {
 		Airfoil airfoil = loadAirfoil( "ht05.led.txt" );
 		assertThat( airfoil ).isNotNull();
 		assertThat( airfoil.getName() ).isEqualTo( "HT05" );
-		assertThat( airfoil.getMaxY() ).isEqualTo( 0.024363777889795615 );
-		assertThat( airfoil.getMinY() ).isEqualTo( -0.02436643617045445 );
+		assertThat( airfoil.getMaxY() ).isEqualTo( 0.023750195528633097 );
+		assertThat( airfoil.getMinY() ).isEqualTo( -0.02374943451653064 );
 	}
 
 	@Test
@@ -35,8 +35,8 @@ public class AirfoilStationPointCodecTest {
 		Airfoil airfoil = loadAirfoil( "e376.led.txt" );
 		assertThat( airfoil ).isNotNull();
 		assertThat( airfoil.getName() ).isEqualTo( "EPPLER 376 AIRFOIL" );
-		assertThat( airfoil.getMaxY() ).isEqualTo( 0.09212000000000001 );
-		assertThat( airfoil.getMinY() ).isEqualTo( -0.00262 );
+		assertThat( airfoil.getMaxY() ).isEqualTo( 0.09201545881973175 );
+		assertThat( airfoil.getMinY() ).isEqualTo( -0.0026206654627130405 );
 	}
 
 	@Test
@@ -57,12 +57,12 @@ public class AirfoilStationPointCodecTest {
 		assertThat( foil.getName() ).isEqualTo( "TEST AIRFOIL" );
 		int index = 0;
 		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
-		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.3599449862685326, 0.091842623484703 ) );
+		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.36005475539483994, 0.09141134363944663 ) );
 		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 1, 0 ) );
 		assertThat( index ).isEqualTo( 3 );
 		index = 0;
 		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
-		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.1599818198501118, -0.030350834537851857 ) );
+		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.16001806533360938, -0.03015915460662681 ) );
 		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 1, 0 ) );
 		assertThat( index ).isEqualTo( 3 );
 	}
@@ -83,12 +83,12 @@ public class AirfoilStationPointCodecTest {
 		assertThat( foil.getName() ).isEqualTo( "TEST AIRFOIL" );
 		int index = 0;
 		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
-		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.3599449862685326, 0.091842623484703 ) );
+		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.36005475539483994, 0.09141134363944663 ) );
 		assertThat( foil.getUpperDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 1, 0 ) );
 		assertThat( index ).isEqualTo( 3 );
 		index = 0;
 		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0, 0 ) );
-		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.1599818198501118, -0.030350834537851857 ) );
+		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 0.16001806533360938, -0.03015915460662681 ) );
 		assertThat( foil.getLowerDefinitionPoints().get( index++ ) ).isEqualTo( new Point2D( 1, 0 ) );
 		assertThat( index ).isEqualTo( 3 );
 	}

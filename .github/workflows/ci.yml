@@ -36,10 +36,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: avereon/canoe
           path: .github
@@ -62,7 +62,7 @@ jobs:
           java-package: ${{env.JAVA_PACKAGE}}
 
       - name: Maven Repository Cache
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -70,7 +70,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/init@v2
         with:
           languages: java
 
@@ -83,7 +83,7 @@ jobs:
           mvn ${{env.MAVEN_PARMS}} test
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v2
 
       - name: Deploy Arifacts
         run: |

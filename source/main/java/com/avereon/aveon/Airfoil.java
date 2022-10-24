@@ -120,12 +120,29 @@ public class Airfoil extends Node {
 		return this;
 	}
 
+	/**
+	 * Set the airfoil definition points.
+	 *
+	 * @param upper The upper points from leading edge to trailing edge
+	 * @param lower The lower points from leading edge to trailing edge
+	 * @return This airfoil
+	 */
+	public Airfoil setDefinitionPoints( List<Point2D> upper, List<Point2D> lower ) {
+		adjustLeadingEdgePoints( upper, lower );
+		adjustLeadingEdgePoints( lower, upper );
+
+		setUpperDefinitionPoints( normalize( upper ) );
+		setLowerDefinitionPoints( normalize( lower ) );
+		analyze();
+		return this;
+	}
+
 	public List<Point2D> getUpperDefinitionPoints() {
 		return getValue( UPPER_DEFINITION_POINTS );
 	}
 
 	private Airfoil setUpperDefinitionPoints( List<Point2D> coords ) {
-		setValue( UPPER_DEFINITION_POINTS, cleanup( coords ) );
+		setValue( UPPER_DEFINITION_POINTS, coords );
 		return this;
 	}
 
@@ -134,28 +151,44 @@ public class Airfoil extends Node {
 	}
 
 	private Airfoil setLowerDefinitionPoints( List<Point2D> coords ) {
-		setValue( LOWER_DEFINITION_POINTS, cleanup( coords ) );
+		setValue( LOWER_DEFINITION_POINTS, coords );
 		return this;
 	}
 
-	private List<Point2D> cleanup( List<Point2D> points ) {
+	private static void adjustLeadingEdgePoints( List<Point2D> check, List<Point2D> compliment ) {
+		Point2D prior = check.get( 0 );
+		for( Point2D p : new ArrayList<>( check ) ) {
+			if( p.x < prior.x ) {
+				// Move prior
+				check.remove( prior );
+				if( !compliment.contains( prior ) ) compliment.add( 0, prior );
+				prior = p;
+			}
+		}
+		Point2D first = check.get(0);
+		if( !compliment.contains( first ) ) compliment.add(0, first );
+	}
+
+	private static List<Point2D> normalize( List<Point2D> points ) {
 		Point2D first = points.get( 0 );
 		Point2D last = points.get( points.size() - 1 );
 
 		double angle = Geometry.getAngle( Point.of( 1, 0 ), last.subtract( first ).toArray() );
 		double length = Geometry.distance( first.toArray(), last.toArray() );
 
+		//log.atWarn().log("first={0} last={1} length={2} angle={3}", first, last, length, angle );
+
 		// Move to the origin
-		Transform move = Transform.translation( -first.x, -first.y, 0 );
+		Transform a = Transform.scale( 1.0 / length, 1, 1 );
 
 		// Rotate the trailing edge
-		Transform rotate = move.combine( Transform.rotation( Point.of( 0, 0, 1 ), -angle ) );
+		Transform b = a.combine( Transform.rotation( Point.of( 0, 0, 1 ), -angle ) );
 
 		// Scale to unit chord
-		Transform scale = rotate.combine( Transform.scale( 1.0 / length, 1, 1 ) );
+		Transform c = b.combine( Transform.translation( -first.x, -first.y, 0 ) );
 
 		List<Point2D> cleaned = new ArrayList<>( points.stream().map( p -> {
-			double[] t = scale.apply( Point.of( p.x, p.y ) );
+			double[] t = c.apply( Point.of( p.x, p.y ) );
 			return Point2D.of( t[ 0 ], t[ 1 ] );
 		} ).toList() );
 
@@ -178,20 +211,6 @@ public class Airfoil extends Node {
 		Collections.reverse( points );
 		points.addAll( getUpperDefinitionPoints() );
 		return points;
-	}
-
-	/**
-	 * Set the airfoil definition points.
-	 *
-	 * @param upper The upper points from leading edge to trailing edge
-	 * @param lower The lower points from leading edge to trailing edge
-	 * @return This airfoil
-	 */
-	public Airfoil setDefinitionPoints( List<Point2D> upper, List<Point2D> lower ) {
-		setUpperDefinitionPoints( upper );
-		setLowerDefinitionPoints( lower );
-		analyze();
-		return this;
 	}
 
 	private List<Point2D> getUpperAnalysisPoints() {

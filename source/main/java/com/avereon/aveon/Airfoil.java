@@ -459,21 +459,6 @@ public class Airfoil extends Node {
 		return Point2D.ZERO;
 	}
 
-	private double lagrange( Point2D a, Point2D b, Point2D c, double x ) {
-		double x0 = a.getX();
-		double y0 = a.getY();
-		double x1 = b.getX();
-		double y1 = b.getY();
-		double x2 = c.getX();
-		double y2 = c.getY();
-
-		double t0 = y0 * ((x - x1) / (x0 - x1)) * ((x - x2) / (x0 - x2));
-		double t1 = y1 * ((x - x0) / (x1 - x0)) * ((x - x2) / (x1 - x2));
-		double t2 = y2 * ((x - x0) / (x2 - x0)) * ((x - x1) / (x2 - x1));
-
-		return t0 + t1 + t2;
-	}
-
 	List<Point2D> findInflections( List<List<Point2D>> groups ) {
 		List<Point2D> inflections = new ArrayList<>();
 		groups.forEach( g -> inflections.add( g.get( 0 ) ) );
@@ -532,8 +517,6 @@ public class Airfoil extends Node {
 		}
 		group.add( next );
 		groups.add( group );
-
-		int groupPointCount = groups.stream().mapToInt( List::size ).sum();
 
 		return groups;
 	}

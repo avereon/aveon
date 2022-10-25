@@ -17,6 +17,13 @@ import java.util.List;
 @CustomLog
 public class AirfoilStationPointCodec extends Codec {
 
+	public AirfoilStationPointCodec() {
+		addSupported( Pattern.EXTENSION, "lednicer" );
+		addSupported( Pattern.EXTENSION, "selig" );
+		addSupported( Pattern.URI, "http://airfoiltools.com/airfoil/lednicerdatfile" );
+		addSupported( Pattern.URI, "http://airfoiltools.com/airfoil/seligdatfile" );
+	}
+
 	@Override
 	public String getKey() {
 		return "com.avereon.aveon.codec.airfoil.station.points";

@@ -365,11 +365,12 @@ public class Airfoil extends Node {
 
 		// Prepare the points for interpolation
 		int count = surface.size();
-		double[][] points = new double[ count ][ 2 ];
+		double[][] points = new double[ count ][ 3 ];
 		for( int index = 0; index < count; index++ ) {
 			Point2D p = surface.get( index );
 			points[ index ][ 0 ] = p.getX();
 			points[ index ][ 1 ] = p.getY();
+			points[ index ][ 2 ] = 0;
 		}
 
 		// Interpolate to cubic bezier curves

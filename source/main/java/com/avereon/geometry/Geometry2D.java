@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
  *   be positive and negative and are in reference to some direction.</dd>
  * </dl>
  */
+@Deprecated
 public class Geometry2D {
 
 	public static final double FULL_CIRCLE = Math.PI * 2.0;

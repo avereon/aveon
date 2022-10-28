@@ -27,7 +27,6 @@ public class SegmentedPath2D {
 	public SegmentedPath2D( List<Point2D> points ) {
 		this.points = Collections.unmodifiableList( points );
 		this.pointCount = points.size();
-		this.segmentCount = pointCount - 1;
 
 		// Path length
 		length = Geometry2D.calcPathLength( points );
@@ -44,6 +43,7 @@ public class SegmentedPath2D {
 			prior = point;
 		}
 		segments = Collections.unmodifiableList( lines );
+		this.segmentCount = segments.size();
 	}
 
 	public static SegmentedPath2D of() {

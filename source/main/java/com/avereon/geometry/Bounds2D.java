@@ -8,13 +8,13 @@ public class Bounds2D {
 
 	public static final Bounds2D ZERO = new Bounds2D( 0.0, 0.0, 0.0, 0.0 );
 
-	private double minX;
+	private final double minX;
 
-	private double minY;
+	private final double minY;
 
-	private double maxX;
+	private final double maxX;
 
-	private double maxY;
+	private final double maxY;
 
 	private int hash;
 

@@ -7,6 +7,7 @@ import java.util.Arrays;
  *
  * @author mvsoder
  */
+@Deprecated
 public class Polynomial {
 
 	public static final double TOLERANCE = 1e-12;

@@ -9,8 +9,6 @@ import java.util.List;
  */
 public class Cubic2D extends Shape {
 
-	// TODO Change the names of the variables to ax, ay, bx, by, cx, cy, dx, dy
-
 	public final double ax;
 
 	public final double ay;

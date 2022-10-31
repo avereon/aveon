@@ -24,16 +24,16 @@ import java.util.stream.Collectors;
  */
 public class CfdGeometry {
 
-	public static final double FULL_CIRCLE = Math.PI * 2.0;
-
-	public static final double HALF_CIRCLE = Math.PI;
-
-	public static final double QUARTER_CIRCLE = Math.PI * 0.5;
-
-	public static final double RADIANS_PER_DEGREE = Math.PI / 180.0;
-
-	public static final double DEGREES_PER_RADIAN = 180.0 / Math.PI;
-
+	//	public static final double FULL_CIRCLE = Math.PI * 2.0;
+	//
+	//	public static final double HALF_CIRCLE = Math.PI;
+	//
+	//	public static final double QUARTER_CIRCLE = Math.PI * 0.5;
+	//
+	//	public static final double RADIANS_PER_DEGREE = Math.PI / 180.0;
+	//
+	//	public static final double DEGREES_PER_RADIAN = 180.0 / Math.PI;
+	//
 	//	public static final double RESOLUTION_LENGTH = 1e-6;
 	//
 	//	public static final double RESOLUTION_NORMAL = 1e-10;

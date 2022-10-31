@@ -3,6 +3,7 @@ package com.avereon.geometry;
 import com.avereon.curve.math.Vector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,6 +44,10 @@ public class Point2D {
 
 	public static Point2D of( double x, double y ) {
 		return new Point2D( x, y );
+	}
+
+	public static List<Point2D> of( double[][] points ) {
+		return Arrays.stream( points ).map( Point2D::of ).toList();
 	}
 
 	public final double getX() {

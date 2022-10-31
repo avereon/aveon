@@ -57,13 +57,6 @@ public class CfdGeometryTest {
 	}
 
 	@Test
-	void testGetSpin() {
-		assertThat( CfdGeometry.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, 0.5 ) )).isEqualTo( 1 );
-		assertThat( CfdGeometry.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, 0.0 ) )).isEqualTo( 0 );
-		assertThat( CfdGeometry.getSpin( new Point2D( 0, 0 ), new Point2D( 1, 0 ), new Point2D( 2, -0.5 ) )).isEqualTo( -1 );
-	}
-
-	@Test
 	void testFindNearestSegment() {
 		List<Point2D> points = List.of( new Point2D( 0, 0 ), Point2D.of( 1, 1 ), Point2D.of( 2, 1 ), Point2D.of( 3, 0 ) );
 		assertThat( CfdGeometry.findDistanceToNearestSegment( Point2D.of( 1.5, 0 ), points )).isEqualTo( 1.0 );

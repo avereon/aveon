@@ -1,6 +1,7 @@
 package com.avereon.geometry;
 
 import com.avereon.curve.math.Geometry;
+import com.avereon.curve.math.Intersection2D;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -139,7 +140,6 @@ public class CfdGeometry {
 
 	public static double getAngle( final Point2D v1, final Point2D v2 ) {
 		return Geometry.getAngle( v1.toArray(), v2.toArray() );
-		//return Math.acos( v1.normalize().dotProduct( v2.normalize() ) );
 	}
 
 	/**
@@ -163,37 +163,19 @@ public class CfdGeometry {
 	 * @return True if the line segments intersect, false otherwise
 	 */
 	public static boolean areIntersecting( Point2D a1, Point2D a2, Point2D b1, Point2D b2 ) {
-		return (getSpin( a1, b1, b2 ) != getSpin( a2, b1, b2 )) & (getSpin( a1, a2, b1 ) != getSpin( a1, a2, b2 ));
+		return Geometry.areIntersecting( a1.toArray(), a2.toArray(), b1.toArray(), b2.toArray() );
 	}
 
-	/**
-	 * Determine if the three points are in counter-clockwise(1), straight(0),
-	 * or clockwise(-1) order.
-	 *
-	 * @param a The anchor point/Point2D to test
-	 * @param b The direction point/Point2D to test
-	 * @param c The point/Point2D to compare
-	 * @return One if CCW, zero if straight, and minus one if CW.
-	 */
-	public static int getSpin( Point2D a, Point2D b, Point2D c ) {
-		Point2D ab = a.subtract( b );
-		Point2D cb = c.subtract( b );
-		double ccw = cb.crossProduct( ab );
-
-		if( ccw == 0.0 || ccw == -0.0 ) return 0;
-		return ccw > 0 ? 1 : -1;
-	}
-
-	/**
-	 * Find the intersections between two segmented paths.
-	 *
-	 * @param a A segmented path
-	 * @param b Another segmented path
-	 * @return The list of intersection points
-	 */
-	public static List<Point2D> findIntersections( List<Point2D> a, List<Point2D> b ) {
-		return findIntersections( SegmentedPath2D.of( a ), SegmentedPath2D.of( b ) );
-	}
+//	/**
+//	 * Find the intersections between two segmented paths.
+//	 *
+//	 * @param a A segmented path
+//	 * @param b Another segmented path
+//	 * @return The list of intersection points
+//	 */
+//	public static List<Point2D> findIntersections( List<Point2D> a, List<Point2D> b ) {
+//		return findIntersections( SegmentedPath2D.of( a ), SegmentedPath2D.of( b ) );
+//	}
 
 	/**
 	 * Find the intersections between two segmented paths.
@@ -208,7 +190,7 @@ public class CfdGeometry {
 		for( Line2D aSegment : a.getSegments() ) {
 			for( Line2D bSegment : b.getSegments() ) {
 				Intersection2D intersection = aSegment.intersection( bSegment );
-				if( intersection.getType() == Intersection2D.Type.INTERSECTION ) intersections.addAll( intersection.getPoints() );
+				if( intersection.getType() == Intersection2D.Type.INTERSECTION ) intersections.addAll( Point2D.of( intersection.getPoints() ) );
 			}
 		}
 
@@ -391,7 +373,7 @@ public class CfdGeometry {
 				if( intersection.getType() == Intersection2D.Type.SAME ) aIndex++;
 				if( intersection.getType() != Intersection2D.Type.INTERSECTION ) continue;
 
-				Point2D intersectionPoint = intersection.getPoints().get( 0 );
+				Point2D intersectionPoint = Point2D.of( intersection.getPoints()[0] );
 
 				if( !Objects.equals( intersectionPoint, priorIntersection ) ) {
 					if( priorIntersection != null ) {
@@ -461,7 +443,7 @@ public class CfdGeometry {
 
 		// If pC is CCW then a is in order and b needs to be reversed
 		// If pC is CW then b is in order and a needs to be reversed
-		if( getSpin( pA, pB, pC ) > 0 ) {
+		if( Geometry.getSpin( pA.toArray(), pB.toArray(), pC.toArray() ) > 0 ) {
 			Collections.reverse( b );
 		} else {
 			Collections.reverse( a );
@@ -556,15 +538,12 @@ public class CfdGeometry {
 	 */
 	public static double calcQuadBasisEffect( int index, double t ) {
 		double s = 1 - t;
-		switch( index ) {
-			case 0:
-				return s * s;
-			case 1:
-				return 2 * s * t;
-			case 2:
-				return t * t;
-		}
-		return Double.NaN;
+		return switch( index ) {
+			case 0 -> s * s;
+			case 1 -> 2 * s * t;
+			case 2 -> t * t;
+			default -> Double.NaN;
+		};
 	}
 
 	/**
@@ -578,18 +557,14 @@ public class CfdGeometry {
 		if( index < 0 ) return 1;
 
 		double s = 1 - t;
-		switch( index ) {
-			case 0:
-				return s * s * s;
-			case 1:
-				return 3 * t * s * s;
-			case 2:
-				return 3 * s * t * t;
-			case 3:
-				return t * t * t;
-		}
+		return switch( index ) {
+			case 0 -> s * s * s;
+			case 1 -> 3 * t * s * s;
+			case 2 -> 3 * s * t * t;
+			case 3 -> t * t * t;
+			default -> Double.NaN;
+		};
 
-		return Double.NaN;
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.avereon.geometry;
 
-import java.util.Objects;
+import com.avereon.curve.math.Intersection2D;
 
 /**
  * An immutable 2D line segment that contains the start and end point coordinates.
@@ -160,17 +160,7 @@ public class Line2D extends Shape {
 	}
 
 	public static Intersection2D segmentIntersection( Line2D a, Line2D b ) {
-		// Same lines
-		if( Objects.equals( a.a, b.a ) && Objects.equals( a.b, b.b ) ) return new Intersection2D( Intersection2D.Type.SAME );
-		if( Objects.equals( a.a, b.b ) && Objects.equals( a.b, b.a ) ) return new Intersection2D( Intersection2D.Type.SAME );
-
-		// Matching end points
-		if( Objects.equals( a.a, b.a ) ) return new Intersection2D( Intersection2D.Type.INTERSECTION, new Point2D( a.a ) );
-		if( Objects.equals( a.a, b.b ) ) return new Intersection2D( Intersection2D.Type.INTERSECTION, new Point2D( a.a ) );
-		if( Objects.equals( a.b, b.a ) ) return new Intersection2D( Intersection2D.Type.INTERSECTION, new Point2D( a.b ) );
-		if( Objects.equals( a.b, b.b ) ) return new Intersection2D( Intersection2D.Type.INTERSECTION, new Point2D( a.b ) );
-
-		return Intersection2D.intersectLineLine( a.a, a.b, b.a, b.b );
+		return com.avereon.curve.math.Intersection2D.intersectSegmentSegment( a.a.toArray(), a.b.toArray(), b.a.toArray(), b.b.toArray() );
 	}
 
 	/**

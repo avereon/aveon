@@ -1,5 +1,7 @@
 package com.avereon.geometry;
 
+import com.avereon.curve.math.Vector;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,9 +61,7 @@ public class Point2D {
 	 * @return the distance between this point and the coordinates
 	 */
 	public double distance( double x, double y ) {
-		double a = getX() - x;
-		double b = getY() - y;
-		return Math.sqrt( a * a + b * b );
+		return Vector.distance( this.x, this.y, x, y );
 	}
 
 	/**

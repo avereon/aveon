@@ -1,7 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.geometry.Cubic2D;
-import com.avereon.geometry.Geometry2D;
+import com.avereon.geometry.CfdGeometry;
 import com.avereon.geometry.Point2D;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
@@ -66,10 +66,10 @@ class CubicBezierCurveFitter1Test {
 		CubicBezierCurveFitter1 fitter = new CubicBezierCurveFitter1( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
 
 		// This test intentionally uses getPointLineDistance instead of getPointLineOffset
-		double aDistance1 = Geometry2D.getPointLineDistance( Point2D.of( 1, 0.5 ), Point2D.of( 0, 0 ), Point2D.of( 1, 1 ) );
-		double aDistance2 = Geometry2D.getPointLineDistance( Point2D.of( 2, 0.5 ), Point2D.of( 2, 1 ), Point2D.of( 3, 0 ) );
-		double aWeight1 = Geometry2D.calcCubicBasisEffect( 1, 1.0 / 3.0 );
-		double aWeight2 = Geometry2D.calcCubicBasisEffect( 1, 2.0 / 3.0 );
+		double aDistance1 = CfdGeometry.getPointLineDistance( Point2D.of( 1, 0.5 ), Point2D.of( 0, 0 ), Point2D.of( 1, 1 ) );
+		double aDistance2 = CfdGeometry.getPointLineDistance( Point2D.of( 2, 0.5 ), Point2D.of( 2, 1 ), Point2D.of( 3, 0 ) );
+		double aWeight1 = CfdGeometry.calcCubicBasisEffect( 1, 1.0 / 3.0 );
+		double aWeight2 = CfdGeometry.calcCubicBasisEffect( 1, 2.0 / 3.0 );
 		double aError = aDistance1 * aWeight1 + aDistance2 * aWeight2;
 		// The error should be negative comparing a to b
 		assertThat( fitter.calcErrorByOffset( a, b, 1 ) ).isEqualTo( -aError );
@@ -77,8 +77,8 @@ class CubicBezierCurveFitter1Test {
 		// This test intentionally used just point distance
 		double bDistance1 = Point2D.of( 1, 1 ).distance( Point2D.of( 1, 0.5 ) );
 		double bDistance2 = Point2D.of( 2, 1 ).distance( Point2D.of( 2, 0.5 ) );
-		double bWeight1 = Geometry2D.calcCubicBasisEffect( 1, 1.0 / 3.0 );
-		double bWeight2 = Geometry2D.calcCubicBasisEffect( 1, 2.0 / 3.0 );
+		double bWeight1 = CfdGeometry.calcCubicBasisEffect( 1, 1.0 / 3.0 );
+		double bWeight2 = CfdGeometry.calcCubicBasisEffect( 1, 2.0 / 3.0 );
 		double bError = bDistance1 * bWeight1 + bDistance2 * bWeight2;
 		// The error should be positive comparing b to a
 		assertThat( fitter.calcErrorByOffset( b, a, 1 ) ).isEqualTo( bError );
@@ -91,10 +91,10 @@ class CubicBezierCurveFitter1Test {
 		CubicBezierCurveFitter1 fitter = new CubicBezierCurveFitter1( "TEST", a, CubicBezierCurveFitter.Hint.LEADING );
 
 		// This test intentionally uses getPointLineDistance instead of getPointLineOffset
-		double aDistance1 = Geometry2D.getPointLineDistance( Point2D.of( 1, 0.5 ), Point2D.of( 0, 0 ), Point2D.of( 1, 1 ) );
-		double aDistance2 = Geometry2D.getPointLineDistance( Point2D.of( 2, 0.5 ), Point2D.of( 2, 1 ), Point2D.of( 3, 0 ) );
-		double aWeight1 = Geometry2D.calcCubicBasisEffect( 2, 1.0 / 3.0 );
-		double aWeight2 = Geometry2D.calcCubicBasisEffect( 2, 2.0 / 3.0 );
+		double aDistance1 = CfdGeometry.getPointLineDistance( Point2D.of( 1, 0.5 ), Point2D.of( 0, 0 ), Point2D.of( 1, 1 ) );
+		double aDistance2 = CfdGeometry.getPointLineDistance( Point2D.of( 2, 0.5 ), Point2D.of( 2, 1 ), Point2D.of( 3, 0 ) );
+		double aWeight1 = CfdGeometry.calcCubicBasisEffect( 2, 1.0 / 3.0 );
+		double aWeight2 = CfdGeometry.calcCubicBasisEffect( 2, 2.0 / 3.0 );
 		double aError = aDistance1 * aWeight1 + aDistance2 * aWeight2;
 
 		// The error should be negative comparing a to b
@@ -103,8 +103,8 @@ class CubicBezierCurveFitter1Test {
 		// This test intentionally used just point distance
 		double bDistance1 = Point2D.of( 1, 1 ).distance( Point2D.of( 1, 0.5 ) );
 		double bDistance2 = Point2D.of( 2, 1 ).distance( Point2D.of( 2, 0.5 ) );
-		double bWeight1 = Geometry2D.calcCubicBasisEffect( 2, 1.0 / 3.0 );
-		double bWeight2 = Geometry2D.calcCubicBasisEffect( 2, 2.0 / 3.0 );
+		double bWeight1 = CfdGeometry.calcCubicBasisEffect( 2, 1.0 / 3.0 );
+		double bWeight2 = CfdGeometry.calcCubicBasisEffect( 2, 2.0 / 3.0 );
 		double bError = bDistance1 * bWeight1 + bDistance2 * bWeight2;
 		// The error should be positive comparing b to a
 		assertThat( fitter.calcErrorByOffset( b, a, 2 ) ).isCloseTo( bError, Offset.offset( 1e-15 ) );

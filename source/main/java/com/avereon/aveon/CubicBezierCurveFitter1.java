@@ -1,7 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.geometry.Cubic2D;
-import com.avereon.geometry.Geometry2D;
+import com.avereon.geometry.CfdGeometry;
 import com.avereon.geometry.Point2D;
 import com.avereon.geometry.SegmentedPath2D;
 import lombok.CustomLog;
@@ -209,7 +209,7 @@ public class CubicBezierCurveFitter1 implements CubicBezierCurveFitter {
 		SegmentedPath2D fortyPercentPath = adjust4HeadErrorPath( test, head, leftOffset );
 		SegmentedPath2D sixtyPercentPath = adjust4HeadErrorPath( test, head, rightOffset );
 
-		List<Point2D> intersections = Geometry2D.findIntersections( fortyPercentPath, sixtyPercentPath );
+		List<Point2D> intersections = CfdGeometry.findIntersections( fortyPercentPath, sixtyPercentPath );
 		return intersections.isEmpty() ? Double.NaN : intersections.get( 0 ).x;
 	}
 
@@ -528,9 +528,9 @@ public class CubicBezierCurveFitter1 implements CubicBezierCurveFitter {
 
 	double calcErrorBySquareOffset( SegmentedPath2D curvePath, SegmentedPath2D fitPath, int basisIndex ) {
 		//validateEndPoints( curvePoints );
-		final List<Double> offsets = Geometry2D.findPathOffsets( curvePath, fitPath );
+		final List<Double> offsets = CfdGeometry.findPathOffsets( curvePath, fitPath );
 		int count = offsets.size() - 1;
-		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * offsets.get( i ) * Geometry2D.calcCubicBasisEffect( basisIndex, ((double)i / (double)count) ) ).sum();
+		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * offsets.get( i ) * CfdGeometry.calcCubicBasisEffect( basisIndex, ((double)i / (double)count) ) ).sum();
 	}
 
 	private double calcErrorByOffset( Cubic2D curve, int basisIndex ) {
@@ -539,9 +539,9 @@ public class CubicBezierCurveFitter1 implements CubicBezierCurveFitter {
 
 	double calcErrorByOffset( List<Point2D> curvePoints, List<Point2D> fitPoints, int basisIndex ) {
 		//validateEndPoints( curvePoints );
-		final List<Double> offsets = Geometry2D.findPathOffsets( curvePoints, fitPoints );
+		final List<Double> offsets = CfdGeometry.findPathOffsets( curvePoints, fitPoints );
 		int count = offsets.size() - 1;
-		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * Geometry2D.calcCubicBasisEffect( basisIndex, ((double)i / (double)count) ) ).sum();
+		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * CfdGeometry.calcCubicBasisEffect( basisIndex, ((double)i / (double)count) ) ).sum();
 	}
 
 	/**
@@ -556,7 +556,7 @@ public class CubicBezierCurveFitter1 implements CubicBezierCurveFitter {
 	 */
 	double calcErrorByDistance( List<Point2D> curvePoints ) {
 		//validateEndPoints( curvePoints );
-		return Geometry2D.findPathSegmentDistances( curvePoints, path.points ).stream().mapToDouble( Double::doubleValue ).sum();
+		return CfdGeometry.findPathSegmentDistances( curvePoints, path.points ).stream().mapToDouble( Double::doubleValue ).sum();
 	}
 
 	private double calcErrorByDistance( Cubic2D curve, int basisIndex ) {
@@ -573,9 +573,9 @@ public class CubicBezierCurveFitter1 implements CubicBezierCurveFitter {
 	 */
 	double calcErrorByDistance( List<Point2D> curvePoints, List<Point2D> fitPoints, int basisIndex ) {
 		//validateEndPoints( curvePoints );
-		final List<Double> offsets = Geometry2D.findPathSegmentDistances( curvePoints, fitPoints );
+		final List<Double> offsets = CfdGeometry.findPathSegmentDistances( curvePoints, fitPoints );
 		int count = offsets.size() - 1;
-		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * Geometry2D.calcCubicBasisEffect( basisIndex, ((double)i / (double)count) ) ).sum();
+		return IntStream.range( 0, count ).mapToDouble( i -> offsets.get( i ) * CfdGeometry.calcCubicBasisEffect( basisIndex, ((double)i / (double)count) ) ).sum();
 	}
 
 	/**
@@ -590,7 +590,7 @@ public class CubicBezierCurveFitter1 implements CubicBezierCurveFitter {
 	 */
 	double calcErrorByArea( List<Point2D> path ) {
 		validateEndPoints( path );
-		return Geometry2D.findArea( this.path.points, path );
+		return CfdGeometry.findArea( this.path.points, path );
 	}
 
 	private void validateEndPoints( Cubic2D curve ) {

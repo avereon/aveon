@@ -29,7 +29,7 @@ public class SegmentedPath2D {
 		this.pointCount = points.size();
 
 		// Path length
-		length = Geometry2D.calcPathLength( points );
+		length = CfdGeometry.calcPathLength( points );
 
 		// Analyze path curve
 		Point2D prior = null;
@@ -37,7 +37,7 @@ public class SegmentedPath2D {
 		List<Line2D> lines = new ArrayList<>();
 		percent = new double[ pointCount ];
 		for( int index = 0; index < pointCount; index++ ) {
-			percent[ index ] = Geometry2D.calcPathLength( points.subList( 0, index + 1 ) ) / length;
+			percent[ index ] = CfdGeometry.calcPathLength( points.subList( 0, index + 1 ) ) / length;
 			point = points.get( index );
 			if( index > 0 ) lines.add( new Line2D( prior, point ));
 			prior = point;

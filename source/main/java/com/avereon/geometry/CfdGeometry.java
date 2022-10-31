@@ -1,5 +1,7 @@
 package com.avereon.geometry;
 
+import com.avereon.curve.math.Geometry;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,8 +22,7 @@ import java.util.stream.Collectors;
  *   be positive and negative and are in reference to some direction.</dd>
  * </dl>
  */
-@Deprecated
-public class Geometry2D {
+public class CfdGeometry {
 
 	public static final double FULL_CIRCLE = Math.PI * 2.0;
 
@@ -50,7 +51,7 @@ public class Geometry2D {
 	 * @return The distance between the point and line
 	 */
 	public static double getPointLineDistance( Point2D p, Point2D a, Point2D b ) {
-		return Math.abs( getPointLineOffset( p, a, b ) );
+		return Geometry.pointLineDistance( p.toArray(), a.toArray(), b.toArray() );
 	}
 
 	/**
@@ -65,6 +66,8 @@ public class Geometry2D {
 	 * @return the offset from the line
 	 */
 	public static double getPointLineOffset( Point2D p, Point2D a, Point2D b ) {
+		// TODO Move to Geometry
+		//return Geometry.pointLineOffset(p.toArray(), a.toArray(), b.toArray() );
 		Point2D s = b.subtract( p );
 		Point2D t = b.subtract( a );
 		return -t.crossProduct( s ) / t.magnitude();
@@ -83,7 +86,7 @@ public class Geometry2D {
 	 * point lies outside the area perpendicular to the line
 	 */
 	public static double getPointLineBoundDistance( Point2D p, Point2D a, Point2D b ) {
-		return Math.abs( getPointLineBoundOffset( p, a, b ) );
+		return Geometry.pointLineBoundDistance( p.toArray(), a.toArray(), b.toArray() );
 	}
 
 	/**
@@ -349,7 +352,7 @@ public class Geometry2D {
 	public static List<Double> findAreas( List<Point2D> a, List<Point2D> b ) {
 		List<List<Point2D>> polygons = findPolygons( a, b );
 		if( polygons.size() == 0 ) return List.of();
-		return polygons.stream().map( Geometry2D::calcPolygonArea ).collect( Collectors.toList() );
+		return polygons.stream().map( CfdGeometry::calcPolygonArea ).collect( Collectors.toList() );
 	}
 
 	/**
@@ -361,7 +364,7 @@ public class Geometry2D {
 	 * @return the total area of closed sections between two paths
 	 */
 	public static double findArea( List<Point2D> a, List<Point2D> b ) {
-		return Geometry2D.findAreas( a, b ).stream().mapToDouble( Double::doubleValue ).sum();
+		return CfdGeometry.findAreas( a, b ).stream().mapToDouble( Double::doubleValue ).sum();
 	}
 
 	/**

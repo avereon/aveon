@@ -1,7 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.geometry.Cubic2D;
-import com.avereon.geometry.Geometry2D;
+import com.avereon.geometry.CfdGeometry;
 import com.avereon.geometry.Point2D;
 import com.avereon.geometry.SegmentedPath2D;
 import lombok.CustomLog;
@@ -154,7 +154,7 @@ public class CubicBezierCurveFitter2 implements CubicBezierCurveFitter {
 	 * @return The total error
 	 */
 	double calcErrorByDistance( List<Point2D> curvePoints ) {
-		return Geometry2D.findPathSegmentDistances( curvePoints, path.points ).stream().mapToDouble( Double::doubleValue ).sum();
+		return CfdGeometry.findPathSegmentDistances( curvePoints, path.points ).stream().mapToDouble( Double::doubleValue ).sum();
 	}
 
 	/**
@@ -168,7 +168,7 @@ public class CubicBezierCurveFitter2 implements CubicBezierCurveFitter {
 	 * @return The total error
 	 */
 	private double calcErrorByArea( List<Point2D> path ) {
-		return Geometry2D.findArea( this.path.points, path );
+		return CfdGeometry.findArea( this.path.points, path );
 	}
 
 }

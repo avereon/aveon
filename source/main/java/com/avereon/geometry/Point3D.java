@@ -3,16 +3,12 @@ package com.avereon.geometry;
 /**
  * An immutable 3D point that contains the x, y and z components of a point or vector.
  */
-public class Point3D {
+public class Point3D extends Point2D {
 
 	/**
 	 * Point or vector with all coordinates set to zero.
 	 */
 	public static final Point3D ZERO = new Point3D( 0.0, 0.0, 0.0 );
-
-	public final double x;
-
-	public final double y;
 
 	public final double z;
 
@@ -26,17 +22,8 @@ public class Point3D {
 	 * @param z The Z coordinate
 	 */
 	public Point3D( double x, double y, double z ) {
-		this.x = x;
-		this.y = y;
+		super( x,y);
 		this.z = z;
-	}
-
-	public final double getX() {
-		return x;
-	}
-
-	public final double getY() {
-		return y;
 	}
 
 	public final double getZ() {

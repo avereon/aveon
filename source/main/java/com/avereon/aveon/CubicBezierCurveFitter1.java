@@ -187,7 +187,7 @@ public class CubicBezierCurveFitter1 implements CubicBezierCurveFitter {
 
 		for( int headIndex = 0; headIndex <= headCount; headIndex++ ) {
 			double headT = headIndex / (double)headCount;
-			System.out.print( headT );
+			//System.out.print( headT );
 
 			for( int tailIndex = 0; tailIndex <= tailCount; tailIndex++ ) {
 				double tailT = tailIndex / (double)tailCount;
@@ -195,7 +195,7 @@ public class CubicBezierCurveFitter1 implements CubicBezierCurveFitter {
 
 				double e = -calcErrorBySquareOffset( stationPath, curvePath( curve ), -1 );
 
-				System.out.print( "," + e );
+				//System.out.print( "," + e );
 				//System.out.println( "t=" + t + " e=" + e );
 			}
 			System.out.println();

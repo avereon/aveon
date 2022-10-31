@@ -66,11 +66,7 @@ public class CfdGeometry {
 	 * @return the offset from the line
 	 */
 	public static double getPointLineOffset( Point2D p, Point2D a, Point2D b ) {
-		// TODO Move to Geometry
-		//return Geometry.pointLineOffset(p.toArray(), a.toArray(), b.toArray() );
-		Point2D s = b.subtract( p );
-		Point2D t = b.subtract( a );
-		return -t.crossProduct( s ) / t.magnitude();
+		return Geometry.pointLineOffset( p.toArray(), a.toArray(), b.toArray() );
 	}
 
 	/**
@@ -86,7 +82,7 @@ public class CfdGeometry {
 	 * point lies outside the area perpendicular to the line
 	 */
 	public static double getPointLineBoundDistance( Point2D p, Point2D a, Point2D b ) {
-		return Geometry.pointLineBoundDistance( p.toArray(), a.toArray(), b.toArray() );
+		return Geometry.pointLineBoundDistance( b.toArray(), p.toArray(), a.toArray() );
 	}
 
 	/**
@@ -102,47 +98,32 @@ public class CfdGeometry {
 	 * point lies outside the area perpendicular to the line
 	 */
 	public static double getPointLineBoundOffset( Point2D p, Point2D a, Point2D b ) {
-		Point2D line = b.subtract( a );
-		Point2D c = a.add( -line.getY(), line.getX() );
-		Point2D d = b.add( -line.getY(), line.getX() );
-		double dl = getPointLineOffset( p, a, c );
-		double dr = getPointLineOffset( p, b, d );
-		return (dl < 0 && dr > 0) ? getPointLineOffset( p, a, b ) : Double.NaN;
-
-		// Deprecated implementation
-		//Point2D pb = p.subtract( b );
-		//Point2D pa = p.subtract( a );
-		//Point2D ba = b.subtract( a );
-		//Point2D ab = a.subtract( b );
-		//double anglea = Geometry2D.getAngle( ba, pa );
-		//double angleb = Geometry2D.getAngle( ab, pb );
-		//if( anglea > Geometry2D.QUARTER_CIRCLE || angleb > Geometry2D.QUARTER_CIRCLE ) return Double.NaN;
-		//return Math.abs( ba.crossProduct( b.subtract( p ) ) ) / ba.magnitude();
+		return Geometry.pointLineBoundOffset( p.toArray(), a.toArray(), b.toArray() );
 	}
 
 	/**
 	 * Calculate the distance between a plane and a point.
 	 *
+	 * @param p The point to which to determine the distance
 	 * @param origin The origin of the plane
 	 * @param normal The normal of the plane
-	 * @param p The point to which to determine the distance
 	 * @return the distance between the point and plane
 	 */
-	public static double getPointPlaneDistance( Point2D origin, Point2D normal, Point2D p ) {
-		return Math.abs( getPointPlaneOffset( origin, normal, p ) );
+	public static double getPointPlaneDistance( Point2D p, Point2D origin, Point2D normal ) {
+		return Geometry.pointPlaneDistance( p.toArray(), origin.toArray(), normal.toArray() );
 	}
 
 	/**
 	 * Calculate the offset between a plane and a point. Positive values are in
 	 * the direction of the normal, negative values in the opposite direction.
 	 *
+	 * @param p The point to which to determine the distance
 	 * @param origin The origin of the plane
 	 * @param normal The normal of the plane
-	 * @param p The point to which to determine the distance
 	 * @return the offset between the point and plane
 	 */
-	public static double getPointPlaneOffset( Point2D origin, Point2D normal, Point2D p ) {
-		return normal.dotProduct( new Point2D( p.x - origin.x, p.y - origin.y ) ) / normal.magnitude();
+	public static double getPointPlaneOffset( Point2D p, Point2D origin, Point2D normal ) {
+		return Geometry.pointPlaneOffset( p.toArray(), origin.toArray(), normal.toArray() );
 	}
 
 	/**
@@ -153,11 +134,12 @@ public class CfdGeometry {
 	 * @return the angle of the point/vector
 	 */
 	public static double getAngle( final Point2D p ) {
-		return Math.atan2( p.y, p.x );
+		return Geometry.getAngle( p.toArray() );
 	}
 
 	public static double getAngle( final Point2D v1, final Point2D v2 ) {
-		return Math.acos( v1.normalize().dotProduct( v2.normalize() ) );
+		return Geometry.getAngle( v1.toArray(), v2.toArray() );
+		//return Math.acos( v1.normalize().dotProduct( v2.normalize() ) );
 	}
 
 	/**

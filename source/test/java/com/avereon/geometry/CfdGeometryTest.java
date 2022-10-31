@@ -19,13 +19,13 @@ public class CfdGeometryTest {
 		assertThat( CfdGeometry.getAngle( new Point2D( -1, 0 ), new Point2D( -1, 0 ) )).isEqualTo( 0.0  );
 		assertThat( CfdGeometry.getAngle( new Point2D( 0, -1 ), new Point2D( 0, -1 ) )).isEqualTo( 0.0  );
 
-		assertThat( CfdGeometry.getAngle( new Point2D( 0, 1 ), new Point2D( 1, 0 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( CfdGeometry.getAngle( new Point2D( 0, 1 ), new Point2D( 1, 0 ) )).isEqualTo( -Math.PI / 2 );
 		assertThat( CfdGeometry.getAngle( new Point2D( 0, 1 ), new Point2D( -1, 0 ) )).isEqualTo( Math.PI / 2 );
 		assertThat( CfdGeometry.getAngle( new Point2D( 0, -1 ), new Point2D( 1, 0 ) )).isEqualTo( Math.PI / 2 );
-		assertThat( CfdGeometry.getAngle( new Point2D( 0, -1 ), new Point2D( -1, 0 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( CfdGeometry.getAngle( new Point2D( 0, -1 ), new Point2D( -1, 0 ) )).isEqualTo( -Math.PI / 2 );
 		assertThat( CfdGeometry.getAngle( new Point2D( 1, 0 ), new Point2D( 0, 1 ) )).isEqualTo( Math.PI / 2 );
-		assertThat( CfdGeometry.getAngle( new Point2D( 1, 0 ), new Point2D( 0, -1 ) )).isEqualTo( Math.PI / 2 );
-		assertThat( CfdGeometry.getAngle( new Point2D( -1, 0 ), new Point2D( 0, 1 ) )).isEqualTo( Math.PI / 2 );
+		assertThat( CfdGeometry.getAngle( new Point2D( 1, 0 ), new Point2D( 0, -1 ) )).isEqualTo( -Math.PI / 2 );
+		assertThat( CfdGeometry.getAngle( new Point2D( -1, 0 ), new Point2D( 0, 1 ) )).isEqualTo( -Math.PI / 2 );
 		assertThat( CfdGeometry.getAngle( new Point2D( -1, 0 ), new Point2D( 0, -1 ) )).isEqualTo( Math.PI / 2 );
 
 		assertThat( CfdGeometry.getAngle( new Point2D( 0, 1 ), new Point2D( 0, -1 ) )).isEqualTo( Math.PI );

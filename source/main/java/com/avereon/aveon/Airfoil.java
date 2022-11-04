@@ -221,6 +221,14 @@ public class Airfoil extends Node {
 		return getValue( LOWER_ANALYSIS_POINTS, List.of() );
 	}
 
+	public List<Point2D> getAnalysisPoints() {
+		List<Point2D> points = new ArrayList<>( getLowerAnalysisPoints() );
+		points.remove( 0 );
+		Collections.reverse( points );
+		points.addAll( getUpperAnalysisPoints() );
+		return points;
+	}
+
 	public List<Point2D> getUpperPoints() {
 		return getValue( UPPER_PANEL_POINTS, List.of() );
 	}

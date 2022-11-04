@@ -50,8 +50,8 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		this.renderer.setViewpoint( 0.5, 0.1 );
 		((FxRenderer2d)this.renderer).widthProperty().bind( this.widthProperty() );
 		((FxRenderer2d)this.renderer).heightProperty().bind( this.heightProperty() );
-		((FxRenderer2d)this.renderer).widthProperty().addListener( ( p, o, n ) -> repaint() );
-		((FxRenderer2d)this.renderer).heightProperty().addListener( ( p, o, n ) -> repaint() );
+		((FxRenderer2d)this.renderer).widthProperty().addListener( ( p, o, n ) -> render() );
+		((FxRenderer2d)this.renderer).heightProperty().addListener( ( p, o, n ) -> render() );
 
 		getChildren().add( new BorderPane( (Node)renderer ) );
 
@@ -77,10 +77,10 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 	@Override
 	protected void open( OpenAssetRequest request ) {
-		repaint();
+		render();
 	}
 
-	private void repaint() {
+	private void render() {
 		this.renderer.clear();
 		if( !getAsset().isLoaded() ) return;
 
@@ -89,12 +89,17 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		// Airfoil chord
 		renderer.draw( new Line( 0, 0, 1, 0 ), new Pen( Color.GREEN, 0.001 ) );
 
-		// Airfoil surface
-		Path airfoilLines = new Path( 1, 0 );
-		airfoil.getDefinitionPoints().forEach( p -> airfoilLines.line( p.getX(), p.getY() ) );
-		renderer.draw( airfoilLines, new Pen( Color.YELLOW, 0.001 ) );
+		// Airfoil definition surface
+		Path airfoilDefinitionLines = new Path( 1, 0 );
+		airfoil.getDefinitionPoints().forEach( p -> airfoilDefinitionLines.line( p.getX(), p.getY() ) );
+		renderer.draw( airfoilDefinitionLines, new Pen( Color.GRAY, 0.001 ) );
+		//airfoil.getDefinitionPoints().forEach( p -> dot( p, Color.RED ));
 
-		airfoil.getDefinitionPoints().forEach( p -> dot( p, Color.RED ));
+		// Airfoil analysis surface
+		Path airfoilAnalysisLines = new Path( 1, 0 );
+		airfoil.getAnalysisPoints().forEach( p -> airfoilAnalysisLines.line( p.getX(), p.getY() ) );
+		renderer.draw( airfoilAnalysisLines, new Pen( Color.YELLOW, 0.001 ) );
+		//airfoil.getDefinitionPoints().forEach( p -> dot( p, Color.LAVENDER ));
 
 		// Airfoil inflection points
 		airfoil.getUpperInflections().forEach( this::dot );
@@ -108,15 +113,15 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		// Airfoil thickness stations
 		Point2D tu = airfoil.getThicknessUpper();
 		Point2D tl = airfoil.getThicknessLower();
-		renderer.draw( new Line( tu.x, tu.y, tl.x, tl.y ), new Pen( Color.GREEN, 0.001 ) );
+		renderer.draw( new Line( tu.x, tu.y, tl.x, tl.y ), new Pen( Color.PURPLE, 0.001 ) );
 		Point2D ut = airfoil.getUpperThickness();
 		renderer.draw( new Line( ut.x, ut.y, ut.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
 		Point2D lt = airfoil.getLowerThickness();
-		renderer.draw( new Line( lt.x, lt.y, lt.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
+		renderer.draw( new Line( lt.x, lt.y, lt.x, 0 ), new Pen( Color.RED, 0.001 ) );
 
 		// Airfoil panel points
-		airfoil.getUpperPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
-		airfoil.getLowerPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
+//		airfoil.getUpperPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
+//		airfoil.getLowerPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
 
 		//		airfoil.getUpperPoints().forEach( c -> {
 		//			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );
@@ -171,7 +176,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		t.register( TaskEvent.FINISH, ( e ) -> {
 			log.atInfo().log( "Airfoil path solver complete." );
 			runPauseAction.setState( "run" );
-			repaint();
+			render();
 		} );
 		getProgram().getTaskManager().submit( t );
 	}

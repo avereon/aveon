@@ -45,13 +45,18 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		Screen screen = Screen.getPrimary();
 		double dpi = screen.getDpi();
 		this.renderer = new FxRenderer2d( 960, 540 );
+		this.renderer.setZoomFactor( 0.2 );
 		this.renderer.setDpi( dpi, dpi );
 		this.renderer.setZoom( 10, 10 );
 		this.renderer.setViewpoint( 0.5, 0.1 );
-		((FxRenderer2d)this.renderer).widthProperty().bind( this.widthProperty() );
-		((FxRenderer2d)this.renderer).heightProperty().bind( this.heightProperty() );
-		((FxRenderer2d)this.renderer).widthProperty().addListener( ( p, o, n ) -> render() );
-		((FxRenderer2d)this.renderer).heightProperty().addListener( ( p, o, n ) -> render() );
+		this.renderer.widthProperty().bind( this.widthProperty() );
+		this.renderer.heightProperty().bind( this.heightProperty() );
+		this.renderer.widthProperty().addListener( ( p, o, n ) -> render() );
+		this.renderer.heightProperty().addListener( ( p, o, n ) -> render() );
+		this.renderer.zoomXProperty().addListener( ( p, o, n ) -> render() );
+		this.renderer.zoomYProperty().addListener( ( p, o, n ) -> render() );
+		this.renderer.viewpointXProperty().addListener( ( p, o, n ) -> render() );
+		this.renderer.viewpointYProperty().addListener( ( p, o, n ) -> render() );
 
 		getChildren().add( new BorderPane( (Node)renderer ) );
 

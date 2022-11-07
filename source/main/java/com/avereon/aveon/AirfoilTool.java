@@ -47,10 +47,13 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		this.renderer.setZoomFactor( 0.2 );
 		this.renderer.setDpi( dpi, dpi );
 		this.renderer.setZoom( 10, 10 );
-		this.renderer.setViewpoint( 0.5, 0.1 );
+		this.renderer.setViewpoint( 0.5, 0.0 );
+
+		// Force the renderer to always be the tool size
 		this.renderer.widthProperty().bind( widthProperty() );
 		this.renderer.heightProperty().bind( heightProperty() );
 
+		// Repaint when certain events happen
 		this.renderer.widthProperty().addListener( ( p, o, n ) -> render() );
 		this.renderer.heightProperty().addListener( ( p, o, n ) -> render() );
 		this.renderer.zoomXProperty().addListener( ( p, o, n ) -> render() );
@@ -58,13 +61,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		this.renderer.viewpointXProperty().addListener( ( p, o, n ) -> render() );
 		this.renderer.viewpointYProperty().addListener( ( p, o, n ) -> render() );
 
-//		widthProperty().addListener( (p,o,n) -> {
-//			this.renderer.setWidth( n.doubleValue() );
-//		} );
-//		heightProperty().addListener( (p,o,n) -> {
-//			this.renderer.setHeight( n.doubleValue() );
-//		} );
-
+		// Add the renderer to the tool
 		getChildren().add( (Node)renderer );
 
 		runPauseAction = new RunPauseAction( getProgram(), this );
@@ -78,7 +75,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 	@Override
 	protected void ready( OpenAssetRequest request ) throws ToolException {
 		super.ready( request );
-		//setGraphic( getProgram().getIconLibrary().getIcon( "flow" ) );
+		setGraphic( getProgram().getIconLibrary().getIcon( "airfoil" ) );
 		setTitle( request.getAsset().getName() );
 
 		this.solver = new AirfoilPathSolver( getAirfoil() );
@@ -107,33 +104,37 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		renderer.draw( airfoilDefinitionLines, new Pen( Color.GRAY, 0.001 ) );
 		//airfoil.getDefinitionPoints().forEach( p -> dot( p, Color.RED ));
 
+		// Airfoil inflection points
+		airfoil.getUpperInflections().forEach( this::dot );
+		airfoil.getLowerInflections().forEach( this::dot );
+
+		// Airfoil camber path
+		Path camberLines = new Path( 0, 0 );
+		airfoil.getCamber().forEach( p -> camberLines.line( p.getX(), p.getY() ) );
+		renderer.draw( camberLines, new Pen( Color.GRAY, 0.001 ) );
+
+		// Airfoil camber station
+		Point2D mc = airfoil.getMaxCamber();
+		renderer.draw( new Line( mc.x, mc.y, mc.x, 0 ), new Pen( Color.CYAN, 0.001 ) );
+
+		// Airfoil thickness stations
+		Point2D tu = airfoil.getThicknessUpper();
+		Point2D tl = airfoil.getThicknessLower();
+		renderer.draw( new Line( tu.x, tu.y, tl.x, tl.y ), new Pen( Color.MEDIUMPURPLE, 0.001 ) );
+		Point2D ut = airfoil.getUpperThickness();
+		renderer.draw( new Line( ut.x, ut.y, ut.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
+		Point2D lt = airfoil.getLowerThickness();
+		renderer.draw( new Line( lt.x, lt.y, lt.x, 0 ), new Pen( Color.RED, 0.001 ) );
+
 		// Airfoil analysis surface
 		Path airfoilAnalysisLines = new Path( 1, 0 );
 		airfoil.getAnalysisPoints().forEach( p -> airfoilAnalysisLines.line( p.getX(), p.getY() ) );
 		renderer.draw( airfoilAnalysisLines, new Pen( Color.YELLOW, 0.001 ) );
 		//airfoil.getDefinitionPoints().forEach( p -> dot( p, Color.LAVENDER ));
 
-		// Airfoil inflection points
-		airfoil.getUpperInflections().forEach( this::dot );
-		airfoil.getLowerInflections().forEach( this::dot );
-
-		// Camber path
-		Path camberLines = new Path( 0, 0 );
-		airfoil.getCamber().forEach( p -> camberLines.line( p.getX(), p.getY() ) );
-		renderer.draw( camberLines, new Pen( Color.GRAY, 0.001 ) );
-
-		// Airfoil thickness stations
-		Point2D tu = airfoil.getThicknessUpper();
-		Point2D tl = airfoil.getThicknessLower();
-		renderer.draw( new Line( tu.x, tu.y, tl.x, tl.y ), new Pen( Color.PURPLE, 0.001 ) );
-		Point2D ut = airfoil.getUpperThickness();
-		renderer.draw( new Line( ut.x, ut.y, ut.x, 0 ), new Pen( Color.GREEN, 0.001 ) );
-		Point2D lt = airfoil.getLowerThickness();
-		renderer.draw( new Line( lt.x, lt.y, lt.x, 0 ), new Pen( Color.RED, 0.001 ) );
-
 		// Airfoil panel points
-//		airfoil.getUpperPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
-//		airfoil.getLowerPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
+		//		airfoil.getUpperPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
+		//		airfoil.getLowerPoints().forEach( p -> this.dot( p, Color.LAVENDER ) );
 
 		//		airfoil.getUpperPoints().forEach( c -> {
 		//			renderer.draw( new Curve( c.ax, c.ay, c.bx, c.by, c.cx, c.cy, c.dx, c.dy ), new Pen( Color.RED, 0.001 ) );

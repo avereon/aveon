@@ -20,7 +20,6 @@ import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
 import com.avereon.xenon.workpane.ToolException;
 import javafx.scene.Node;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Screen;
@@ -49,8 +48,9 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		this.renderer.setDpi( dpi, dpi );
 		this.renderer.setZoom( 10, 10 );
 		this.renderer.setViewpoint( 0.5, 0.1 );
-		this.renderer.widthProperty().bind( this.widthProperty() );
-		this.renderer.heightProperty().bind( this.heightProperty() );
+		this.renderer.widthProperty().bind( widthProperty() );
+		this.renderer.heightProperty().bind( heightProperty() );
+
 		this.renderer.widthProperty().addListener( ( p, o, n ) -> render() );
 		this.renderer.heightProperty().addListener( ( p, o, n ) -> render() );
 		this.renderer.zoomXProperty().addListener( ( p, o, n ) -> render() );
@@ -58,7 +58,14 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		this.renderer.viewpointXProperty().addListener( ( p, o, n ) -> render() );
 		this.renderer.viewpointYProperty().addListener( ( p, o, n ) -> render() );
 
-		getChildren().add( new BorderPane( (Node)renderer ) );
+//		widthProperty().addListener( (p,o,n) -> {
+//			this.renderer.setWidth( n.doubleValue() );
+//		} );
+//		heightProperty().addListener( (p,o,n) -> {
+//			this.renderer.setHeight( n.doubleValue() );
+//		} );
+
+		getChildren().add( (Node)renderer );
 
 		runPauseAction = new RunPauseAction( getProgram(), this );
 		resetAction = new ResetAction( getProgram(), this );

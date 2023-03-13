@@ -40,7 +40,7 @@
 	<properties>
 		<curve.version>[0.1,)</curve.version>
 		<marea.version>[0.1-SNAPSHOT,)</marea.version>
-		<cameo.version>2.9</cameo.version>
+		<cameo.version>2.10</cameo.version>
 		<images-folder>target/main/images</images-folder>
 	</properties>
 

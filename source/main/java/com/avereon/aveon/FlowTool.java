@@ -5,7 +5,6 @@ import com.avereon.geometry.Point2D;
 import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.xenon.ProgramAction;
-import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.action.common.ResetAction;
 import com.avereon.xenon.action.common.RunPauseAction;

@@ -2,7 +2,6 @@ package com.avereon.aveon;
 
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;

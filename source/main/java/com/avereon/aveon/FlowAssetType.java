@@ -1,7 +1,6 @@
 package com.avereon.aveon;
 
 import com.avereon.xenon.Xenon;
-import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
 import javafx.scene.control.TextInputDialog;

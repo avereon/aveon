@@ -1,6 +1,6 @@
 package com.avereon.aveon;
 
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetType;
@@ -21,14 +21,14 @@ public class FlowAssetType extends AssetType {
 	}
 
 	@Override
-	public boolean assetOpen( Program program, Asset asset ) {
+	public boolean assetOpen( Xenon program, Asset asset ) {
 		Flow2D flow = new Flow2D();
 		asset.setModel( flow );
 		return true;
 	}
 
 	@Override
-	public boolean assetNew( Program program, Asset asset ) {
+	public boolean assetNew( Xenon program, Asset asset ) {
 		String url = requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" );
 		program.getSettingsManager().getAssetSettings( asset ).set( FlowTool.AIRFOIL_URL, url );
 		return true;

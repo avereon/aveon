@@ -1,7 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.util.TextUtil;
-import com.avereon.xenon.Program;
+import com.avereon.xenon.Xenon;
 import com.avereon.xenon.ProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
@@ -26,14 +26,14 @@ public class AirfoilAssetType extends AssetType {
 	}
 
 	@Override
-	public boolean assetOpen( Program program, Asset asset ) throws AssetException {
+	public boolean assetOpen( Xenon program, Asset asset ) throws AssetException {
 		Airfoil airfoil = new Airfoil();
 		asset.setModel( airfoil );
 		return true;
 	}
 
 	@Override
-	public boolean assetNew( Program program, Asset asset ) throws AssetException {
+	public boolean assetNew( Xenon program, Asset asset ) throws AssetException {
 		try {
 			String url = requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" );
 			if( TextUtil.isEmpty( url ) ) return false;

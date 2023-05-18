@@ -2,6 +2,7 @@ package com.avereon.aveon;
 
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Xenon;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.AssetException;
 import com.avereon.xenon.asset.AssetType;
@@ -14,7 +15,7 @@ import java.net.URISyntaxException;
 @CustomLog
 public class AirfoilAssetType extends AssetType {
 
-	public AirfoilAssetType( ProgramProduct product ) {
+	public AirfoilAssetType( XenonProgramProduct product ) {
 		super( product, "airfoil2d" );
 		setDefaultCodec( new AirfoilStationPointCodec() );
 	}

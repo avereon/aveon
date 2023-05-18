@@ -11,6 +11,7 @@ import com.avereon.product.Rb;
 import com.avereon.skill.RunPauseResettable;
 import com.avereon.xenon.ProgramAction;
 import com.avereon.xenon.ProgramTool;
+import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.action.common.ResetAction;
 import com.avereon.xenon.action.common.RunPauseAction;
 import com.avereon.xenon.asset.Asset;
@@ -35,7 +36,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 	private AirfoilPathSolver solver;
 
-	public AirfoilTool( ProgramProduct product, Asset asset ) {
+	public AirfoilTool( XenonProgramProduct product, Asset asset ) {
 		super( product, asset );
 		setGraphic( getProgram().getIconLibrary().getIcon( "airfoil" ) );
 		setTitle( Rb.textOr( getProduct(), "asset", "airfoil2d-name", "Flow" ) );

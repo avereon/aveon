@@ -36,10 +36,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch CI/CD resources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: avereon/canoe
           path: .github

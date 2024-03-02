@@ -1,3 +1,5 @@
+import com.avereon.xenon.Module;
+
 module com.avereon.aveon {
 
 	// Compile-time only
@@ -18,6 +20,6 @@ module com.avereon.aveon {
 	exports com.avereon.aveon to com.avereon.xenon, com.avereon.zarra;
 	exports com.avereon.geometry;
 
-	provides com.avereon.xenon.Mod with com.avereon.aveon.Aveon;
+	provides Module with com.avereon.aveon.Aveon;
 
 }

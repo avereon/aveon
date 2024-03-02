@@ -1,11 +1,11 @@
 package com.avereon.aveon;
 
-import com.avereon.xenon.Mod;
+import com.avereon.xenon.Module;
 import com.avereon.xenon.ToolRegistration;
 import lombok.CustomLog;
 
 @CustomLog
-public class Aveon extends Mod {
+public class Aveon extends Module {
 
 	private final AirfoilAssetType airfoilAssetType;
 

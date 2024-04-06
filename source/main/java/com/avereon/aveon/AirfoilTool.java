@@ -1,6 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.geometry.Point2D;
+import com.avereon.marea.RenderUnit;
 import com.avereon.marea.Pen;
 import com.avereon.marea.Renderer2d;
 import com.avereon.marea.fx.FxRenderer2d;
@@ -44,8 +45,9 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		Screen screen = Screen.getPrimary();
 		double dpi = screen.getDpi();
 		this.renderer = new FxRenderer2d( 960, 540 );
-		this.renderer.setZoomFactor( 0.2 );
-		this.renderer.setDpi( dpi, dpi );
+		this.renderer.setLengthUnit( RenderUnit.CENTIMETER );
+		this.renderer.setZoomStep( 0.2 );
+		this.renderer.setPpi( dpi, dpi );
 		this.renderer.setZoom( 10, 10 );
 		this.renderer.setViewpoint( 0.5, 0.0 );
 

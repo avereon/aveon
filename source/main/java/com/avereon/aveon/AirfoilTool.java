@@ -3,7 +3,7 @@ package com.avereon.aveon;
 import com.avereon.geometry.Point2D;
 import com.avereon.marea.RenderUnit;
 import com.avereon.marea.Pen;
-import com.avereon.marea.Renderer2d;
+import com.avereon.marea.ShapeRenderer2d;
 import com.avereon.marea.fx.FxRenderer2d;
 import com.avereon.marea.geom.Ellipse;
 import com.avereon.marea.geom.Line;
@@ -33,7 +33,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 	private final ProgramAction resetAction;
 
-	private final Renderer2d renderer;
+	private final ShapeRenderer2d renderer;
 
 	private AirfoilPathSolver solver;
 

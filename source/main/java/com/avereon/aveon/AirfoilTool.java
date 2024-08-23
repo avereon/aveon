@@ -47,7 +47,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		this.renderer = new FxRenderer2d( 960, 540 );
 		this.renderer.setLengthUnit( RenderUnit.CENTIMETER );
 		this.renderer.setZoomStep( 0.2 );
-		this.renderer.setPpi( dpi, dpi );
+		this.renderer.setDpi( dpi, dpi );
 		this.renderer.setZoom( 10, 10 );
 		this.renderer.setViewpoint( 0.5, 0.0 );
 

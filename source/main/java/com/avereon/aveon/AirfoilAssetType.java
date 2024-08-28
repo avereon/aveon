@@ -37,7 +37,7 @@ public class AirfoilAssetType extends AssetType {
 		try {
 			String url = requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" );
 			if( TextUtil.isEmpty( url ) ) return false;
-			asset.setUri( new URI( url ) );
+			asset.setUri( new URI( url.replace( " ", "%20" ) ) );
 		} catch( URISyntaxException exception ) {
 			throw new AssetException( asset, exception );
 		}

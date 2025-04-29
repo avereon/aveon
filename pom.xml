@@ -16,7 +16,7 @@
 
 	<groupId>com.avereon</groupId>
 	<artifactId>aveon</artifactId>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2</version>
 	<packaging>jar</packaging>
 
 	<name>Aveon</name>
@@ -38,8 +38,8 @@
 	</pluginRepositories>
 
 	<properties>
-		<curve.version>[0.1,)</curve.version>
-		<marea.version>[0.1-SNAPSHOT,)</marea.version>
+		<curve.version>0.5</curve.version>
+		<marea.version>0.3</marea.version>
 		<cameo.version>2.10</cameo.version>
 		<images-folder>target/main/images</images-folder>
 	</properties>

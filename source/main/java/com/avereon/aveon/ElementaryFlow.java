@@ -1,6 +1,6 @@
 package com.avereon.aveon;
 
-public interface Singularity {
+public interface ElementaryFlow {
 
 	double getStream(double x, double y);
 

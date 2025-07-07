@@ -10,16 +10,16 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UniformTest {
+public class UniformFlowTest {
 
 	@ParameterizedTest
 	@MethodSource
 	void stream( double speed, double x, double y, double expected) {
 		// given
-		Uniform uniform = new Uniform( speed );
+		UniformFlow flow = new UniformFlow( speed );
 
 		// then
-		assertThat( uniform.getStream( x, y ) ).isEqualTo( expected );
+		assertThat( flow.getStream( x, y ) ).isEqualTo( expected );
 	}
 
 	static Stream<Arguments> stream() {
@@ -38,10 +38,10 @@ public class UniformTest {
 	@MethodSource
 	void potential(double speed, double x, double y, double expected) {
 		// given
-		Uniform uniform = new Uniform( speed );
+		UniformFlow flow = new UniformFlow( speed );
 
 		// then
-		assertThat( uniform.getPotential( x, y ) ).isEqualTo( expected );
+		assertThat( flow.getPotential( x, y ) ).isEqualTo( expected );
 	}
 
 	static Stream<Arguments> potential() {

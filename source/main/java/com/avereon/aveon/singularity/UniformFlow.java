@@ -1,16 +1,16 @@
 package com.avereon.aveon.singularity;
 
-import com.avereon.aveon.Singularity;
+import com.avereon.aveon.ElementaryFlow;
 
-public class Uniform implements Singularity {
+public class UniformFlow implements ElementaryFlow {
 
 	private final double speed;
 
-	public Uniform() {
+	public UniformFlow() {
 		this( 1.0 );
 	}
 
-	public Uniform( double speed ) {
+	public UniformFlow( double speed ) {
 		this.speed = speed;
 	}
 

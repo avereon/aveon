@@ -15,21 +15,18 @@ public class UniformFlow implements ElementaryFlow {
 	}
 
 	@Override
-	public double getStream(double x, double y) {
+	public double getStream( double x, double y ) {
 		return y;
 	}
 
 	@Override
-	public double getPotential( double x, double y) {
+	public double getPotential( double x, double y ) {
 		return x;
 	}
 
 	@Override
-	public double[] getVelocity(double x, double y) {
-		double[] velocity = new double[2];
-		velocity[0] = speed;
-		velocity[1] = 0;
-		return velocity;
+	public double[] getVelocity( double x, double y ) {
+		return new double[]{ speed, 0 };
 	}
 
 }

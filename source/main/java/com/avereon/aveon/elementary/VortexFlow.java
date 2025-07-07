@@ -1,8 +1,8 @@
-package com.avereon.aveon.singularity;
+package com.avereon.aveon.elementary;
 
 import com.avereon.aveon.ElementaryFlow;
 
-public class SourceFlow implements ElementaryFlow {
+public class VortexFlow implements ElementaryFlow {
 
 	private final double x;
 
@@ -10,7 +10,7 @@ public class SourceFlow implements ElementaryFlow {
 
 	private final double q;
 
-	public SourceFlow( double x, double y, double q ) {
+	public VortexFlow( double x, double y, double q ) {
 		this.x = x;
 		this.y = y;
 		this.q = q;
@@ -36,10 +36,10 @@ public class SourceFlow implements ElementaryFlow {
 		r2 = xr * xr + yr * yr;
 
 		if( r2 > 0.0 ) {
-			velocity[ 0 ] = q / r2 * xr;
-			velocity[ 1 ] = q / r2 * yr;
+			velocity[ 0 ] = -q / r2 * yr;
+			velocity[ 1 ] = q / r2 * xr;
 		}
+
 		return velocity;
 	}
-
 }

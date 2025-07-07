@@ -1,18 +1,21 @@
-package com.avereon.aveon.singularity;
+package com.avereon.aveon.elementary;
 
 import com.avereon.aveon.ElementaryFlow;
 
-public class VortexFlow implements ElementaryFlow {
+public class DoubletFlow implements ElementaryFlow {
 
 	private final double x;
 
 	private final double y;
 
+	private final double a;
+
 	private final double q;
 
-	public VortexFlow( double x, double y, double q ) {
+	public DoubletFlow( double x, double y, double a, double q ) {
 		this.x = x;
 		this.y = y;
+		this.a = a;
 		this.q = q;
 	}
 
@@ -36,10 +39,11 @@ public class VortexFlow implements ElementaryFlow {
 		r2 = xr * xr + yr * yr;
 
 		if( r2 > 0.0 ) {
-			velocity[ 0 ] = -q / r2 * yr;
-			velocity[ 1 ] = q / r2 * xr;
+			velocity[ 0 ] = -q / r2 / r2 * ((xr * xr - yr * yr) * Math.cos( a ) + 2 * xr * yr * Math.sin( a ));
+			velocity[ 1 ] = q / r2 / r2 * (-(xr * xr - yr * yr) * Math.sin( a ) + 2 * xr * yr * Math.cos( a ));
 		}
 
 		return velocity;
 	}
+
 }

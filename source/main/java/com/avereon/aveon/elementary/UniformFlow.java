@@ -1,4 +1,4 @@
-package com.avereon.aveon.singularity;
+package com.avereon.aveon.elementary;
 
 import com.avereon.aveon.ElementaryFlow;
 

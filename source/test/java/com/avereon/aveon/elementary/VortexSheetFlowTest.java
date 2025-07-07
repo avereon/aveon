@@ -1,4 +1,4 @@
-package com.avereon.aveon.singularity;
+package com.avereon.aveon.elementary;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

@@ -1,6 +1,8 @@
 package com.avereon.aveon.elementary;
 
 import com.avereon.aveon.ElementaryFlow;
+import com.avereon.curve.math.Geometry;
+import com.avereon.curve.math.Vector;
 
 public class DoubletFlow implements ElementaryFlow {
 
@@ -20,13 +22,21 @@ public class DoubletFlow implements ElementaryFlow {
 	}
 
 	@Override
-	public double getStream( double x, double y ) {
-		return 0;
+	public double getPotential( double fx, double fy ) {
+		double dx = fx - x;
+		double dy = fx - y;
+		double radius = Vector.magnitude( dx, dy );
+		double theta = Geometry.theta( dx, dy ) + a;
+		return q * Math.cos( theta ) / radius;
 	}
 
 	@Override
-	public double getPotential( double x, double y ) {
-		return 0;
+	public double getStream( double fx, double fy ) {
+		double dx = fx - x;
+		double dy = fx - y;
+		double radius = Vector.magnitude( dx, dy );
+		double theta = Geometry.theta( dx, dy ) + a;
+		return -q * Math.sin( theta ) / radius;
 	}
 
 	@Override

@@ -1,6 +1,9 @@
 package com.avereon.aveon.elementary;
 
 import com.avereon.aveon.ElementaryFlow;
+import com.avereon.curve.math.Constants;
+import com.avereon.curve.math.Geometry;
+import com.avereon.curve.math.Point;
 
 public class SourceFlow implements ElementaryFlow {
 
@@ -17,12 +20,14 @@ public class SourceFlow implements ElementaryFlow {
 	}
 
 	@Override
-	public double getStream( double x, double y ) {
-		return 0;
+	public double getPotential( double x, double y ) {
+		double radius = Geometry.length( Point.of( x, y ), Point.of( this.x, this.y ) );
+		return q * Math.log( radius ) / Constants.TWO_PI;
 	}
 
 	@Override
-	public double getPotential( double x, double y ) {
+	public double getStream( double x, double y ) {
+
 		return 0;
 	}
 

@@ -1,8 +1,5 @@
 package com.avereon.aveon.elementary;
 
-import com.avereon.curve.math.Constants;
-import com.avereon.curve.math.Geometry;
-import com.avereon.curve.math.Point;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -83,11 +80,6 @@ public class SourceFlowTest {
 		arguments.add( Arguments.of( x, y, q, 2, 2, 0.16547670011448873, 0.125, new double[]{ 0.25, 0.25 } ) );
 
 		return arguments.stream();
-	}
-
-	static double p( double x, double y, double q, double fx, double fy ) {
-		double radius = Geometry.length( Point.of(x,y), Point.of(fx,fy) );
-		return q * Math.log( radius ) / Constants.TWO_PI;
 	}
 
 }

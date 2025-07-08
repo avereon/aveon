@@ -20,15 +20,15 @@ public class SourceFlow implements ElementaryFlow {
 	}
 
 	@Override
-	public double getPotential( double x, double y ) {
-		double radius = Geometry.length( Point.of( x, y ), Point.of( this.x, this.y ) );
+	public double getPotential( double xf, double yf ) {
+		double radius = Geometry.length( Point.of( this.x, this.y ), Point.of( xf, yf ) );
 		return q * Math.log( radius ) / Constants.TWO_PI;
 	}
 
 	@Override
-	public double getStream( double x, double y ) {
-
-		return 0;
+	public double getStream( double xf, double yf ) {
+		double theta = Geometry.theta( Point.of( this.x, this.y ), Point.of( xf, yf ) );
+		return q * theta / Constants.TWO_PI;
 	}
 
 	@Override

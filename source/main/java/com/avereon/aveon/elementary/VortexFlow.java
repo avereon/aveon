@@ -1,6 +1,8 @@
 package com.avereon.aveon.elementary;
 
 import com.avereon.aveon.ElementaryFlow;
+import com.avereon.curve.math.Constants;
+import com.avereon.curve.math.Vector;
 
 public class VortexFlow implements ElementaryFlow {
 
@@ -17,13 +19,16 @@ public class VortexFlow implements ElementaryFlow {
 	}
 
 	@Override
-	public double getStream( double x, double y ) {
-		return 0;
+	public double getPotential( double fx, double fy ) {
+		double theta = Math.atan2( fy - y, fx - x );
+		if( theta < 0 ) theta += Constants.TWO_PI;
+		return -q * theta / (Constants.TWO_PI);
 	}
 
 	@Override
-	public double getPotential( double x, double y ) {
-		return 0;
+	public double getStream( double fx, double fy ) {
+		double radius = Vector.distance( x, y, fx, fy );
+		return q * Math.log( radius ) / (Constants.TWO_PI);
 	}
 
 	@Override

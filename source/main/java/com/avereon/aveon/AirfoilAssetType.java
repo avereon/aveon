@@ -4,7 +4,7 @@ import com.avereon.util.TextUtil;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.exception.AssetException;
+import com.avereon.xenon.asset.exception.ResourceException;
 import com.avereon.xenon.asset.AssetType;
 import javafx.scene.control.TextInputDialog;
 import lombok.CustomLog;
@@ -26,20 +26,20 @@ public class AirfoilAssetType extends AssetType {
 	}
 
 	@Override
-	public boolean assetOpen( Xenon program, Asset asset ) throws AssetException {
+	public boolean assetOpen( Xenon program, Asset asset ) throws ResourceException {
 		Airfoil airfoil = new Airfoil();
 		asset.setModel( airfoil );
 		return true;
 	}
 
 	@Override
-	public boolean assetNew( Xenon program, Asset asset ) throws AssetException {
+	public boolean assetNew( Xenon program, Asset asset ) throws ResourceException {
 		try {
 			String url = requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" );
 			if( TextUtil.isEmpty( url ) ) return false;
 			asset.setUri( new URI( url.replace( " ", "%20" ) ) );
 		} catch( URISyntaxException exception ) {
-			throw new AssetException( asset, exception );
+			throw new ResourceException( asset, exception );
 		}
 		return true;
 	}

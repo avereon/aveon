@@ -5,7 +5,7 @@ import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
 import com.avereon.xenon.asset.exception.ResourceException;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import javafx.scene.control.TextInputDialog;
 import lombok.CustomLog;
 
@@ -13,9 +13,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @CustomLog
-public class AirfoilAssetType extends AssetType {
+public class AirfoilResourceType extends ResourceType {
 
-	public AirfoilAssetType( XenonProgramProduct product ) {
+	public AirfoilResourceType( XenonProgramProduct product ) {
 		super( product, "airfoil2d" );
 		setDefaultCodec( new AirfoilStationPointCodec() );
 	}

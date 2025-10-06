@@ -3,14 +3,14 @@ package com.avereon.aveon;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.asset.Asset;
-import com.avereon.xenon.asset.AssetType;
+import com.avereon.xenon.asset.ResourceType;
 import javafx.scene.control.TextInputDialog;
 import lombok.CustomLog;
 
 @CustomLog
-public class FlowAssetType extends AssetType {
+public class FlowResourceType extends ResourceType {
 
-	public FlowAssetType( XenonProgramProduct product ) {
+	public FlowResourceType( XenonProgramProduct product ) {
 		super( product, "flow2d" );
 		setDefaultCodec( new FlowCodec() );
 	}

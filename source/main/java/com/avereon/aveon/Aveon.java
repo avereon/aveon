@@ -7,13 +7,13 @@ import lombok.CustomLog;
 @CustomLog
 public class Aveon extends Module {
 
-	private final AirfoilAssetType airfoilAssetType;
+	private final AirfoilResourceType airfoilAssetType;
 
-	private final FlowAssetType flowAssetType;
+	private final FlowResourceType flowAssetType;
 
 	public Aveon() {
-		airfoilAssetType = new AirfoilAssetType( this );
-		flowAssetType = new FlowAssetType( this );
+		airfoilAssetType = new AirfoilResourceType( this );
+		flowAssetType = new FlowResourceType( this );
 	}
 
 	@Override

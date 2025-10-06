@@ -38,6 +38,7 @@
 	</pluginRepositories>
 
 	<properties>
+		<xenon.version>1.10-SNAPSHOT</xenon.version>
 		<curve.version>0.6-SNAPSHOT</curve.version>
 		<marea.version>0.4-SNAPSHOT</marea.version>
 		<cameo.version>2.12</cameo.version>

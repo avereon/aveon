@@ -1,7 +1,7 @@
 package com.avereon.aveon;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.Codec;
 import lombok.CustomLog;
 
@@ -40,13 +40,13 @@ public class FlowCodec extends Codec {
 	}
 
 	@Override
-	public void load( Asset asset, InputStream input ) throws IOException {
-		log.atDebug().log( "Loading flow: %s", asset );
+	public void load( Resource resource, InputStream input ) throws IOException {
+		log.atDebug().log( "Loading flow: %s", resource );
 	}
 
 	@Override
-	public void save( Asset asset, OutputStream output ) throws IOException {
-		log.atDebug().log( "Saving flow: %s", asset );
+	public void save( Resource resource, OutputStream output ) throws IOException {
+		log.atDebug().log( "Saving flow: %s", resource );
 	}
 
 }

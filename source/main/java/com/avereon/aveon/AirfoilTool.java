@@ -15,7 +15,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.action.common.ResetAction;
 import com.avereon.xenon.action.common.RunPauseAction;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
@@ -37,8 +37,8 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 	private AirfoilPathSolver solver;
 
-	public AirfoilTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public AirfoilTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 		setGraphic( getProgram().getIconLibrary().getIcon( "airfoil" ) );
 		setTitle( Rb.textOr( getProduct(), "asset", "airfoil2d-name", "Flow" ) );
 
@@ -78,7 +78,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 	protected void ready( OpenAssetRequest request ) throws ToolException {
 		super.ready( request );
 		setGraphic( getProgram().getIconLibrary().getIcon( "airfoil" ) );
-		setTitle( request.getAsset().getName() );
+		setTitle( request.getResource().getName() );
 
 		this.solver = new AirfoilPathSolver( getAirfoil() );
 
@@ -93,7 +93,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 
 	private void render() {
 		this.renderer.clear();
-		if( !getAsset().isLoaded() ) return;
+		if( !getResource().isLoaded() ) return;
 
 		Airfoil airfoil = getAssetModel();
 
@@ -173,7 +173,7 @@ public class AirfoilTool extends ProgramTool implements RunPauseResettable {
 		pushTools( "reset runpause" );
 
 		// Set the current action state
-		if( getAsset().isLoaded() ) {
+		if( getResource().isLoaded() ) {
 			//AirfoilPathSolver solver = this.solver;
 			//runPauseAction.setState( solver != null && solver.isRunning() ? "pause" : "run" );
 		}

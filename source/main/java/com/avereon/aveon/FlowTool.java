@@ -9,7 +9,7 @@ import com.avereon.xenon.ProgramTool;
 import com.avereon.xenon.XenonProgramProduct;
 import com.avereon.xenon.action.common.ResetAction;
 import com.avereon.xenon.action.common.RunPauseAction;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.OpenAssetRequest;
 import com.avereon.xenon.task.Task;
 import com.avereon.xenon.task.TaskEvent;
@@ -53,8 +53,8 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 
 	private final ProgramAction resetAction;
 
-	public FlowTool( XenonProgramProduct product, Asset asset ) {
-		super( product, asset );
+	public FlowTool( XenonProgramProduct product, Resource resource ) {
+		super( product, resource );
 
 		gridLayer = new Group();
 		foilShapeLayer = new Group();
@@ -102,7 +102,7 @@ public class FlowTool extends ProgramTool implements RunPauseResettable {
 		pushTools( "toggle-grid toggle-airfoil | reset runpause" );
 
 		// Set the current action state
-		if( getAsset().isLoaded() ) {
+		if( getResource().isLoaded() ) {
 			FlowSolver solver = getFlow().getFlowSolver();
 			runPauseAction.setState( solver != null && solver.isRunning() ? "pause" : "run" );
 		}

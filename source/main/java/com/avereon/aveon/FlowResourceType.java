@@ -2,7 +2,7 @@ package com.avereon.aveon;
 
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.ResourceType;
 import javafx.scene.control.TextInputDialog;
 import lombok.CustomLog;
@@ -21,16 +21,16 @@ public class FlowResourceType extends ResourceType {
 	}
 
 	@Override
-	public boolean assetOpen( Xenon program, Asset asset ) {
+	public boolean assetOpen( Xenon program, Resource resource ) {
 		Flow2D flow = new Flow2D();
-		asset.setModel( flow );
+		resource.setModel( flow );
 		return true;
 	}
 
 	@Override
-	public boolean assetNew( Xenon program, Asset asset ) {
+	public boolean assetNew( Xenon program, Resource resource ) {
 		String url = requestAirfoilData( "http://airfoiltools.com/airfoil/lednicerdatfile?airfoil=e376-il" );
-		program.getSettingsManager().getAssetSettings( asset ).set( FlowTool.AIRFOIL_URL, url );
+		program.getSettingsManager().getAssetSettings( resource ).set( FlowTool.AIRFOIL_URL, url );
 		return true;
 	}
 

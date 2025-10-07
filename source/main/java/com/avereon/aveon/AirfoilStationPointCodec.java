@@ -3,7 +3,7 @@ package com.avereon.aveon;
 import com.avereon.geometry.Point2D;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
-import com.avereon.xenon.asset.Asset;
+import com.avereon.xenon.asset.Resource;
 import com.avereon.xenon.asset.Codec;
 import lombok.CustomLog;
 
@@ -45,17 +45,17 @@ public class AirfoilStationPointCodec extends Codec {
 	}
 
 	@Override
-	public void load( Asset asset, InputStream input ) throws IOException {
-		asset.setModel( loadStationPoints( input ) );
+	public void load( Resource resource, InputStream input ) throws IOException {
+		resource.setModel( loadStationPoints( input ) );
 
-		URI uri = asset.getUri();
+		URI uri = resource.getUri();
 		if( uri.toString().startsWith( "http://airfoiltools.com/airfoil/lednicerdatfile" ) ) {
-			asset.setName( UriUtil.parseQuery( uri.getQuery() ).get( "airfoil" ) );
+			resource.setName( UriUtil.parseQuery( uri.getQuery() ).get( "airfoil" ) );
 		}
 	}
 
 	@Override
-	public void save( Asset asset, OutputStream output ) throws IOException {}
+	public void save( Resource resource, OutputStream output ) throws IOException {}
 
 	public static Airfoil loadStationPoints( InputStream input ) throws IOException {
 		// Load the data into lines skipping any blank lines

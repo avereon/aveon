@@ -3,8 +3,8 @@ package com.avereon.aveon;
 import com.avereon.geometry.Point2D;
 import com.avereon.util.TextUtil;
 import com.avereon.util.UriUtil;
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.Codec;
 import lombok.CustomLog;
 
 import java.io.*;

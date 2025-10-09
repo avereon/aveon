@@ -3,9 +3,9 @@ package com.avereon.aveon;
 import com.avereon.util.TextUtil;
 import com.avereon.xenon.Xenon;
 import com.avereon.xenon.XenonProgramProduct;
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.exception.ResourceException;
-import com.avereon.xenon.asset.ResourceType;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.exception.ResourceException;
+import com.avereon.xenon.resource.ResourceType;
 import javafx.scene.control.TextInputDialog;
 import lombok.CustomLog;
 

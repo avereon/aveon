@@ -1,8 +1,8 @@
 package com.avereon.aveon;
 
 import com.avereon.product.Rb;
-import com.avereon.xenon.asset.Resource;
-import com.avereon.xenon.asset.Codec;
+import com.avereon.xenon.resource.Resource;
+import com.avereon.xenon.resource.Codec;
 import lombok.CustomLog;
 
 import java.io.IOException;
